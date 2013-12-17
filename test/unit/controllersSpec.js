@@ -8,9 +8,7 @@ describe('controllers', function(){
 
   it('should ....', inject(function() {
     //spec body
+    expect(true).toBe(true);
   }));
 
-  it('should ....', inject(function() {
-    //spec body
-  }));
 });*/

@@ -3,14 +3,254 @@
 <head>
 	<meta charset="utf-8">
 	<title>Таймер</title>
+	<link rel="stylesheet" href="css/timerwood.css">
 
+	<!--<script src="http://mr-woodman.ru/js/typogrid.js"></script>-->
+
+	<script src="js/funnyphrases.js"></script>
+	
+	<!--  Импорт из старых таймеров -->
+	<script src="lib/jquery-1.7.2.min.js"></script>
+	<script src="lib/jstorage.js"></script>
 </head>
-<body ng-app="timerApp">
+<body ng-app="TimerwoodApp">
+
+	<div class="help"><a title="Меню и помощь">&equiv;</a></div>
+
+	<div ng-controller="TimerCtrl" ng-class="[status, type]">
+		<div class="path" ng-show="type != 'simple'">
+			<a ng-click="newTask()">+ новая задача</a> / 
+			<a>apollo</a> / 
+			<a>choister</a> / 
+			<a>Инфографика</a>
+		</div>
+		<a class="new-subtask" ng-click="newSubTask()" ng-show="type != 'simple'" title="Текущая задача становится группой, в ней создается новая подзадача которая и станет текущей. Существующее время перенесется в подзадачу 'Разное'">разбить на подзадачи</a>
+		<a ng-click="toggleType()" title="{{typeTip[type]}}">{{ (type=="simple") && "сложный таймер →" || "← простой таймер"}}</a>
+		<button class="time" ng-click="toggle()" title="{{toggleTip[status]}}">
+			<span class="hour" ng-class="{low: info.duration < 3600000}">{{info.duration|filterMillisecondsTo:"hh"}}</span><span class="divider" ng-class="{low: info.duration < 60000}">:</span><span class="min" ng-class="{low: info.duration < 60000}">{{info.duration|filterMillisecondsTo:"mm":true}}</span>
+			<span class="sec">{{info.duration|filterMillisecondsTo:"ss":true}}</span>
+			<span class="ms">{{info.duration|filterMillisecondsTo:"ms":true}}</span>
+		</button>
+		<input class="task" type="text" value="{{task.name}}" ng-show="type != 'simple'">
+	</div>
+
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+	<div>&nbsp;</div>
+
+	<div class="switch-views" ng-controller="SwitchViewCtrl">
+
+		<nav>
+			<!-- <a ng-click="nextView()">Переключить вид</a> &rarr; -->
+			<a ng-click="currentView = 'task'" title="">задачи</a>
+			<a ng-click="currentView = 'date'" title="">дни</a>
+			<a ng-click="currentView = 'storage'" title="Формат хранения задач на сервере, недавние вверху. Для низкоуровневого редактирования и дебага">хранилище</a>
+		</nav>
+
+		<!-- Задачи -->
+		<div class="view" ng-class="{show: currentView == 'task'}" ng-init="recentTasks = false">
+			<section class="recent">
+				<ul class="task-list">
+					<li class="group">
+						<div class="task"><a class="name">Scified</a><span class="duration">34 часа 41 мин</span></div>
+						<ul>
+							<li><div class="task"><span class="duration">00:53</span><a class="name">Все звёзды</a></div></li>
+							<li><div class="task"><span class="duration">01:30</span><a>Все сериалы</a></div></li>
+							<li><div class="task"><span class="duration">02:41</span><a class="name">Меню в шапке</a></div></li>
+							<li><div class="task"><span class="duration">29:01</span><a class="name">искореняем пассатижи</a></div></li>
+						</ul>
+					</li>
+					<li class="group">
+						<div class="task"><a class="name">sk2014</a><span class="duration">6 часов 58 мин</span></div>
+						<ul>
+							<li>
+								<div class="task"><span class="duration">06:58</span><a class="name">Доработка road</a></div>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+
+			<div class="toggle-all">
+				<a ng-click="recentTasks = !recentTasks">
+					{{recentTasks && "Скрыть" || "Показать"}} ранние задачи
+				</a>
+			</div>
+
+			<section class="all" ng-show="recentTasks == true">
+				<ul class="task-list">
+					<li><div class="task"><span class="duration">16:10</span><a class="name">Ползунок Ариеса</a></div></li>
+					<li><div class="task"><span class="duration">22:38</span><a class="name">ТАО-медиа</a></div></li>
+					<li class="group">
+						<div class="task"><a class="name">Choister</a><span class="duration">12 часов 7 мин</span></div>
+						<ul>
+							<li><div class="task"><span class="duration">01:20</span><a class="name">Глюки в таблице</a></div></li>
+							<li class="group">
+								<div class="task"><span class="name">Инфографика</span><span class="duration">7 часов 39 мин</span></div>
+								<ul>
+									<li><div class="task"><span class="duration">02:10</span><span class="name">Оптимизация</span></div></li>
+									<li class="group">
+										<div class="task"><span class="name">ВК не работает</span><span class="duration">2 часа 6 мин</span></div>
+										<ul>
+											<li class="group">
+												<div class="task"><span class="name">Долбим трактор</span><span class="duration">2 часа 6 мин</span></div>
+												<ul>
+													<li><div class="task"><span class="duration">02:06</span><span class="name">Долбим трактор</span></div></li>
+													<li><div class="task"><span class="duration">02:06</span><span class="name">Ругаем ФБ</span></div></li>
+												</ul>
+											</li>
+											<li><div class="task"><span class="duration">02:06</span><span class="name">Ругаем ФБ</span></div></li>
+										</ul>
+									</li>
+									<li><div class="task"><span class="duration">03:10</span><span class="name">штопаем трактор</span></div></li>
+								</ul>
+							</li>
+							<li><div class="task"><span class="duration">02:30</span><span class="name">Баннеры</span></div></li>
+							<li><div class="task"><span class="duration">05:10</span><span class="name">Соцсети на главной</span></div></li>
+						</ul>
+					</li>
+					<li class="group">
+						<div class="task"><span class="name">Scified</span><span class="duration">34 часа 41 мин</span></div>
+						<ul>
+							<li><div class="task"><span class="duration">00:53</span><span class="name">Все звёзды</span></div></li>
+							<li><div class="task"><span class="duration">01:30</span><span>Все сериалы</span></div></li>
+							<li><div class="task"><span class="duration">02:41</span><span class="name">Меню в шапке</span></div></li>
+							<li><div class="task"><span class="duration">29:01</span><span class="name">искореняем пассатижи</span></div></li>
+						</ul>
+					</li>
+					<li class="group">
+						<div class="task"><span class="name">Eset</span><span class="duration">4 часов 45 мин</span></div>
+						<ul>
+							<li><div class="task"><span class="duration">02:53</span><span class="name">Викторина</span></div></li>
+						</ul>
+					</li>
+					<li class="group">
+						<div class="task"><span class="name">Azvuka</span><span class="duration">10 часов 49 мин</span></div>
+						<ul>
+							<li><div class="task"><span class="duration">03:17</span><span class="name">Шаринг</span></div></li>
+							<li><div class="task"><span class="duration">00:45</span><span class="name">Лайки</span></div></li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+		</div>
+
+		<!-- Лог -->
+		<div class="view" ng-class="{show: currentView == 'log'}">
+			dina
+		</div>
+
+		<!-- По дням -->
+		<div class="view" ng-class="{show: currentView == 'date'}" ng-init="recentDates = false">
+			<section class="recent">
+				<ul class="date-list">
+					<li>
+						<header>
+							<span class="date">Сегодня</span><span class="duration">1 час 21 мин</span>
+						</header>
+
+						<ul class="leaf-task-list">
+							<li>
+								<span class="duration">0:53</span>
+								<span class="task">
+									<a class="group">Scified</a> /
+									<a class="name">Все звёзды</a>
+								</span>
+							</li>
+							<li>
+								<span class="duration">1:06</span>
+								<span class="task">
+									<a class="group">Choister</a> / 
+									<a class="group">Инфографика</a> / 
+									<a class="name">Оптимизация</a>
+								</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+
+			<div class="toggle-all">
+				<a ng-click="recentDates = !recentDates">
+					{{recentDates && "Скрыть" || "Показать"}} ранние даты
+				</a>
+			</div>
+
+			<section class="all" ng-show="recentDates == true">
+				<ul class="date-list">
+					<li>
+						<header>
+							<span class="date">29 ноября</span><span class="duration">1 час 21 мин</span>
+						</header>
+
+						<ul class="leaf-task-list">
+							<li>
+								<span class="duration">0:20</span>
+								<span class="task">
+									<a class="group">Azvuka</a> /
+									<a class="name">Шаринг</a>
+								</span>
+							</li>
+							<li>
+								<span class="duration">3:01</span>
+								<span class="task">
+									<a class="group">Azvuka</a> / 
+									<a class="name">Лайки</a>
+								</span>
+							</li>
+						</ul>
+					</li>
+					<li>
+						<header>
+							<span class="date">20 ноября</span><span class="duration">1 час 21 мин</span>
+						</header>
+
+						<ul class="leaf-task-list">
+							<li>
+								<span class="duration">0:53</span>
+								<span class="task">
+									<a class="group">Scified</a> /
+									<a class="name">Все звёзды</a>
+								</span>
+							</li>
+							<li>
+								<span class="duration">1:06</span>
+								<span class="task">
+									<a class="group">Choister</a> / 
+									<a class="group">Инфографика</a> / 
+									<a class="name">Оптимизация</a>
+								</span>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+		</div>
+
+		<!-- Хранилище -->
+		<div class="view" ng-controller="StorageViewCtrl" ng-class="{show: currentView == 'storage'}">
+			<ul class="storage-list">
+				<li ng-repeat="entry in entries">
+					<span class="start">{{entry.start | filterDateStringTo:'dd.mm.yyyy from hh:mm'}}</span>
+					<span class="details">{{entry.details}}</span>
+					<span class="duration">{{entry.stop | filterDateStringStopToDuration:entry.start:'hour min'}}</span>
+					<!-- Управление -->
+					<a class="delete" ng-click="deleteEntry(entry)">удалить</a>
+				</li>
+			</ul>
+		</div>
+
+		
+	</div>
+
+	<footer>
+		<span style="font-size: 18px;">Таймер 3.0</span>
+		<br><span>сделано на левом берегу &trade;</span>
+	</footer>
 
 
-
-
-<script src="lib/angular.js"></script>
-<script src="app.js"></script>
+	<script src="lib/angular.js"></script>
+	<script src="js/app.js"></script>
 </body>
 </html>

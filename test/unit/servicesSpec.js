@@ -1,6 +1,6 @@
 'use strict';
 
-/* jasmine specs for services go here */
+/* jasmine specs for services go here 
 
 describe("service", function() {
 	beforeEach(module("timerApp.services"));
@@ -12,5 +12,5 @@ describe("service", function() {
 			expect(Timer.isTicking).toBe(!oldStatus); 
 		}));
 	});
-});
+});*/
 

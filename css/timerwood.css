@@ -1,0 +1,433 @@
+/* Timerwood */
+
+/*@import url(http://fonts.googleapis.com/css?family=PT+Mono&subset=cyrillic);*/
+@import url(pfbeausanspro.css);
+@import url(calibri.css);
+
+@font-face {
+    font-family: 'PT Mono';
+    src: url('ptmono-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+ul, ol {
+	list-style: none;
+}
+input:focus, button:focus, textarea:focus {
+	outline: none;
+}
+button, a {
+	cursor: pointer;
+}
+a:hover {
+	/*color: #0071BC;*/
+	/*box-shadow: inset 0px -2px 0px 0px #c2c2c2;*/
+	text-decoration: underline;
+}
+
+/* Шрифты */
+body, input, button, textarea {
+	font-family: PF Beau Sans, sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+	line-height: 27px;
+	color: #333;
+}
+*[number] {
+	font-family: PT Mono, monospace;
+}
+strong {
+	font-weight: 600;
+}
+
+/* Ближе к серёдке страница */
+body {
+	padding: 4.5em 4.5em 2em 4.5em;
+	max-width: 50em;
+	margin: 0 auto;
+	position: relative;
+}
+@media screen and (max-width: 800px) {
+	body {
+		padding-left: 2.5em;
+		padding-right: 2.5em;
+	}
+}
+@media screen and (max-width: 600px) {
+	body {
+		padding-left: 1.5em;
+		padding-right: 1.5em;
+	}
+}
+
+/* Помощь*/
+.help {
+	position: absolute;
+	right: 5.3em;
+	top: 4.5em;
+	margin-top: -36px;
+	display: inline-block;
+}
+.help a {
+	font-size: 24px;
+	padding-left: 5px;
+	text-decoration: none !important;
+}
+
+/* Футер */
+body > footer {
+	text-align: center;
+	box-shadow: 0px -1px 0px 0px #e5e5e5;
+	padding-top: 81px;
+}
+body > footer > * {
+	font-size: 14px;
+}
+
+/* Сложная кнопка старт-стоп таймера */
+div[ng-controller="TimerCtrl"] {
+	position: relative;
+	height: 3em;
+	text-align: center;
+}
+div[ng-controller="TimerCtrl"] > * {
+	display: inline-block;
+	vertical-align: top;
+	text-align: left;
+}
+div[ng-controller="TimerCtrl"] button[ng-click="toggle()"] {
+	font-weight: normal;
+	font-size: 21px;
+	color: #fff;
+	height: 51px;
+	line-height: 51px;
+	padding: 0 65px 0 1.5em;
+	text-align: left;
+	background-color: #f2f2f2;
+	box-shadow: 0 3px 0px 0px #e5e5e5;
+	color: #333;
+	border-radius: 10px;
+	z-index: 1;
+	position: relative;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	box-sizing: border-box;
+	width: 190px;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+div[ng-controller="TimerCtrl"].simple button[ng-click="toggle()"] {
+	border-radius: 10px;
+	position: relative;
+}
+div[ng-controller="TimerCtrl"].stopped button[ng-click="toggle()"]:active,
+div[ng-controller="TimerCtrl"].started button[ng-click="toggle()"] {
+	background-color: #F15A22;
+	box-shadow: 0 -3px 0px 0px #C1272D;
+	top: 3px;
+	color: #fff;
+}
+div[ng-controller="TimerCtrl"] .new-subtask {
+	position: absolute;
+	font-size: 14px;
+	bottom: -36px;
+	right: 1em;
+}
+div[ng-controller="TimerCtrl"] .path {
+	position: absolute;
+	left: 210px;
+	top: -36px;
+	font-size: 14px;
+}
+@media screen and (max-width: 900px) {
+	div[ng-controller="TimerCtrl"] .path {
+		left: 36px;
+	}
+}
+div[ng-controller="TimerCtrl"] .time {
+	position: relative;
+	font-family: PT Mono, monospace;
+}
+div[ng-controller="TimerCtrl"] .time .hour,
+div[ng-controller="TimerCtrl"] .time .divider,
+div[ng-controller="TimerCtrl"] .time .min {
+	font-size: 30px;
+	position: relative;
+	top: 2px;
+}
+div[ng-controller="TimerCtrl"].started .time .hour.low,
+div[ng-controller="TimerCtrl"].started .time .divider.low,
+div[ng-controller="TimerCtrl"].started .time .min.low {
+	opacity: 0.5;
+}
+div[ng-controller="TimerCtrl"] .time .sec {
+	font-size: 16px;
+	line-height: 20px;
+	display: block;
+	position: absolute;
+	right: 25px;
+	top: 12px;
+	width: 25px;
+	text-align: center;
+	font-weight: bold;
+}
+div[ng-controller="TimerCtrl"] .time .ms {
+	font-size: 10px;
+	line-height: normal;
+	display: block;
+	position: absolute;
+	right: 25px;
+	bottom: 12px;
+	width: 25px;
+	text-align: center;
+}
+div[ng-controller="TimerCtrl"] .task {
+	box-shadow: inset 0 0 0 1px #e5e5e5;
+	position: relative;
+	padding: 0 1em 0 215px;
+	font-size: 24px;
+	line-height: normal;
+	height: 54px;
+	width: 100%;
+	box-sizing: border-box;
+	border-radius: 10px;
+}
+div[ng-controller="TimerCtrl"] a[ng-click="toggleType()"] {
+	position: absolute;
+	bottom: -36px;
+	font-size: 14px;
+	left: 36px;
+}
+div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
+	left: 50%;
+	margin-left: -60px;
+}
+
+/* Виды списков таймера */
+.switch-views .view {
+	display: none;
+}
+.switch-views .view.show {
+	display: block;
+}
+.switch-views > nav {
+	text-align: right;
+	padding-right: 1em;
+	/*position: fixed;*/
+	/*left: 2em;*/
+	/*top: 50%;*/
+	/*margin-top: -27px;*/
+	box-shadow: 0px 1px 0px #e5e5e5;
+	font-size: 14px;
+	line-height: 27px;
+}
+.switch-views > nav a {
+	margin-left: 0.5em;
+}
+
+/* Переключение недавних задач */
+.toggle-all {
+	position: relative;
+}
+.toggle-all a {
+	font-size: 14px;
+	position: absolute;
+	top: -27px;
+	right: 1em;
+}
+.toggle-all:after {
+	content: " ";
+	position: absolute;
+	left: 0;
+	bottom: 0px;
+	height: 0px;
+	width: 100%;
+	border-bottom: solid #e5e5e5 1px;
+}
+
+/* Список задач */
+ul.task-list {
+	opacity: 1;
+}
+ul.task-list .duration {
+	font-size: 80%;
+	font-family: PT Mono, monospace;
+	opacity: 0.5;
+	margin-right: 1.5em;
+}
+ul.task-list .group > .task > .duration {
+	font-family: PF Beau Sans, sans-serif;
+	margin-right: 0;
+	margin-left: 2em;
+	opacity: 0.3;
+}
+ul.task-list li:hover {
+	/*background-color: #f6f6f6;*/
+}
+/* 1st level */
+ul.task-list > li {
+	/*box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);*/
+	padding-top: 9px;
+	padding-bottom: 27px;
+	padding-left: 18px;
+}
+.all ul.task-list > li {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.recent ul.task-list > li {
+	padding-bottom: 54px;
+}
+ul.task-list > li > ul {
+	margin-bottom: 9px;
+}
+ul.task-list > li.group {
+	padding-left: 80px;
+}
+ul.task-list > li.group > .task {
+	font-size: 30px;
+	line-height: 54px;
+}
+.recent ul.task-list > li.group > .task {
+	margin-bottom: 27px;
+}
+/* 2nd level */
+ul.task-list > li > ul > li > ul {
+	margin-bottom: 27px;
+}
+ul.task-list > li > ul > li > .task {
+	font-size: 18px;
+	line-height: 27px;
+}
+ul.task-list > li > ul > li.group {
+	margin-left: 63px;
+}
+ul.task-list > li > ul > li.group > .task {
+	line-height: 54px;
+}
+/* 3rd level */
+ul.task-list > li > ul > li > ul > li ul {
+	margin-bottom: 27px;
+}
+ul.task-list > li > ul > li > ul > li .task {
+	font-size: 14px;
+	line-height: 27px;
+}
+ul.task-list > li > ul > li > ul li.group {
+	margin-left: 52px;
+}
+
+/* Хронология задач по дате */
+.date-list > li {
+	/*box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);*/
+	padding: 9px 2em 18px 2em;
+	position: relative;
+}
+.date-list > li:hover {
+	/*background-color: whitesmoke;*/
+}
+.date-list header {
+	font-size: 24px;
+	line-height: 54px;
+	margin-bottom: 9px;
+}
+.date-list header .date {
+	font-weight: 400;
+}
+.date-list header .duration {
+	font-size: 80%;
+	opacity: 0.3;
+	margin-left: 2em;
+}
+.recent .date-list header {
+	font-size: 30px;
+	margin-bottom: 27px;
+}
+.recent .date-list header .date {
+	font-weight: 300;
+}
+.recent .date-list > li {
+	padding-bottom: 54px;
+}
+
+/* Простой список тасков */
+.leaf-task-list li {
+	padding: 0px 1em;
+	width: 100%;
+	position: relative;
+	left: -1em; 
+}
+.leaf-task-list li:hover {
+	/*background-color: whitesmoke;*/
+}
+.leaf-task-list .duration {
+	font-family: PT Mono, monospace;
+	opacity: 0.3;
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 80%;
+	margin-right: 1.5em;
+}
+.leaf-task-list .task {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 18px;
+}
+
+
+/* Список записей хранилища */
+.storage-list {
+	font-family: PT Mono, monospace;
+	font-size: 14px;
+	padding-top: 9px;
+	box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);
+}
+.storage-list li {
+	position: relative;
+	padding: 0 1em;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.storage-list .start {
+	opacity: 0.3;
+	font-size: 12px;
+}
+.storage-list .duration {
+	opacity: 0.5;
+	font-size: 14px;
+}
+.storage-list .delete {
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: none;
+}
+@media screen and (max-width: 1000px) {
+	.storage-list .start,
+	.storage-list .duration,
+	.storage-list .details {
+		display: block;
+	}
+	.storage-list .delete {
+		top: auto;
+		bottom: 0;
+	}
+	.storage-list li {
+		margin-top: 27px;
+	}
+}
+.storage-list li:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.storage-list li:hover .delete {
+	display: inline-block;
+	font-family: PF Beau Sans, sans-serif;
+	margin-right: 1em;
+}
