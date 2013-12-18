@@ -380,6 +380,9 @@ ul.task-list > li > ul > li > ul li.group {
 	vertical-align: middle;
 	font-size: 18px;
 }
+.leaf-task-list .task span:last-child {
+	display: none;
+}
 
 
 /* Список записей хранилища */

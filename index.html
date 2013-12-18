@@ -45,6 +45,7 @@
 			<!-- <a ng-click="nextView()">Переключить вид</a> &rarr; -->
 			<a ng-click="currentView = 'task'" title="">задачи</a>
 			<a ng-click="currentView = 'date'" title="">дни</a>
+			<a ng-click="currentView = 'log'" title="">лог</a>
 			<a ng-click="currentView = 'storage'" title="Формат хранения задач на сервере, недавние вверху. Для низкоуровневого редактирования и дебага">хранилище</a>
 		</nav>
 
@@ -136,34 +137,22 @@
 			</section>
 		</div>
 
-		<!-- Лог -->
-		<div class="view" ng-class="{show: currentView == 'log'}">
-			dina
-		</div>
-
 		<!-- По дням -->
-		<div class="view" ng-class="{show: currentView == 'date'}" ng-init="recentDates = false">
+		<div class="view" ng-controller="DateViewCtrl" ng-class="{show: currentView == 'date'}" ng-init="recentDates = false">
+			
 			<section class="recent">
 				<ul class="date-list">
-					<li>
+					<li ng-repeat="entry in recentEntries=(entries | filter:recent)">
 						<header>
-							<span class="date">Сегодня</span><span class="duration">1 час 21 мин</span>
+							<span class="date">{{entry.date | filterDateStringTo:'dd MM today'}}</span><span class="duration">{{ tasksDuration(entry.tasks) | filterMillisecondsTo:'hour min' }}</span>
 						</header>
 
 						<ul class="leaf-task-list">
-							<li>
-								<span class="duration">0:53</span>
+							<li ng-repeat="task in entry.tasks">
+								<span class="duration">{{task.getDuration() | filterMillisecondsTo:'h:mm'}}</span>
 								<span class="task">
-									<a class="group">Scified</a> /
-									<a class="name">Все звёзды</a>
-								</span>
-							</li>
-							<li>
-								<span class="duration">1:06</span>
-								<span class="task">
-									<a class="group">Choister</a> / 
-									<a class="group">Инфографика</a> / 
-									<a class="name">Оптимизация</a>
+									<a ng-repeat-start="name in task.name">{{name}}</a>
+									<span ng-repeat-end> / </span>
 								</span>
 							</li>
 						</ul>
@@ -179,47 +168,17 @@
 
 			<section class="all" ng-show="recentDates == true">
 				<ul class="date-list">
-					<li>
+					<li ng-repeat="entry in entries | filter:excludeRecent">
 						<header>
-							<span class="date">29 ноября</span><span class="duration">1 час 21 мин</span>
+							<span class="date">{{entry.date | filterDateStringTo:'dd MM today'}}</span><span class="duration">{{ tasksDuration(entry.tasks) | filterMillisecondsTo:'hour min' }}</span>
 						</header>
 
 						<ul class="leaf-task-list">
-							<li>
-								<span class="duration">0:20</span>
+							<li ng-repeat="task in entry.tasks">
+								<span class="duration">{{task.getDuration() | filterMillisecondsTo:'h:mm'}}</span>
 								<span class="task">
-									<a class="group">Azvuka</a> /
-									<a class="name">Шаринг</a>
-								</span>
-							</li>
-							<li>
-								<span class="duration">3:01</span>
-								<span class="task">
-									<a class="group">Azvuka</a> / 
-									<a class="name">Лайки</a>
-								</span>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<header>
-							<span class="date">20 ноября</span><span class="duration">1 час 21 мин</span>
-						</header>
-
-						<ul class="leaf-task-list">
-							<li>
-								<span class="duration">0:53</span>
-								<span class="task">
-									<a class="group">Scified</a> /
-									<a class="name">Все звёзды</a>
-								</span>
-							</li>
-							<li>
-								<span class="duration">1:06</span>
-								<span class="task">
-									<a class="group">Choister</a> / 
-									<a class="group">Инфографика</a> / 
-									<a class="name">Оптимизация</a>
+									<a ng-repeat-start="name in task.name">{{name}}</a>
+									<span ng-repeat-end> / </span>
 								</span>
 							</li>
 						</ul>
@@ -234,14 +193,26 @@
 				<li ng-repeat="entry in entries">
 					<span class="start">{{entry.start | filterDateStringTo:'dd.mm.yyyy from hh:mm'}}</span>
 					<span class="details">{{entry.details}}</span>
-					<span class="duration">{{entry.stop | filterDateStringStopToDuration:entry.start:'hour min'}}</span>
+					<span class="duration">{{entry.stop | filterDateStringStopToDuration:entry.start:'hour min'}}</span> {{ $index }}
 					<!-- Управление -->
 					<a class="delete" ng-click="deleteEntry(entry)">удалить</a>
 				</li>
 			</ul>
 		</div>
 
-		
+		<!-- Лог -->
+		<div class="view" ng-controller="LogViewCtrl" ng-class="{show: currentView == 'log'}">
+			<ul class="storage-list">
+				<li ng-repeat="entry in log.entries">
+					<span class="start">{{entry.time.start | filterDateStringTo:'dd.mm.yyyy from hh:mm'}}</span>
+					<span class="details">{{entry.details}}</span>
+					<span class="duration">{{entry.time.stop | filterDateStringStopToDuration:entry.time.start:'hour min'}}</span> {{ $index }}
+					<!-- Управление -->
+					<a class="delete" ng-click="deleteEntry(entry)">удалить</a>
+				</li>
+			</ul>
+		</div>
+
 	</div>
 
 	<footer>
@@ -252,5 +223,7 @@
 
 	<script src="lib/angular.js"></script>
 	<script src="js/app.js"></script>
+	<script src="js/filters.js"></script>
+	<script src="js/services.js"></script>
 </body>
 </html>

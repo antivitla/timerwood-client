@@ -1,25 +1,33 @@
 /* Timerwood */
 
 // Модель временного промежутка (знает таск, к которому относится)
-function TimeNode() {
-	this.start = new Date();
-	this.stop = new Date();
-	this.task = null;
+function TimeNode(obj) {
+	obj = obj ? obj : {};
+	this.start = obj.start ? obj.start : new Date();
+	this.stop = obj.stop ? obj.stop : new Date();
+	this.task = obj.task ? obj.task : null;
 }
 TimeNode.prototype.getDuration = function() {
 	return this.stop-this.start;
 }
 
+// // Модель записи лога
+// function LogNode(obj) {
+// 	obj = obj ? obj : {};
+// 	this.time = obj.time ? obj.time : new TimeNode();
+// 	this.details = obj.details ? obj.details : [];
+// }
+
 // Модель задачи (узел иерархии, знает родителя и детей)
-function TaskNode() {
-	this.name = window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача"
+function TaskNode(obj) {
+	obj = obj ? obj : {};
+	this.name = obj.name ? obj.name : (window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача");
 	this.children = [];
 	this.parent = null;
-	this.time = [];
-	this.attachTime(new TimeNode());
+	this.time = obj.time ? (obj.time.length > 0 ? obj.time : []) : [];
 }
 TaskNode.prototype._attachChild = function(child) {
-	this.children.push(child);
+	this.children.unshift(child);
 	child.parent = this;
 }
 TaskNode.prototype.attachTask = function(task) {
@@ -34,7 +42,7 @@ TaskNode.prototype.attachTask = function(task) {
 	this._attachChild(task);
 }
 TaskNode.prototype.attachTime = function(timenode) {
-	this.time.push(timenode);
+	this.time.unshift(timenode);
 	timenode.task = this;
 }
 TaskNode.prototype.getDuration = function() {
@@ -60,247 +68,23 @@ TaskNode.prototype.getDuration = function() {
 
 
 // Глобальное хранилище данных таймера
-var Timerwood = {};
-// В виде Лога таймера
-Timerwood.Log = {};
-// В виде иерархии Задач
-Timerwood.Tasks = {};
-// Хранилище в формате сервера (из него восстанавливаем лог)
-Timerwood.Storage = {
-	entries: []
+var Timerwood = {
+	Log: {
+		entries: []
+	},
+	// В виде иерархии Задач
+	Tasks: {
+		entries: []
+	},
+	// Хранилище в формате сервера (из него восстанавливаем лог)
+	Storage: {
+		entries: []
+	}
 };
 
-/*	
-	В броузере первичный список - список промежутков времени TimeNode (Лог). Зависимый от него - список задач TaskNode, иерархичный.
-
-	Мы должны мочь импортировать данные из старых таймеров.
-
-	Мы должны уметь хранить на сервере данные. Используем для этого список объектов:
-
-		{ 
-			start: (date), 
-			stop: (stop), 
-			details: ["group", "group", "task"]
-		}
-
-	details хранит путь к задаче, к которой принадлежит данная запись таймера.
-
-	ТУДУ: мы должны уметь искать записи. Удалить конкретную запись. Возможно дата начала есть уникальный идентификатор. Но тогда нужно сделать чтоб при редактировании времени создавать уникальное время автоматически (проверить на сервере?) - а то случайно сделаем начало такое же как и у старой-старой задачи. А с другой стороны - может ли такое быть? Разве что специально ломать.
-
-	Так или иначе нужно иметь некую копию или фейк для тестов - серверное хранилище Storage, где хранятся данные в серверном формате.
-*/
-
-Timerwood.isImportDone = false;
-Timerwood.importData = function(timerdata) {
-	if(!timerdata) return [];
-	else if(timerdata && timerdata.length < 1) return [];
-	// мы должны взять хранилище в старом формате и преобразовать (добавить) эти данные в наш формат - серверный.
-	var convertedEntries = [];
-	// version 1
-	if(timerdata[0].start != undefined && timerdata[0].end != undefined && timerdata[0].notes != undefined) {
-		convertedEntries = importFromTimer_1(timerdata);
-	}
-	// version 2
-	else if(timerdata[0].start != undefined && timerdata[0].stop != undefined && timerdata[0].details != undefined) {
-		convertedEntries = importFromTimer_2(timerdata);
-	}
-
-	// из таймера версии 1
-	function importFromTimer_1(data) {
-		var entries = [];
-		for(var i = 0; i < data.length; i++) {
-			if(data[i].end)
-			entries.unshift({
-				start: data[i].start,
-				stop: data[i].end,
-				details: JSON.stringify([(data[i].notes != "" ? data[i].notes : funnyPhrase())])
-			});
-		}
-		return entries;
-	}
-
-	// из таймера версии 2
-	function importFromTimer_2(data) {
-		var entries = [];
-		for(var i = 0; i < data.length; i++) {
-			entries.unshift({
-				start: data[i].start,
-				stop: data[i].stop,
-				details: JSON.stringify(data[i].details)
-			});
-		}
-		return entries;
-	}
-
-	return convertedEntries;
-};
-// мы должны уметь добавить запись(и) к серверному списку, аргумент это массив новых записей
-Timerwood.Storage.add = function(array) {
-	this.entries = this.entries.concat(array);
-	this.sortByStart(-1);
-}
-// удаляем записи, в качестве идентификатора - время
-Timerwood.Storage.remove = function(date) {
-	//this.entries.unshift(entry);
-}
-// редактируем запись, в качестве индентификатора - время. 
-Timerwood.Storage.update = function(olddate, newentry) {
-	this.entries.unshift(entry);
-}
-// получить запись?
-Timerwood.Storage.get = function(date) {
-	this.entries.unshift(entry);
-}
-// сортируем
-Timerwood.Storage.sortByStart = function(direction) {
-	this.entries.sort(function(a,b) { return (direction?direction:-1)*(new Date(a.start) - new Date(b.start)); });
-} 
 
 // app
-angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters"])
-	.value("Timerwood", Timerwood);
-
-// filters
-angular.module("TimerwoodApp.filters", [])
-	.filter("filterMillisecondsTo", function() {
-		return function(ms, format, isPart) {
-			if(format == "hh" && !isPart) {
-				var hrs = parseInt(ms/3600000);
-				return ("0"+hrs).slice(-2);
-			}
-			if(format == "mm" && isPart) {
-				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
-				return ("0"+mins).slice(-2);
-			}
-			if(format == "ss" && isPart) {
-				var secs = parseInt((ms - parseInt(ms/60000)*60000) / 1000);
-				return ("0"+secs).slice(-2);
-			}
-			if(format == "ms" && isPart) {
-				var millisecs = parseInt(ms - parseInt(ms/1000)*1000);
-				return ("00"+millisecs).slice(-3);
-			}
-			return ms;
-		}
-	})
-	.filter("filterDateStringTo", function() {
-		return function(dateString, format) {
-			var d = new Date(dateString);
-			var yy = d.getFullYear();
-			var mm = d.getMonth()+1;
-			var dd = d.getDate();
-			var hh = d.getHours();
-			var min = d.getMinutes();
-			var output = dateString;
-			if(format == "dd.mm.yyyy") {
-				output = ("0"+dd).slice(-2)+"."+("0"+mm).slice(-2)+"."+yy;
-			}
-			else if(format == "dd.mm.yyyy from hh:mm") {
-				output = ("0"+dd).slice(-2)+"."+("0"+mm).slice(-2)+"."+yy+" в "+("0"+hh).slice(-2)+":"+("0"+min).slice(-2);
-			}
-			else if(format == "dd.mm.yyyy, hh:mm") {
-				output = ("0"+dd).slice(-2)+"."+("0"+mm).slice(-2)+"."+yy+", "+("0"+hh).slice(-2)+":"+("0"+min).slice(-2);
-			}
-			return output;
-		}
-	})
-	.filter("filterDateStringStopToDuration", function() {
-		return function(stopDateString, startDateString, format) {
-			var duration = (new Date(stopDateString)) - (new Date(startDateString));
-			var output = duration;
-			var hh = parseInt(duration / (1000*60*60));
-			var mm = parseInt((duration-hh*60*60*1000) / (60*1000));
-
-			function niceRussianHourEnding(hr) {
-				var lastDigit = parseInt(("0"+hr).slice(-1));
-				var lastTwoDigits = parseInt(("0"+hr).slice(-2));
-				var result = "часов";
-				if(lastTwoDigits > 10 && lastTwoDigits < 20) {
-					result = "часов";
-				}
-				else if(lastDigit == 2 || lastDigit == 3 || lastDigit == 4) {
-					result = "часа";
-				}
-				else if(hr == 1) {
-					result = "час";
-				}
-				return result;
-
-			}
-			if(format == "hh:mm") {
-				output = ("0"+hh).slice(-2)+":"+("0"+mm).slice(-2);
-			}
-			else if(format == "hour min") {
-				output = (hh>0?(hh+" "+niceRussianHourEnding(hh)+" "):"")+mm+" мин";
-			}
-			return output;
-		}
-	});
-
-// services
-angular.module("TimerwoodApp.services", [])
-	.factory("Storage", ["Timerwood", function(Timerwood) {
-		// импортируем старые данные, проверить чтоб только один раз
-		if(!Timerwood.isImportDone) {
-			var timerdata1 = Timerwood.importData(JSON.parse($.jStorage.get("timer",-1)).periods)
-			var timerdata2 = Timerwood.importData(JSON.parse(localStorage.getItem("Timerwood-Log")));
-
-			// добавляем в наш Storage
-			Timerwood.Storage.add(timerdata1);
-			Timerwood.Storage.add(timerdata2);
-
-			// Больше не импортируем
-			Timerwood.isImportDone = true;
-		}
-
-		return Timerwood.Storage;
-	}])
-	.factory("TimerClock", ["$timeout", function($timeout) {
-		var ticking = false;
-		var startDate = new Date();
-		var stopDate = new Date();
-		var info = {
-			start: new Date(),
-			stop: new Date(),
-			duration: 0
-		}
-		function tick() {
-			stopDate = new Date();
-			info.stop = stopDate;
-			info.start = startDate;
-			info.duration = stopDate - startDate;
-			if(ticking) {
-				$timeout(tick, parseInt(Math.random()*50+20));
-			}
-		}
-		function startTick() {
-			startDate = new Date();
-			ticking = true;
-			tick();
-		}
-		function stopTick() {
-			ticking = false;
-		}
-		return {
-			start: function() {
-				startTick();
-			},
-			stop: function() {
-				stopTick();
-			},
-			ticking: function() {
-				return ticking;
-			},
-			getStartDate: function() {
-				return time.start;
-			},
-			toggle: function() {
-				if(ticking) stopTick();
-				else startTick();
-			},
-			info: info
-		}
-	}]);
+angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters"]);
 
 // controllers
 angular.module("TimerwoodApp.controllers", [])
@@ -353,7 +137,7 @@ angular.module("TimerwoodApp.controllers", [])
 	}])
 	.controller("SwitchViewCtrl", ["$scope", function($scope) {
 		var views = ["task", "date", "log", "storage"];
-		$scope.currentView = "task";
+		$scope.currentView = "date";
 		$scope.nextView = function() {
 			var nextId = views.indexOf($scope.currentView) + 1;
 			$scope.currentView = views[nextId >= views.length ? 0 : nextId];
@@ -372,4 +156,83 @@ angular.module("TimerwoodApp.controllers", [])
 				}
 			}
 		}
+	}])
+	.controller("DateViewCtrl", ["$scope", "Storage", function($scope, Storage) {
+		$scope.entries = [];
+		for(var i = 0; i < Storage.entries.length; i++) {
+			// перем первую дату
+			var d = Storage.entries[i].start.split("T")[0];
+			// если она не равна предыдущей, создаем новый день
+			if(i > 0) {
+				if(d != Storage.entries[i-1].start.split("T")[0]) {
+					$scope.entries.push({
+						date: new Date(Storage.entries[i].start),
+						tasks: []
+					});
+				}
+			}
+			// (создаём первый день)
+			else {
+				$scope.entries.push({
+					date: new Date(Storage.entries[i].start),
+					tasks: []
+				});
+			}
+			var lastDay = $scope.entries[$scope.entries.length-1];
+			// смотрим список тасков
+			var t = Storage.entries[i].details;
+			// если в текущем дне не было таких тасков, создаём
+			var foundTask = findTask(lastDay.tasks, t)
+			if(!foundTask) {
+				lastDay.tasks.push(new TaskNode({
+					name: JSON.parse(Storage.entries[i].details)
+				}));
+			}
+			var lastTask = lastDay.tasks[lastDay.tasks.length-1];
+			lastTask.time.push(new TimeNode({
+				start: new Date(Storage.entries[i].start),
+				stop: new Date(Storage.entries[i].stop),
+			}));
+		}
+
+		function findTask(arr, str) {
+			for(var i = 0; i < arr.length; i++) {
+				if(JSON.stringify(arr[i].name) == str) return arr[i];
+			}
+			return false;
+		}
+
+		$scope.tasksDuration = function(tasks) {
+			var dur = 0;
+			for(var i = 0; i < tasks.length; i++) {
+				dur = dur + tasks[i].getDuration();
+			}
+			return dur;
+		}
+
+		// фильтруем недавнее
+		var recentCount = 1; // сколько дней в недавние запихнуть
+		$scope.recent = function(item) {
+			return $scope.entries.indexOf(item) > recentCount-1 ? false : true;
+		};
+		$scope.excludeRecent = function(item) {
+			return $scope.entries.indexOf(item) > recentCount-1 ? true : false;
+		};
+	}])
+	.controller("LogViewCtrl", ["$scope", "Storage", function($scope, Storage) {
+		var Log = function(storageEntries) {
+			this.entries = [];
+			// восставливаем из записей хранилища
+			for(var i = 0; i < (storageEntries ? storageEntries.length : 0); i++) {
+				var time = new TimeNode({
+					start: new Date(storageEntries[i].start),
+					stop: new Date(storageEntries[i].stop)
+				});
+				this.entries.push({
+					time: time,
+					details: JSON.parse(storageEntries[i].details)
+				});
+			}
+		}
+		$scope.log = new Log(Storage.entries);
 	}]);
