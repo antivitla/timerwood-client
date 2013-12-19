@@ -113,8 +113,7 @@ angular.module("TimerwoodApp.controllers", [])
 		function ticklistener() {
 			// сохраняем в хранилище новую длительность и детали (вдруг редактировали)
 			Storage.updateEntry(currentEntry, {
-				stop: $scope.info.stop,
-				details: $scope.details
+				stop: $scope.info.stop
 			});
 		};
 
