@@ -60,16 +60,15 @@ angular.module("TimerwoodApp.filters", [])
 			return ms;
 		}
 	})
-	.filter("filterDateStringTo", function() {
-		return function(dateString, format) {
-			var d = new Date(dateString);
+	.filter("filterDateTo", function() {
+		return function(d, format) {
 			var yy = d.getFullYear();
 			var mm = d.getMonth()+1;
 			var month = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 			var dd = d.getDate();
 			var hh = d.getHours();
 			var min = d.getMinutes();
-			var output = dateString;
+			var output = "";
 			if(format == "dd.mm.yyyy") {
 				output = ("0"+dd).slice(-2)+"."+("0"+mm).slice(-2)+"."+yy;
 			}
@@ -80,8 +79,9 @@ angular.module("TimerwoodApp.filters", [])
 				output = ("0"+dd).slice(-2)+"."+("0"+mm).slice(-2)+"."+yy+", "+("0"+hh).slice(-2)+":"+("0"+min).slice(-2);
 			}
 			else if(format == "dd MM today") {
-				if(JSON.stringify(d).split("T")[0] == JSON.stringify(new Date()).split("T")[0]) {
-					output = "Сегодня";
+				var today = new Date();
+				if(dd == today.getDate() && mm == today.getMonth()+1 && yy == today.getFullYear()) {
+					output = "Сегодня, " + dd + " " + month[mm-1];
 				}
 				else {
 					output = dd + " " + month[mm-1];

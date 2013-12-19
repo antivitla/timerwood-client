@@ -1,86 +1,79 @@
 /* Timerwood */
 
 // Модель временного промежутка (знает таск, к которому относится)
-function TimeNode(obj) {
-	obj = obj ? obj : {};
-	this.start = obj.start ? obj.start : new Date();
-	this.stop = obj.stop ? obj.stop : new Date();
-	this.task = obj.task ? obj.task : null;
-}
-TimeNode.prototype.getDuration = function() {
-	return this.stop-this.start;
-}
+// function TimeNode(obj) {
+// 	obj = obj ? obj : {};
+// 	this.start = obj.start ? obj.start : new Date();
+// 	this.stop = obj.stop ? obj.stop : new Date();
+// 	this.task = obj.task ? obj.task : null;
+// }
+// TimeNode.prototype.getDuration = function() {
+// 	return this.stop-this.start;
+// }
 
-// // Модель записи лога
+// Модель записи лога
 // function LogNode(obj) {
 // 	obj = obj ? obj : {};
-// 	this.time = obj.time ? obj.time : new TimeNode();
 // 	this.details = obj.details ? obj.details : [];
 // }
+// LogNode.prototype = TimeNode.prototype;
 
 // Модель задачи (узел иерархии, знает родителя и детей)
-function TaskNode(obj) {
-	obj = obj ? obj : {};
-	this.name = obj.name ? obj.name : (window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача");
-	this.children = [];
-	this.parent = null;
-	this.time = obj.time ? (obj.time.length > 0 ? obj.time : []) : [];
-}
-TaskNode.prototype._attachChild = function(child) {
-	this.children.unshift(child);
-	child.parent = this;
-}
-TaskNode.prototype.attachTask = function(task) {
-	// если не было детей, перенести накопленное время в новую подзадачу
-	if(this.children.length == 0) {
-		var newtask = new TaskNode();
-		newtask.time = this.time;
-		this.time = [];
-		this._attachChild(newtask);
-	}
-	// а теперь можно и добавить присланный таск
-	this._attachChild(task);
-}
-TaskNode.prototype.attachTime = function(timenode) {
-	this.time.unshift(timenode);
-	timenode.task = this;
-}
-TaskNode.prototype.getDuration = function() {
-	var duration = 0;
-	if(this.children.length > 0) {
-		for(var i = 0; i < this.children.length; i++) {
-			duration += this.children[i].getDuration();
-		}
-	}
-	else {
-		for(var k = 0; k < this.time.length; k++) {
-			duration += this.time[k].getDuration();
-		}
-	}
-	return duration;
-}
-
-// // Импорт данных из таймеров
-// function importTimerData(options) {
-// 	return "zok";
+// function TaskNode(obj) {
+// 	obj = obj ? obj : {};
+// 	this.name = obj.name ? obj.name : (window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача");
+// 	this.children = [];
+// 	this.parent = null;
+// 	this.time = obj.time ? (obj.time.length > 0 ? obj.time : []) : [];
+// }
+// TaskNode.prototype._attachChild = function(child) {
+// 	this.children.unshift(child);
+// 	child.parent = this;
+// }
+// TaskNode.prototype.attachTask = function(task) {
+// 	// если не было детей, перенести накопленное время в новую подзадачу
+// 	if(this.children.length == 0) {
+// 		var newtask = new TaskNode();
+// 		newtask.time = this.time;
+// 		this.time = [];
+// 		this._attachChild(newtask);
+// 	}
+// 	// а теперь можно и добавить присланный таск
+// 	this._attachChild(task);
+// }
+// TaskNode.prototype.attachTime = function(timenode) {
+// 	this.time.unshift(timenode);
+// 	timenode.task = this;
+// }
+// TaskNode.prototype.getDuration = function() {
+// 	var duration = 0;
+// 	if(this.children.length > 0) {
+// 		for(var i = 0; i < this.children.length; i++) {
+// 			duration += this.children[i].getDuration();
+// 		}
+// 	}
+// 	else {
+// 		for(var k = 0; k < this.time.length; k++) {
+// 			duration += this.time[k].getDuration();
+// 		}
+// 	}
+// 	return duration;
 // }
 
-
-
 // Глобальное хранилище данных таймера
-var Timerwood = {
-	Log: {
-		entries: []
-	},
-	// В виде иерархии Задач
-	Tasks: {
-		entries: []
-	},
-	// Хранилище в формате сервера (из него восстанавливаем лог)
-	Storage: {
-		entries: []
-	}
-};
+// var Timerwood = {
+// 	Log: {
+// 		entries: []
+// 	},
+// 	// В виде иерархии Задач
+// 	Tasks: {
+// 		entries: []
+// 	},
+// 	// Хранилище в формате сервера (из него восстанавливаем лог)
+// 	Storage: {
+// 		entries: []
+// 	}
+// };
 
 
 // app
@@ -88,52 +81,68 @@ angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.servic
 
 // controllers
 angular.module("TimerwoodApp.controllers", [])
-	.controller('TimerCtrl', ["$scope", "TimerClock", function($scope, TimerClock) {
+	.controller('TimerCtrl', ["$scope", "TimerClock", "Storage", function($scope, TimerClock, Storage) {
 		// Состояние
 		$scope.status = "stopped";
-		$scope.type = "simple";
+		$scope.type = "complex";
 		$scope.info = TimerClock.info;
+		$scope.details = [(window.funnyPhrase ? window.funnyPhrase() : "Задача "+(new Date()).getTime()*Math.random())]; // имя задачи от юзера
 
-		// $scope.$watch("info.stop", function(newValue, oldValue) {
-		// 	updateCurrentTask(newValue);
-		// });
-		// function updateCurrentTask(stopDate) {
-		// 	$scope.currentTask.time[0].stop = stopDate;
-		// }
+		// Ссылка на текущую запись в Хранилище
+		var currentEntry = {};
 
-		// Загрузить предыдущий сохраненный в localStorage текущий таск (или например самый последний из Лога, если не было сохраненного)
-		// Текущий таск - это ссылка на таск в иерархии тасков (или логе - там одни и те же объекты). Но при этом для удобства отображения, мы должны уметь выводить общую длительность таска, причем... чтоб $apply работал. То есть таск хранит обновляемую инфу о длительностях периодов времени входящих в него. Возможно это значит нужно создавать таски через angular-систему
-
-		// Тексты
+		// Тексты UI
 		$scope.typeTip = {
 			"simple" : "С возможностью создавать иерархию задач",
 			"complex" : ""
-		}
+		};
 		$scope.toggleTip = {
 			"started" : "Остановить таймер",
 			"stopped" : "Запустить таймер"
+		};
+
+		// сохраняем имя таска каждое нажатие клавиши
+		$scope.save = function(details) {
+			if($scope.status == "started")
+			Storage.updateEntry(currentEntry, {
+				details: $scope.details
+			});
 		}
 
-		$scope.task = {
-			name : funnyPhrase()
-		}
-		// Переключаем
+		// Тик таймера...
+		function ticklistener() {
+			// сохраняем в хранилище новую длительность и детали (вдруг редактировали)
+			Storage.updateEntry(currentEntry, {
+				stop: $scope.info.stop,
+				details: $scope.details
+			});
+		};
+
+		// Вкл/Выкл таймера
 		$scope.toggle = function() {
 			if($scope.status == "stopped") {
 				$scope.status = "started";
+				TimerClock.addTickListener(ticklistener);
 				TimerClock.start();
+				// новая запись в хранилище
+				currentEntry = Storage.addEntry({
+					start: $scope.info.start,
+					stop: $scope.info.stop,
+					details: $scope.details
+				});
 			}
 			else if($scope.status == "started") {
 				$scope.status = "stopped";
 				TimerClock.stop();
+				TimerClock.removeTickListener(ticklistener);
 			}
-		}
-		$scope.newTask = function() {
-			$scope.task.name = funnyPhrase();
-		}
+		};
+
+		// Переключатель типа UI таймера (сложный/простой)
 		$scope.toggleType = function() {
 			$scope.type = ($scope.type == "simple" ? "complex" : "simple");
-		}
+		};
+
 	}])
 	.controller("SwitchViewCtrl", ["$scope", function($scope) {
 		var views = ["task", "date", "log", "storage"];
@@ -147,92 +156,119 @@ angular.module("TimerwoodApp.controllers", [])
 	.controller("StorageViewCtrl", ["$scope", "Storage", function($scope, Storage) {
 		$scope.entries = Storage.entries;
 		$scope.deleteEntry = function(entry) {
-			// ищем по дате
-			var searchDate = (new Date(entry.start)).getTime();
-			for(var i = 0; i < $scope.entries.length; i++) {
-				if( (new Date($scope.entries[i].start)).getTime() == searchDate) {
-					// нашли, удаляем
-					$scope.entries.splice(i,1);
-				}
-			}
+			Storage.removeEntry(entry);
 		}
 	}])
 	.controller("DateViewCtrl", ["$scope", "Storage", function($scope, Storage) {
-		$scope.entries = [];
-		for(var i = 0; i < Storage.entries.length; i++) {
-			// перем первую дату
-			var d = Storage.entries[i].start.split("T")[0];
-			// если она не равна предыдущей, создаем новый день
-			if(i > 0) {
-				if(d != Storage.entries[i-1].start.split("T")[0]) {
-					$scope.entries.push({
-						date: new Date(Storage.entries[i].start),
-						tasks: []
-					});
+		$scope.days = []; // массив дней
+		
+		// восстанавливаем его из хранилища первоначально
+		function restoreDays() {
+			// очистка списка
+			$scope.days = [];
+			// только если не пустой список
+			if(Storage.entries.length > 0) {
+				// добавляем первый день и первый таск
+				$scope.days.push(new DayEntry({
+					date: Storage.entries[0].start,
+					tasks: [new TaskEntry({
+						details: Storage.entries[0].details,
+						time: [Storage.entries[0]]
+					})]
+				}));
+
+				// добавляем остальные дни
+				for(var i = 1; i < Storage.entries.length; i++) {
+					// если дата не равна предыдущей, делаем новый день c пустым списком тасков
+					if(!sameDate(Storage.entries[i].start, Storage.entries[i-1].start)) {
+						$scope.days.push(new DayEntry({
+							date: Storage.entries[i].start,
+							tasks: []
+						}));
+					}
+					// теперь добавляем таск к дню (к последнему добавленному)
+					var lastDay = $scope.days[$scope.days.length - 1];
+					// создаём новый если в этот день такого таска не было
+					var foundTask = false;
+					for(var j = 0; j < lastDay.tasks.length; j++) {
+						if(JSON.stringify(Storage.entries[i].details) == JSON.stringify(lastDay.tasks[j].details)) {
+							foundTask = lastDay.tasks[j];
+						}
+					}
+					if(!foundTask) {
+						lastDay.tasks.push(new TaskEntry({
+							details: Storage.entries[i].details,
+							time: [Storage.entries[i]]
+						}));
+					}
+					// в противном случае добавляем к найденному сущесвующему в этот день таску
+					else {
+						foundTask.time.push(Storage.entries[i]);
+					}
 				}
 			}
-			// (создаём первый день)
-			else {
-				$scope.entries.push({
-					date: new Date(Storage.entries[i].start),
-					tasks: []
-				});
-			}
-			var lastDay = $scope.entries[$scope.entries.length-1];
-			// смотрим список тасков
-			var t = Storage.entries[i].details;
-			// если в текущем дне не было таких тасков, создаём
-			var foundTask = findTask(lastDay.tasks, t)
-			if(!foundTask) {
-				lastDay.tasks.push(new TaskNode({
-					name: JSON.parse(Storage.entries[i].details)
-				}));
-			}
-			var lastTask = lastDay.tasks[lastDay.tasks.length-1];
-			lastTask.time.push(new TimeNode({
-				start: new Date(Storage.entries[i].start),
-				stop: new Date(Storage.entries[i].stop),
-			}));
 		}
+		restoreDays();
 
-		function findTask(arr, str) {
-			for(var i = 0; i < arr.length; i++) {
-				if(JSON.stringify(arr[i].name) == str) return arr[i];
-			}
-			return false;
-		}
-
-		$scope.tasksDuration = function(tasks) {
-			var dur = 0;
-			for(var i = 0; i < tasks.length; i++) {
-				dur = dur + tasks[i].getDuration();
-			}
-			return dur;
-		}
+		// привязываем перевосстановление при изменениях
+		Storage.addListener("add", function() { restoreDays(); console.log("adddd"); });
+		Storage.addListener("remove", function() { restoreDays(); console.log("remove"); });
 
 		// фильтруем недавнее
 		var recentCount = 1; // сколько дней в недавние запихнуть
-		$scope.recent = function(item) {
-			return $scope.entries.indexOf(item) > recentCount-1 ? false : true;
+		$scope.recent = function(day) {
+			return $scope.days.indexOf(day) > recentCount-1 ? false : true;
 		};
-		$scope.excludeRecent = function(item) {
-			return $scope.entries.indexOf(item) > recentCount-1 ? true : false;
+		$scope.excludeRecent = function(day) {
+			return $scope.days.indexOf(day) > recentCount-1 ? true : false;
 		};
+
+		console.log($scope.days);
+
+		function TaskEntry(obj) {
+			this.details = obj.details;
+			this.time = obj.time;
+
+		};
+		TaskEntry.prototype.getDuration = function() {
+			var duration = 0;
+			for(var i = 0; i < this.time.length; i++) {
+				duration += this.time[i].stop - this.time[i].start;
+			}
+			return duration;
+		}
+
+		function DayEntry(obj) {
+			this.date = obj.date ? obj.date : new Date();
+			this.tasks = obj.tasks;
+		};
+		DayEntry.prototype.getDuration = function() {
+			var duration = 0;
+			for(var i = 0; i < this.tasks.length; i++) {
+				duration += this.tasks[i].getDuration();
+			}
+			return duration;
+		}
+
+		function sameDate(d1, d2) {
+			return (d1.getDate() == d2.getDate()) && (d1.getMonth() == d2.getMonth()) && (d1.getFullYear() == d2.getFullYear());
+		}
+
 	}])
 	.controller("LogViewCtrl", ["$scope", "Storage", function($scope, Storage) {
-		var Log = function(storageEntries) {
-			this.entries = [];
-			// восставливаем из записей хранилища
-			for(var i = 0; i < (storageEntries ? storageEntries.length : 0); i++) {
-				var time = new TimeNode({
-					start: new Date(storageEntries[i].start),
-					stop: new Date(storageEntries[i].stop)
-				});
-				this.entries.push({
-					time: time,
-					details: JSON.parse(storageEntries[i].details)
-				});
-			}
-		}
-		$scope.log = new Log(Storage.entries);
+		// var Log = function(storageEntries) {
+		// 	this.entries = [];
+		// 	// восставливаем из записей хранилища
+		// 	for(var i = 0; i < (storageEntries ? storageEntries.length : 0); i++) {
+		// 		var time = new TimeNode({
+		// 			start: new Date(storageEntries[i].start),
+		// 			stop: new Date(storageEntries[i].stop)
+		// 		});
+		// 		this.entries.push({
+		// 			time: time,
+		// 			details: JSON.parse(storageEntries[i].details)
+		// 		});
+		// 	}
+		// }
+		// $scope.log = new Log(Storage.entries);
 	}]);
