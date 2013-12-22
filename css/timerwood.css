@@ -29,6 +29,7 @@ a:hover {
 	/*color: #0071BC;*/
 	/*box-shadow: inset 0px -2px 0px 0px #c2c2c2;*/
 	text-decoration: underline;
+	/*box-shadow: inset 0 -1px 0px 0px #000;*/
 }
 
 /* Шрифты */
@@ -118,6 +119,8 @@ div[ng-controller="TimerCtrl"] button[ng-click="toggle()"] {
 	border-bottom-right-radius: 0;
 	border-top-right-radius: 0;
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	width: 190px;
 	position: absolute;
 	left: 0;
@@ -168,23 +171,23 @@ div[ng-controller="TimerCtrl"].started .time .min.low {
 	opacity: 0.5;
 }
 div[ng-controller="TimerCtrl"] .time .sec {
-	font-size: 16px;
-	line-height: 20px;
+	font-size: 15px;
+	line-height: 1em;
 	display: block;
 	position: absolute;
 	right: 25px;
-	top: 12px;
+	top: 15px;
 	width: 25px;
 	text-align: center;
 	font-weight: bold;
 }
 div[ng-controller="TimerCtrl"] .time .ms {
 	font-size: 10px;
-	line-height: normal;
+	line-height: 1em;
 	display: block;
 	position: absolute;
 	right: 25px;
-	bottom: 12px;
+	bottom: 11px;
 	width: 25px;
 	text-align: center;
 }
@@ -197,6 +200,8 @@ div[ng-controller="TimerCtrl"] .task {
 	height: 54px;
 	width: 100%;
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	border-radius: 10px;
 }
 div[ng-controller="TimerCtrl"] a[ng-click="toggleType()"] {
@@ -224,7 +229,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	/*left: 2em;*/
 	/*top: 50%;*/
 	/*margin-top: -27px;*/
-	box-shadow: 0px 1px 0px #e5e5e5;
+	box-shadow: 0px 1px 0px 0px #e5e5e5;
 	font-size: 14px;
 	line-height: 27px;
 }
@@ -271,6 +276,21 @@ ul.task-list .group > .task > .duration {
 ul.task-list li:hover {
 	/*background-color: #f6f6f6;*/
 }
+ul.task-list li > .task > .duration.leaf {
+	display: inline;
+}
+ul.task-list li > .task > .duration.group {
+	display: none;
+}
+ul.task-list li.group > .task > .duration.leaf {
+	display: none;
+}
+ul.task-list li.group > .task > .duration.group {
+	display: inline;
+}
+ul.task-list li {
+	position: relative;
+}
 /* 1st level */
 ul.task-list > li {
 	/*box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);*/
@@ -283,6 +303,7 @@ ul.task-list > li {
 }
 .recent ul.task-list > li {
 	padding-bottom: 54px;
+	padding-top: 27px;
 }
 ul.task-list > li > ul {
 	margin-bottom: 9px;
@@ -326,7 +347,7 @@ ul.task-list > li > ul > li > ul li.group {
 /* Хронология задач по дате */
 .date-list > li {
 	/*box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);*/
-	padding: 9px 2em 18px 2em;
+	padding: 9px 0 18px 2em;
 	position: relative;
 }
 .date-list > li:hover {
@@ -354,14 +375,15 @@ ul.task-list > li > ul > li > ul li.group {
 }
 .recent .date-list > li {
 	padding-bottom: 54px;
+	padding-top: 27px;
 }
 
 /* Простой список тасков */
 .leaf-task-list li {
-	padding: 0px 1em;
-	width: 100%;
+	/*padding: 0px 1em;*/
+	/*width: 100%;*/
 	position: relative;
-	left: -1em; 
+	/*left: -1em; */
 }
 .leaf-task-list li:hover {
 	/*background-color: whitesmoke;*/
@@ -383,14 +405,55 @@ ul.task-list > li > ul > li > ul li.group {
 .leaf-task-list .task span:last-child {
 	display: none;
 }
-
+.leaf-task-list .controls {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	display: none;
+	font-family: PF Beau Sans, sans-serif;
+	margin-right: 1em;
+	font-size: 14px;
+}
+.leaf-task-list li.hover-task:hover {
+	box-shadow: none;
+}
+.leaf-task-list li.hover-task:hover .controls {
+	display: none;
+}
+.leaf-task-list .controls > * {
+	margin-left: 0.5em;
+}
+.leaf-task-list .controls .delete {
+	color: #F15A22;
+}
+.leaf-task-list br.show-on-mobile {
+	 display: none;
+}
+@media screen and (max-width: 1000px) {
+	.leaf-task-list br.show-on-mobile {
+		display: block;
+	}
+	.leaf-task-list .controls {
+		top: auto;
+		bottom: 0;
+	}
+	.leaf-task-list li {
+		margin-top: 27px;
+	}
+}
+.leaf-task-list li:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.leaf-task-list li:hover .controls {
+	display: inline-block;
+} 
 
 /* Список записей хранилища */
 .storage-list {
 	font-family: PT Mono, monospace;
 	font-size: 14px;
-	padding-top: 9px;
-	box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);
+	padding-top: 0px;
+	padding-bottom: 0px;
 }
 .storage-list li {
 	position: relative;
@@ -401,24 +464,49 @@ ul.task-list > li > ul > li > ul li.group {
 .storage-list .start {
 	opacity: 0.3;
 	font-size: 12px;
+	cursor: pointer;
+}
+.storage-list .start:hover {
+	opacity: 1;
+	text-decoration: underline;
 }
 .storage-list .duration {
 	opacity: 0.5;
 	font-size: 14px;
+	cursor: pointer;
 }
-.storage-list .delete {
+.storage-list .duration:hover {
+	opacity: 1;
+	text-decoration: underline;
+}
+.storage-list .details {
+	cursor: pointer;
+}
+.storage-list .details:hover {
+	text-decoration: underline;
+}
+.storage-list .controls {
 	position: absolute;
 	right: 0;
 	top: 0;
 	display: none;
+	font-family: PF Beau Sans, sans-serif;
+	margin-right: 1em;
+}
+.storage-list .controls > * {
+	margin-left: 0.5em;
+}
+.storage-list .controls .delete {
+	color: #F15A22;
+}
+.storage-list br.show-on-mobile {
+	 display: none;
 }
 @media screen and (max-width: 1000px) {
-	.storage-list .start,
-	.storage-list .duration,
-	.storage-list .details {
+	.storage-list br.show-on-mobile {
 		display: block;
 	}
-	.storage-list .delete {
+	.storage-list .controls {
 		top: auto;
 		bottom: 0;
 	}
@@ -429,8 +517,6 @@ ul.task-list > li > ul > li > ul li.group {
 .storage-list li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
-.storage-list li:hover .delete {
+.storage-list li:hover .controls {
 	display: inline-block;
-	font-family: PF Beau Sans, sans-serif;
-	margin-right: 1em;
 }
