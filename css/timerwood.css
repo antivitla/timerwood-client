@@ -32,6 +32,16 @@ a:hover {
 	/*box-shadow: inset 0 -1px 0px 0px #000;*/
 }
 
+input[type="text"] {
+	font-size: 24px;
+	height: 54px;
+	box-shadow: inset 0px 0px 0px 1px #eeeeee;
+	padding: 0 0.625em;
+	display: inline-block;
+	vertical-align: middle;
+	border-radius: 5px;
+}
+
 /* Шрифты */
 body, input, button, textarea {
 	font-family: PF Beau Sans, sans-serif;
@@ -343,6 +353,16 @@ ul.task-list > li > ul > li > ul > li .task {
 ul.task-list > li > ul > li > ul li.group {
 	margin-left: 52px;
 }
+.task .sub-task {
+	display: none;
+	cursor: pointer;
+	font-size: 14px;
+	line-height: 27px;
+	margin: 0 0 0 2em;
+}
+.task:hover .sub-task {
+	display: inline;
+}
 
 /* Хронология задач по дате */
 .date-list > li {
@@ -414,12 +434,12 @@ ul.task-list > li > ul > li > ul li.group {
 	margin-right: 1em;
 	font-size: 14px;
 }
-.leaf-task-list li.hover-task:hover {
+/*.leaf-task-list li.hover-task:hover {
 	box-shadow: none;
 }
 .leaf-task-list li.hover-task:hover .controls {
 	display: none;
-}
+}*/
 .leaf-task-list .controls > * {
 	margin-left: 0.5em;
 }
@@ -441,12 +461,12 @@ ul.task-list > li > ul > li > ul li.group {
 		margin-top: 27px;
 	}
 }
-.leaf-task-list li:hover {
+/*.leaf-task-list li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
 .leaf-task-list li:hover .controls {
 	display: inline-block;
-} 
+} */
 
 /* Список записей хранилища */
 .storage-list {
@@ -464,26 +484,27 @@ ul.task-list > li > ul > li > ul li.group {
 .storage-list .start {
 	opacity: 0.3;
 	font-size: 12px;
-	cursor: pointer;
+	/*cursor: pointer;*/
 }
-.storage-list .start:hover {
+/*.storage-list .start:hover {
 	opacity: 1;
 	text-decoration: underline;
-}
+}*/
 .storage-list .duration {
 	opacity: 0.5;
 	font-size: 14px;
-	cursor: pointer;
+	/*cursor: pointer;*/
 }
-.storage-list .duration:hover {
+/*.storage-list .duration:hover {
 	opacity: 1;
 	text-decoration: underline;
-}
+}*/
 .storage-list .details {
 	cursor: pointer;
 }
 .storage-list .details:hover {
 	text-decoration: underline;
+	/*box-shadow: 0px 1px 0px 0px #000;*/
 }
 .storage-list .controls {
 	position: absolute;
@@ -519,4 +540,54 @@ ul.task-list > li > ul > li > ul li.group {
 }
 .storage-list li:hover .controls {
 	display: inline-block;
+}
+
+/* Диалог */
+.modal-backdrop {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255,255,255,0.5);
+	display: none;
+}
+.modal-wrapper {
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255,255,255,0.75);
+	text-align: center;
+}
+.modal-wrapper:before {
+	content: " ";
+	display: inline-block;
+	vertical-align: middle;
+	width: 1px;
+	height: 100%;
+}
+.modal {
+	padding: 27px;
+	min-height: 27px;
+	background-color: #fff;
+	border-radius: 10px;
+	box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+	display: inline-block;
+	vertical-align: middle;
+}
+
+/* Разные инпуты в диалогах */
+input.date {
+	width: 150px;
+	font-family: PT Mono, monospace;
+	text-align: center;
+}
+input[type=text].time {
+	width: 100px;
+	font-family: PT Mono, monospace;
+	text-align: center;
 }

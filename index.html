@@ -40,7 +40,8 @@
 			ng-model="details" 
 			ng-list=","
 			ng-keydown="save($event);"
-			placeholder="{{funnytask}}">
+			placeholder="{{funnytask}}"
+			tw-focus-on-subtask>
 	</div>
 
 	<div>&nbsp;</div>
@@ -102,13 +103,26 @@
 		<div class="view" ng-controller="StorageViewCtrl" ng-class="{show: currentView == 'storage'}">
 			<ul class="storage-list">
 				<li ng-repeat="entry in entries">
-					<span class="start" title="Изменить время начала">{{entry.start | filterDateTo:'dd.mm.yyyy from hh:mm'}}</span>
+					<span 
+						class="start" 
+						ng-click="openEditStartDateDialog(entry.start)">{{entry.start | filterDateTo:'dd.mm.yyyy'}}</span> 
+					<span class="start">в</span> 
+					<span 
+						class="start" 
+						ng-click="openEditStartTimeDialog(entry.start)">{{entry.start | filterDateTo: 'hh:mm'}}</span>
+
 					<br class="show-on-mobile">
+
 					<span class="details" title="Запустить задачу" ng-click="start(entry.details)" scroll-top-on-click>{{entry.details}}</span>
+
 					<br class="show-on-mobile">
-					<span class="duration" title="Изменить длительность">{{entry.stop - entry.start | filterMillisecondsTo:'hour min'}}</span>
+
+					<span 
+						class="duration" 
+						ng-click="openEditDurationDialog(entry.stop - entry.start)">{{entry.stop - entry.start | filterMillisecondsTo:'hour min'}}</span>
+
 					<span class="controls">
-						<a class="edit" ng-click="editEntry(entry)">редактировать</a>
+						<!-- <a class="edit" ng-click="editEntry(entry)">редактировать</a> -->
 						<a class="delete" ng-click="deleteEntry(entry)">удалить</a>
 					</span>
 				</li>
@@ -121,9 +135,42 @@
 		<br><span>сделано на левом берегу &trade;</span>
 	</footer>
 
+	<!-- Попап редактирования длительности -->
+	<script type="text/ng-template" id="edit-duration">
+		<p>Длительность:</p>
+		<form ng-submit="ok()">
+			<input class="duration" type="text" ng-model="duration" placeholder="0ч 0м" tw-duration-input> 
+			<p>&nbsp;</p>
+			<button type="submit" style="text-decoration: underline; font-size: 14px; background-color: transparent;">изменить</button> 
+			&nbsp; &nbsp;
+			<button ng-click="cancel()" style="text-decoration: underline; font-size: 14px; background-color: transparent; opacity: 0.5;">закрыть</button>
+		</form>
+	</script>
+
+	<!-- Попап редактирования времени начала -->
+	<script type="text/ng-template" id="edit-time">
+		<p>Время начала:</p>
+		<form ng-submit="ok()">
+			<input class="time" type="text" ng-model="time" placeholder="чч:мм" tw-time-input> 
+			<p>&nbsp;</p>
+			<button type="submit" style="text-decoration: underline; font-size: 14px; background-color: transparent;">изменить</button> 
+			&nbsp; &nbsp;
+			<button ng-click="cancel()" style="text-decoration: underline; font-size: 14px; background-color: transparent; opacity: 0.5;">закрыть</button>
+		</form>
+	</script>
+
+	<!-- Попап редактирования даты начала -->
+	<script type="text/ng-template" id="edit-date">
+		<form ng-submit="ok(form.date.$error.date)">
+			<input class="date" type="text" ng-model="date" placeholder="дд.мм.гггг" tw-date-input>
+			<br>
+			<span class="error" ng-show="form.dateInput.$error.date" style="font-size: 12px;">Неверная дата</span> 
+		</form>
+	</script>
+
 	<!-- Шаблон задачи -->
 	<script type="text/ng-template" id="task-template">
-		<div class="task"><span class="duration leaf">{{task.getDuration() | filterMillisecondsTo:'hh:mm'}}</span><a class="name" title="Продолжить задачу">{{task.name}}</a><span class="duration group">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span></div>
+		<div class="task"><span class="duration leaf">{{task.getDuration() | filterMillisecondsTo:'hh:mm'}}</span><a class="name" title="Продолжить задачу" ng-click="start(task)" scroll-top-on-click>{{task.name}}</a><a class="sub-task" ng-click="subTask(task)" scroll-top-on-click>создать подзадачу</a><span class="duration group">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span></div>
 		<ul ng-show="task.children.length > 0">
 			<li ng-repeat="task in task.children" ng-include="'task-template'" ng-class="{group: task.children.length > 0}">
 		</ul>
@@ -143,15 +190,16 @@
 					<span ng-repeat-start="name in task.details">{{name}}</span>
 					<span ng-repeat-end> / </span>
 				</a>
-				<span class="controls">
+				<!--<span class="controls">
 					<a class="edit" ng-click="editEntry(entry)">редактировать</a>
 					<a class="delete" ng-click="deleteEntry(entry)">удалить</a>
-				</span>
+				</span>-->
 			</li>
 		</ul>
 	</script>
 
 	<script src="lib/angular.js"></script>
+	<script src="lib/ui-bootstrap-custom-tpls-0.7.0.js"></script>
 	<script src="js/app.js"></script>
 	<script src="js/filters.js"></script>
 	<script src="js/services.js"></script>

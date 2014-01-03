@@ -86,6 +86,9 @@ angular.module("TimerwoodApp.filters", [])
 				else {
 					output = dd + " " + month[mm-1];
 				}
+			}
+			else if(format == "hh:mm") {
+				output = ("0"+hh).slice(-2)+":"+("0"+min).slice(-2);
 			}			
 			return output;
 		}

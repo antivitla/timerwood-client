@@ -5,7 +5,7 @@ Timerwood 3.0
 */
 
 // app
-angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters", "TimerwoodApp.directives"]);
+angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters", "TimerwoodApp.directives", "ui.bootstrap"]);
 
 // controllers
 angular.module("TimerwoodApp.controllers", [])
@@ -54,6 +54,23 @@ angular.module("TimerwoodApp.controllers", [])
 				startTimer();
 			} 
 		});
+
+		// Кто-то хочет сделать новый под-таск
+		$scope.$on("startNewSubTask", function(event, data) {
+			// делаем на паузе (останавливаем таймер, если работает)
+			if($scope.status == "started") {
+				stopTimer();
+			}
+			// задаём детали + новый псевдотаск
+			data.taskDetails.push(window.funnyPhrase ? window.funnyPhrase() : "Задача " + (new Date()).getTime()*Math.random());
+			console.log(data.taskDetails)
+			$scope.details = data.taskDetails;
+			$timeout(function(){
+				$scope.$broadcast("focusNewSubTask");
+				// или может быть всё-таки стартуем
+				startTimer();
+			}, 100);
+		})
 
 		// Вкл/Выкл таймера
 		$scope.status = "stopped";
@@ -122,16 +139,21 @@ angular.module("TimerwoodApp.controllers", [])
 	}])
 	.controller("SwitchViewCtrl", ["$scope", "$rootScope", "Storage", function($scope, $rootScope, Storage) {
 		$scope.storage = Storage.entries;
-		$scope.currentView = "date"; // date, storage, task
-		$scope.changeView = function(view) {
-			$scope.currentView = view;
+		$scope.currentView = window.localStorage ? (window.localStorage.getItem("Timerwood-view") ? window.localStorage.getItem("Timerwood-view") : "task") : "task"; // date, storage, task
+		$scope.$watch("currentView", updateView);
+
+		function updateView() {
+			if(window.localStorage)  {
+				console.log($scope.currentView);
+				window.localStorage.setItem("Timerwood-view", $scope.currentView);
+			}
 			// Нам нужно передать в таймер состояние переключателя
 			$rootScope.$broadcast("changeView", {
-				currentView: view
+				currentView: $scope.currentView
 			});
 		}
 	}])
-	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", function($scope, Storage, $rootScope) {
+	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$modal", function($scope, Storage, $rootScope, $modal) {
 		$scope.entries = Storage.entries; // массив записей Хранилища
 
 		/*
@@ -159,6 +181,26 @@ angular.module("TimerwoodApp.controllers", [])
 		}
 		$scope.editEntry = function(entry) {
 			console.log("Storage Edit call!")
+		}
+		$scope.openEditStartDateDialog = function(editDate) {
+			var modalInstance = $modal.open({
+				templateUrl: 'edit-date',
+				controller: "EditDateCtrl",
+				resolve: {
+					date: function () {
+						return editDate;
+					}
+				}
+			});
+
+			modalInstance.result.then(function (selectedDate) {
+				// ok
+				//editDate = selectedDate;
+				console.log(editDate.getDate(), selectedDate.getDate());
+			}, function (selectedDate) {
+				// cancel
+				console.log('cancel selectedDate: ' + selectedDate);
+			});
 		}
 	}])
 	.controller("DateViewCtrl", ["$scope", "$rootScope", "Days", function($scope, $rootScope, Days) {
@@ -199,7 +241,61 @@ angular.module("TimerwoodApp.controllers", [])
 		$scope.excludeRecent = function(task) {
 			return $scope.tasks.indexOf(task) > $scope.recentCount-1 ? true : false;
 		};
+
+		/* При нажатии на таск, стартуем его */
+		$scope.start = function(task) {
+			$rootScope.$broadcast("startNewTask", {
+				taskDetails: restoreDetails(task)
+			});
+		}
+
+		/* создаём под-таск */
+		$scope.subTask = function(task) {
+			$rootScope.$broadcast("startNewSubTask", {
+				taskDetails: restoreDetails(task)
+			});
+		}
+
+		/* Хелперы */
+		function restoreDetails(task) {
+			// пытаемся взять детали сразу из одной из временных промежутков
+			var details = task.time.length > 0 ? angular.copy(task.time[0].details) : [];
+			if(!(details.length > 0)) {
+				// если время пустое, придется по родителями собирать детали
+				var node = task;
+				while(node) {
+					details.unshift(node.name);
+					node = node.parent;
+				}
+			}
+			return details;
+		}
 	}])
 	.controller("FooterCtrl", ["$scope", "Storage", function($scope, Storage) {
 		$scope.storage = Storage.entries;
+	}])
+	.controller("EditDateCtrl", ["$scope", "$modalInstance", "date", function($scope, $modalInstance, date) {
+		var d = new Date(date);
+		$scope.date = ("0"+d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." + d.getFullYear();
+
+		$scope.$watch("date", function() {
+			console.log("date change");
+		});
+
+		console.log("form", $scope.form);
+
+		$scope.ok = function(error) {
+			console.log(error);
+			if(!error) {
+				console.log(d, $scope.date);
+				var temp = $scope.date.split(".");
+				d.setDate(parseInt(temp[0]));
+				d.setMonth(parseInt(temp[1])-1);
+				d.setYear(parseInt(temp[2]));
+				$modalInstance.close(d);
+			}
+		}
+		$scope.cancel = function() {
+			$modalInstance.dismiss("cancel");
+		}
 	}]);
