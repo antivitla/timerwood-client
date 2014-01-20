@@ -9,7 +9,7 @@ angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.servic
 
 // controllers
 angular.module("TimerwoodApp.controllers", [])
-	.controller('TimerCtrl', ["$scope", "TimerClock", "Storage", "$timeout", function($scope, TimerClock, Storage, $timeout) {
+	.controller('TimerCtrl', ["$scope", "$rootScope", "TimerClock", "Storage", "$timeout", function($scope, $rootScope, TimerClock, Storage, $timeout) {
 		// Состояние таймера		
 		$scope.info = TimerClock.info;
 
@@ -63,7 +63,6 @@ angular.module("TimerwoodApp.controllers", [])
 			}
 			// задаём детали + новый псевдотаск
 			data.taskDetails.push(window.funnyPhrase ? window.funnyPhrase() : "Задача " + (new Date()).getTime()*Math.random());
-			console.log(data.taskDetails)
 			$scope.details = data.taskDetails;
 			$timeout(function(){
 				$scope.$broadcast("focusNewSubTask");
@@ -103,12 +102,14 @@ angular.module("TimerwoodApp.controllers", [])
 			});
 			TimerClock.addTickListener(ticklistener);
 			TimerClock.start();
+			$rootScope.$broadcast("timerStatus", $scope.status);
 		}
 
 		function stopTimer() {
 			$scope.status = "stopped";
 			TimerClock.removeTickListener(ticklistener);
 			TimerClock.stop();
+			$rootScope.$broadcast("timerStatus", $scope.status);
 		}
 
 		// Переключатель типа UI таймера (сложный/простой)
@@ -144,7 +145,6 @@ angular.module("TimerwoodApp.controllers", [])
 
 		function updateView() {
 			if(window.localStorage)  {
-				console.log($scope.currentView);
 				window.localStorage.setItem("Timerwood-view", $scope.currentView);
 			}
 			// Нам нужно передать в таймер состояние переключателя
@@ -182,32 +182,12 @@ angular.module("TimerwoodApp.controllers", [])
 		$scope.editEntry = function(entry) {
 			console.log("Storage Edit call!")
 		}
-		$scope.openEditStartDateDialog = function(editDate) {
-			var modalInstance = $modal.open({
-				templateUrl: 'edit-date',
-				controller: "EditDateCtrl",
-				resolve: {
-					date: function () {
-						return editDate;
-					}
-				}
-			});
-
-			modalInstance.result.then(function (selectedDate) {
-				// ok
-				//editDate = selectedDate;
-				console.log(editDate.getDate(), selectedDate.getDate());
-			}, function (selectedDate) {
-				// cancel
-				console.log('cancel selectedDate: ' + selectedDate);
-			});
-		}
 	}])
 	.controller("DateViewCtrl", ["$scope", "$rootScope", "Days", function($scope, $rootScope, Days) {
 		$scope.days = Days.entries; 
 
 		// фильтруем недавнее
-		$scope.recentCount = 1; // сколько дней в недавние запихнуть
+		$scope.recentCount = 2; // сколько дней в недавние запихнуть
 		$scope.recent = function(day) {
 			return $scope.days.indexOf(day) > $scope.recentCount-1 ? false : true;
 		};
@@ -230,11 +210,118 @@ angular.module("TimerwoodApp.controllers", [])
 			});
 		}
 
+		$scope.edit = function(task) {
+			this.$broadcast("editLastItem");
+			// инициализируем старые значения для редактирования
+			task.durationEdit = 0;
+			task.oldDetails = angular.copy(task.details)
+			task.oldStop = task.time[0].stop;
+		}
+
+		$scope.checkSubmit = function(event, task, scope) {
+			if(event.keyCode == 13) {
+				var result = $scope.save(task);
+				if(result) scope.status = 'view';
+			}
+			// hit Esc
+			else if(event.keyCode == 27) {
+				scope.status = 'view';
+			}
+		}
+
+		$scope.delete = function(task) {
+			// если это единственная задача в день, удаляем день
+			if(task.parentDay.tasks.length <= 1) {
+				task.parentDay.parentDays.removeDayEntry(task.parentDay);
+			}
+			// в противном случае просто удаляем таск 
+			else {
+				task.parentDay.removeTaskEntry(task);
+			}
+		}
+
+		$scope.save = function(task) {
+			// проходимся по каждой записи и переименовываем сначала
+			for(var i = 0; i < task.time.length; i++) {
+				task.time[i].details = task.details;				
+			}
+			Days.storage.broadcastUpdateDetails(task.time);
+
+			// проверяем, вдруг есть с таким же именем задача в дне, сливаем в одну
+			var day = task.parentDay;
+			var found = false;
+			for(var j = 0; j < day.tasks.length; j++) {
+				// не забыть пропустить текущий таск
+				if(JSON.stringify(task.details) == JSON.stringify(day.tasks[j].details) && task != day.tasks[j]) {
+					// попался
+					// мы хотим всё добавить в самый последний таск
+					if(day.tasks.indexOf(task) > i) {
+						// все время таска переносим в текущий
+						task.time = task.time.concat(day.tasks[j].time);
+						// найденный удаляем
+						day.tasks.splice(day.tasks.indexOf(day.tasks[j]), 1);
+					} else {
+						// все время текущего таска переносим в найденный
+						day.tasks[j].time = day.tasks[j].time.concat(task.time);
+						// текущий удаляем
+						day.tasks.splice(day.tasks.indexOf(task), 1);						
+					}
+				}
+			}
+
+			// теперь сохраняем длительность (если её меняли)
+			if(task.durationEdit) {
+				var newDuration = task.durationEdit.split(" ");
+				// если только одна цифра - это минуты
+				if(newDuration.length == 1) {
+					newDuration = parseInt(newDuration[0]) * 60 * 1000;
+				}
+				// если две - часы и минуты
+				else if(newDuration.length == 2) {
+					newDuration = (parseInt(newDuration[0]) * 60 * 60 * 1000) + (parseInt(newDuration[1]) * 60 * 1000)
+				}
+				// или вообще ничего не делаем
+				else return false;
+
+				// типа валидации
+				if(Boolean(newDuration)) {
+					return false;
+				}
+
+				var delta = newDuration - task.getDuration();
+				// если новая (суммарная) длительность больше старой, прибавляем время
+				if(delta > 0) {
+					task.time[0].stop.setTime(task.time[0].stop.getTime() + delta);
+				}
+				// если новая (суммарная) длительность меньше старой, имеем геморой..
+				else if(delta < 0) {
+					// если разница меньше чем длительность последней записи, отнимаем от неё
+					if(delta < task.time[0].getDuration()) {
+						task.time[0].stop.setTime(task.time[0].stop.getTime() + delta);
+					}
+					// если больше, вычитаем длительность последней. записи и удаляем её и оставшееся отнимаем от предыдущей (ТУДУ)
+				}
+				else {
+					// не номер а жопа (NaN) или нет изменений (ничего не делаем)
+				}
+			}
+
+			// сохраняем и на выход
+			Days.storage.save();
+			return true;
+		}
+
+		$scope.cancel = function(task) {
+			// восстанавливаем старые значения
+			console.log("cancel");
+			task.time[0].stop = task.oldStop;
+			task.details = task.oldDetails;
+		}
 	}])
 	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", function($scope, $rootScope, Tasks) {
 		$scope.tasks = Tasks.entries;
 		// фильтруем недавнее
-		$scope.recentCount = 1; // сколько дней в недавние запихнуть
+		$scope.recentCount = 2; // сколько дней в недавние запихнуть
 		$scope.recent = function(task) {
 			return $scope.tasks.indexOf(task) > $scope.recentCount-1 ? false : true;
 		};
@@ -242,14 +329,14 @@ angular.module("TimerwoodApp.controllers", [])
 			return $scope.tasks.indexOf(task) > $scope.recentCount-1 ? true : false;
 		};
 
-		/* При нажатии на таск, стартуем его */
+		// При нажатии на таск, стартуем его
 		$scope.start = function(task) {
 			$rootScope.$broadcast("startNewTask", {
 				taskDetails: restoreDetails(task)
 			});
 		}
 
-		/* создаём под-таск */
+		// создаём под-таск
 		$scope.subTask = function(task) {
 			$rootScope.$broadcast("startNewSubTask", {
 				taskDetails: restoreDetails(task)
@@ -273,29 +360,4 @@ angular.module("TimerwoodApp.controllers", [])
 	}])
 	.controller("FooterCtrl", ["$scope", "Storage", function($scope, Storage) {
 		$scope.storage = Storage.entries;
-	}])
-	.controller("EditDateCtrl", ["$scope", "$modalInstance", "date", function($scope, $modalInstance, date) {
-		var d = new Date(date);
-		$scope.date = ("0"+d.getDate()).slice(-2) + "." + ("0"+(d.getMonth()+1)).slice(-2) + "." + d.getFullYear();
-
-		$scope.$watch("date", function() {
-			console.log("date change");
-		});
-
-		console.log("form", $scope.form);
-
-		$scope.ok = function(error) {
-			console.log(error);
-			if(!error) {
-				console.log(d, $scope.date);
-				var temp = $scope.date.split(".");
-				d.setDate(parseInt(temp[0]));
-				d.setMonth(parseInt(temp[1])-1);
-				d.setYear(parseInt(temp[2]));
-				$modalInstance.close(d);
-			}
-		}
-		$scope.cancel = function() {
-			$modalInstance.dismiss("cancel");
-		}
 	}]);

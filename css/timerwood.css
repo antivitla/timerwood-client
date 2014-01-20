@@ -1,12 +1,10 @@
 /* Timerwood */
 
-/*@import url(http://fonts.googleapis.com/css?family=PT+Mono&subset=cyrillic);*/
-@import url(pfbeausanspro.css);
-@import url(calibri.css);
-
+@import url('../fonts/pfbeausanspro.css');
+@import url('../fonts/icomoon.css');
 @font-face {
     font-family: 'PT Mono';
-    src: url('ptmono-webfont.woff') format('woff');
+    src: url('../fonts/ptmono-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -26,21 +24,19 @@ button, a {
 	cursor: pointer;
 }
 a:hover {
-	/*color: #0071BC;*/
-	/*box-shadow: inset 0px -2px 0px 0px #c2c2c2;*/
 	text-decoration: underline;
-	/*box-shadow: inset 0 -1px 0px 0px #000;*/
 }
 
 input[type="text"] {
 	font-size: 24px;
 	height: 54px;
-	box-shadow: inset 0px 0px 0px 1px #eeeeee;
+	box-shadow: inset 0px 0px 0px 1px #e5e5e5;
 	padding: 0 0.625em;
 	display: inline-block;
 	vertical-align: middle;
 	border-radius: 5px;
 }
+
 
 /* Шрифты */
 body, input, button, textarea {
@@ -77,18 +73,9 @@ body {
 	}
 }
 
-/* Помощь*/
-.help {
-	position: absolute;
-	right: 5.3em;
-	top: 4.5em;
-	margin-top: -36px;
-	display: inline-block;
-}
-.help a {
-	font-size: 24px;
-	padding-left: 5px;
-	text-decoration: none !important;
+/* Мелкие детали */
+a.delete {
+	color: #F15A22;
 }
 
 /* Футер */
@@ -159,11 +146,6 @@ div[ng-controller="TimerCtrl"] .path {
 	top: -36px;
 	font-size: 14px;
 }
-@media screen and (max-width: 900px) {
-	div[ng-controller="TimerCtrl"] .path {
-		left: 36px;
-	}
-}
 div[ng-controller="TimerCtrl"] .time {
 	position: relative;
 	font-family: PT Mono, monospace;
@@ -226,20 +208,16 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 
 /* Виды списков таймера */
-.switch-views .view {
+.switch-views > .view {
 	display: none;
 }
-.switch-views .view.show {
+.switch-views > .view.show {
 	display: block;
 }
 .switch-views > nav {
 	text-align: right;
 	padding-right: 1em;
-	/*position: fixed;*/
-	/*left: 2em;*/
-	/*top: 50%;*/
-	/*margin-top: -27px;*/
-	box-shadow: 0px 1px 0px 0px #e5e5e5;
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 	font-size: 14px;
 	line-height: 27px;
 }
@@ -268,205 +246,179 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 
 /* Список задач */
-ul.task-list {
-	opacity: 1;
-}
-ul.task-list .duration {
-	font-size: 80%;
-	font-family: PT Mono, monospace;
-	opacity: 0.5;
-	margin-right: 1.5em;
-}
-ul.task-list .group > .task > .duration {
-	font-family: PF Beau Sans, sans-serif;
-	margin-right: 0;
-	margin-left: 2em;
-	opacity: 0.3;
-}
-ul.task-list li:hover {
-	/*background-color: #f6f6f6;*/
-}
-ul.task-list li > .task > .duration.leaf {
-	display: inline;
-}
-ul.task-list li > .task > .duration.group {
-	display: none;
-}
-ul.task-list li.group > .task > .duration.leaf {
-	display: none;
-}
-ul.task-list li.group > .task > .duration.group {
-	display: inline;
-}
-ul.task-list li {
-	position: relative;
-}
-/* 1st level */
-ul.task-list > li {
-	/*box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);*/
-	padding-top: 9px;
-	padding-bottom: 27px;
-	padding-left: 18px;
-}
-.all ul.task-list > li {
-	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
-}
-.recent ul.task-list > li {
-	padding-bottom: 54px;
+.task-list { 
 	padding-top: 27px;
 }
-ul.task-list > li > ul {
-	margin-bottom: 9px;
+.task-list .duration {
+	font-family: PT Mono, monospace;
+	opacity: 0.5;
+	font-size: 80%;
 }
-ul.task-list > li.group {
-	padding-left: 80px;
+.task-list .duration-total {
+	font-weight: 200;
+	margin-left: 1em;
+	/*opacity: 0.5;*/
 }
-ul.task-list > li.group > .task {
-	font-size: 30px;
-	line-height: 54px;
+.task-list {
+	padding-top: 27px;
 }
-.recent ul.task-list > li.group > .task {
+.task-list > li.group {
+	padding-top: 27px;
+}
+.task-list > li.group:first-child {
+	padding-top: 0px;
+}
+.task-list > li:last-child {
+	padding-bottom: 27px;
+}
+.task-list > li.group:last-child {
+	padding-bottom: 0px;
+}
+.task-list > li > .task .duration-total {
+	font-weight: 200;
+	opacity: 1;
+	font-size: 24px;
+}
+.task-list li li {
+	padding-left: 2em;
+}
+.task-list ul {
 	margin-bottom: 27px;
 }
-/* 2nd level */
-ul.task-list > li > ul > li > ul {
-	margin-bottom: 27px;
-}
-ul.task-list > li > ul > li > .task {
-	font-size: 18px;
-	line-height: 27px;
-}
-ul.task-list > li > ul > li.group {
-	margin-left: 63px;
-}
-ul.task-list > li > ul > li.group > .task {
-	line-height: 54px;
-}
-/* 3rd level */
-ul.task-list > li > ul > li > ul > li ul {
-	margin-bottom: 27px;
-}
-ul.task-list > li > ul > li > ul > li .task {
-	font-size: 14px;
-	line-height: 27px;
-}
-ul.task-list > li > ul > li > ul li.group {
-	margin-left: 52px;
-}
-.task .sub-task {
+.task-list .controls {
 	display: none;
-	cursor: pointer;
+	text-align: right;
+	vertical-align: top;
+	float: right;
+	padding-right: 14px;
 	font-size: 14px;
-	line-height: 27px;
-	margin: 0 0 0 2em;
 }
-.task:hover .sub-task {
-	display: inline;
+.task-list .controls > * {
+	margin-left: 0.5em;
+	display: inline-block;
+	vertical-align: top;
+}
+.task-list .task:hover .controls,
+.task-list .task.edit .controls {
+	display: inline-block;
+}
+.task-list .task {
+	padding-left: 14px;
+	font-size: 16px;
+}
+.task-list .task:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.task-list .task.edit {
+	box-shadow: none;
+}
+.task-list .task.selected {
+	background-color: whitesmoke;
+}
+.task-list .task.group .name:hover {
+	/*text-decoration: none;*/
+}
+.task-list > li > .task.group .name {
+	font-weight: 500;
+	font-size: 24px;
+	line-height: 27px;
+	height: 27px;
+	/*text-transform: uppercase;*/
+}
+.task-list .edit input[type=text] {
+	font-size: 16px;
+	height: 27px;
+	padding: 0 7px;
+	opacity: 1;
+	vertical-align: baseline;
+	display: inline-block;
+	box-shadow: 0px 0px 0px 1px #e5e5e5;
+	margin-left: -7px;
+	width: 50%;
 }
 
 /* Хронология задач по дате */
 .date-list > li {
-	/*box-shadow: inset 0px 1px 0px 0px rgba(0,0,0,0.1);*/
-	padding: 9px 0 18px 2em;
+	padding-top: 27px;
+	padding-bottom: 27px;
 	position: relative;
-}
-.date-list > li:hover {
-	/*background-color: whitesmoke;*/
 }
 .date-list header {
-	font-size: 24px;
 	line-height: 54px;
-	margin-bottom: 9px;
-}
-.date-list header .date {
-	font-weight: 400;
+	height: 54px;
+	padding-left: 14px;
+	font-weight: 300;
+	font-size: 24px;
 }
 .date-list header .duration {
-	font-size: 80%;
-	opacity: 0.3;
 	margin-left: 2em;
+	font-weight: 200;
 }
-.recent .date-list header {
-	font-size: 30px;
-	margin-bottom: 27px;
+.date-list li li {
+	padding-left: 14px;
+	height: 27px;
 }
-.recent .date-list header .date {
-	font-weight: 300;
+.date-list li li .task {
+	font-size: 16px;
+	display: inline-block;
+	vertical-align: top;
 }
-.recent .date-list > li {
-	padding-bottom: 54px;
-	padding-top: 27px;
-}
-
-/* Простой список тасков */
-.leaf-task-list li {
-	/*padding: 0px 1em;*/
-	/*width: 100%;*/
-	position: relative;
-	/*left: -1em; */
-}
-.leaf-task-list li:hover {
-	/*background-color: whitesmoke;*/
-}
-.leaf-task-list .duration {
+.date-list li li .duration {
 	font-family: PT Mono, monospace;
-	opacity: 0.3;
 	display: inline-block;
-	vertical-align: middle;
-	font-size: 80%;
-	margin-right: 1.5em;
-}
-.leaf-task-list .task {
-	position: relative;
-	display: inline-block;
-	vertical-align: middle;
-	font-size: 18px;
-}
-.leaf-task-list .task span:last-child {
-	display: none;
-}
-.leaf-task-list .controls {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	display: none;
-	font-family: PF Beau Sans, sans-serif;
-	margin-right: 1em;
+	vertical-align: top;
 	font-size: 14px;
+	opacity: 0.5;
 }
-/*.leaf-task-list li.hover-task:hover {
-	box-shadow: none;
-}
-.leaf-task-list li.hover-task:hover .controls {
-	display: none;
-}*/
-.leaf-task-list .controls > * {
-	margin-left: 0.5em;
-}
-.leaf-task-list .controls .delete {
-	color: #F15A22;
-}
-.leaf-task-list br.show-on-mobile {
-	 display: none;
-}
-@media screen and (max-width: 1000px) {
-	.leaf-task-list br.show-on-mobile {
-		display: block;
-	}
-	.leaf-task-list .controls {
-		top: auto;
-		bottom: 0;
-	}
-	.leaf-task-list li {
-		margin-top: 27px;
-	}
-}
-/*.leaf-task-list li:hover {
+.date-list li li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
-.leaf-task-list li:hover .controls {
+.date-list li li.edit:hover {
+	box-shadow: none;
+}
+.date-list .controls {
+	display: none;
+	text-align: right;
+	vertical-align: top;
+	float: right;
+	padding-right: 14px;
+	font-size: 14px;
+}
+.date-list li li:hover .controls {
 	display: inline-block;
-} */
+}
+.date-list li li:hover .controls > * {
+	display: inline-block;
+	vertical-align: top;
+}
+.date-list li li.edit .controls {
+	display: inline-block;
+}
+.date-list li li .controls > * {
+	margin-left: 0.5em;
+}
+.date-list .edit input[type=text] {
+	font-size: 16px;
+	height: 27px;
+	padding: 0 7px;
+	opacity: 1;
+	vertical-align: baseline;
+	display: inline-block;
+	box-shadow: 0px 0px 0px 1px #e5e5e5;
+}
+.date-list .edit input[type=text].details {
+	margin-left: -7px;
+	width: 50%;
+}
+.date-list .edit input[type=text].duration {
+	opacity: 1;
+	position: relative;
+	top: -1px;
+	width: 4em;
+}
+.leaf-task-list .task .group:first-child {
+	/*text-transform: uppercase;*/
+}
 
 /* Список записей хранилища */
 .storage-list {
@@ -481,30 +433,19 @@ ul.task-list > li > ul > li > ul li.group {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 }
-.storage-list .start {
-	opacity: 0.3;
-	font-size: 12px;
-	/*cursor: pointer;*/
-}
-/*.storage-list .start:hover {
-	opacity: 1;
-	text-decoration: underline;
-}*/
+.storage-list .start,
 .storage-list .duration {
 	opacity: 0.5;
-	font-size: 14px;
-	/*cursor: pointer;*/
 }
-/*.storage-list .duration:hover {
-	opacity: 1;
-	text-decoration: underline;
-}*/
 .storage-list .details {
 	cursor: pointer;
 }
 .storage-list .details:hover {
 	text-decoration: underline;
-	/*box-shadow: 0px 1px 0px 0px #000;*/
+}
+/* меню записи хранилища */
+.storage-list li:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
 .storage-list .controls {
 	position: absolute;
@@ -517,77 +458,8 @@ ul.task-list > li > ul > li > ul li.group {
 .storage-list .controls > * {
 	margin-left: 0.5em;
 }
-.storage-list .controls .delete {
-	color: #F15A22;
-}
-.storage-list br.show-on-mobile {
-	 display: none;
-}
-@media screen and (max-width: 1000px) {
-	.storage-list br.show-on-mobile {
-		display: block;
-	}
-	.storage-list .controls {
-		top: auto;
-		bottom: 0;
-	}
-	.storage-list li {
-		margin-top: 27px;
-	}
-}
-.storage-list li:hover {
-	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
-}
 .storage-list li:hover .controls {
 	display: inline-block;
 }
 
-/* Диалог */
-.modal-backdrop {
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(255,255,255,0.5);
-	display: none;
-}
-.modal-wrapper {
-	position: fixed;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(255,255,255,0.75);
-	text-align: center;
-}
-.modal-wrapper:before {
-	content: " ";
-	display: inline-block;
-	vertical-align: middle;
-	width: 1px;
-	height: 100%;
-}
-.modal {
-	padding: 27px;
-	min-height: 27px;
-	background-color: #fff;
-	border-radius: 10px;
-	box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
-	display: inline-block;
-	vertical-align: middle;
-}
 
-/* Разные инпуты в диалогах */
-input.date {
-	width: 150px;
-	font-family: PT Mono, monospace;
-	text-align: center;
-}
-input[type=text].time {
-	width: 100px;
-	font-family: PT Mono, monospace;
-	text-align: center;
-}

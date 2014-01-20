@@ -94,6 +94,19 @@ angular.module("TimerwoodApp.services", [])
 			// Слушатели
 			for(var i = 0; i < addEntryListeners.length; i++) { removeEntryListeners[i](entry); }
 		};
+		Storage.prototype.batchRemoveEntry = function(arr) {
+			var count = 0;
+			for(var i = 0; i < arr.length; i++) {
+				if(this.entries.indexOf(arr[i]) > -1) {
+					this.entries.splice(this.entries.indexOf(arr[i]), 1);
+					count++;
+				}
+			}
+			if(count) {
+				this.save();
+				for(var i = 0; i < addEntryListeners.length; i++) { removeEntryListeners[i](arr); }
+			}
+		}
 
 		// Изменить запись хранилища
 		Storage.prototype.updateEntry = function(entry, data) {
@@ -108,9 +121,7 @@ angular.module("TimerwoodApp.services", [])
 					updateEntryListeners[i](entry); 
 				}
 				if(data.details) {
-					for(var j = 0; j < updateEntryDetailsListeners.length; j++) { 
-						updateEntryDetailsListeners[j](entry); 
-					}
+					this.broadcastUpdateDetails([entry]);
 				}
 			}
 		}
@@ -139,6 +150,12 @@ angular.module("TimerwoodApp.services", [])
 		var removeEntryListeners = [];
 		var updateEntryListeners = [];
 		var updateEntryDetailsListeners = [];
+
+		Storage.prototype.broadcastUpdateDetails = function(tasks) {
+			for(var j = 0; j < updateEntryDetailsListeners.length; j++) { 
+				updateEntryDetailsListeners[j](tasks); 
+			}
+		}
 
 		// добавляем слушателя
 		Storage.prototype.addListener = function(type, fn) {
@@ -210,9 +227,16 @@ angular.module("TimerwoodApp.services", [])
 			this.restore();
 			// привязываем пере-восстановление при изменениях. Оно дорогое, поэтому без фанатизма
 			var self = this;
-			this.storage.addListener("add", function() { self.restore(); console.log("dateview: add"); });
-			this.storage.addListener("remove", function() { self.restore(); console.log("dateviw: remove"); });
-			this.storage.addListener("update.details", function() { self.restore(); console.log("dateview: update.details"); });
+			this._selfDelete = false;
+			this.storage.addListener("add", function() { self.restore(); });
+			this.storage.addListener("remove", function() { 
+				// только если не мы сами удалили в режиме редактирования - тогда мы уже все сделали сами
+				if(!self._selfDelete) {
+					self.restore(); 
+					self._selfDelete = false;
+				}
+			});
+			this.storage.addListener("update.details", function() { self.restore(); });
 		}
 
 		// Восстанавление из Хранилища
@@ -222,49 +246,74 @@ angular.module("TimerwoodApp.services", [])
 			// только если не пустое хранилище
 			if(this.storage.entries.length > 0) {
 				// добавляем первый день и первый таск
-				this.entries.push(new DayEntry({
-					date: this.storage.entries[0].start,
-					tasks: [new TaskEntry({
-						details: this.storage.entries[0].details,
-						time: [this.storage.entries[0]]
-					})]
-				}));
+				var firstDay = this.addDay({
+					date: this.storage.entries[0].start
+				});
+				firstDay.addTask({
+					details: this.storage.entries[0].details,
+					time: [this.storage.entries[0]]
+				})
 				// добавляем остальные дни
 				for(var i = 1; i < this.storage.entries.length; i++) {
 					// если дата не равна предыдущей, делаем новый день c пустым списком тасков
 					if(!sameDate(this.storage.entries[i].start, this.storage.entries[i-1].start)) {
-						this.entries.push(new DayEntry({
+						this.addDay({
 							date: this.storage.entries[i].start,
-							tasks: []
-						}));
+						});
 					}
 					// теперь добавляем таск к дню (к последнему добавленному)
-					var lastDay = this.entries[this.entries.length - 1];
+					var lastDay = this.lastAddedDay(); //this.entries[this.entries.length - 1];
 					// создаём новый если в этот день такого таска не было
-					var foundTask = false;
-					for(var j = 0; j < lastDay.tasks.length; j++) {
-						if(JSON.stringify(this.storage.entries[i].details) == JSON.stringify(lastDay.tasks[j].details)) {
-							foundTask = lastDay.tasks[j];
-						}
-					}
+					var foundTask = lastDay.findTaskByDetails(this.storage.entries[i].details);
 					if(!foundTask) {
-						lastDay.tasks.push(new TaskEntry({
+						lastDay.addTask({
 							details: this.storage.entries[i].details,
 							time: [this.storage.entries[i]]
-						}));
+						});
 					}
 					// в противном случае добавляем к существующему в этот день таску
 					else {
-						foundTask.time.push(this.storage.entries[i]);
+						foundTask.addTime(this.storage.entries[i]);
 					}
 				}
+			}
+		}
+
+		// Добавляем день
+		Days.prototype.addDay = function(obj) {
+			var dayEntry = new DayEntry({
+				date: obj.date,
+				parentDays: this
+			});
+			this.entries.push(dayEntry);
+			return dayEntry;
+		}
+
+		// Последний добавленный день (если сортировку задумаем)
+		Days.prototype.lastAddedDay = function() {
+			return this.entries[this.entries.length - 1];
+		}
+
+		// Удалить день
+		Days.prototype.removeDayEntry = function(day) {
+			if(this.entries.indexOf(day) > -1) {
+				// собираем все StorageEntries в кучу
+				var se = [];
+				for(var i = 0; i < day.tasks.length; i++) {
+					se = se.concat(day.tasks[i].time);
+				}
+				// удаляем всю пачку
+				if(se.length > 0) this.storage.batchRemoveEntry(se);
+				// удаляем день
+				this.entries.splice(this.entries.indexOf(day), 1);
 			}
 		}
 
 		// Модель дня (содержит задачи)
 		function DayEntry(obj) {
 			this.date = obj.date ? obj.date : new Date();
-			this.tasks = obj.tasks;
+			this.tasks = obj.tasks ? obj.tasks : [];
+			this.parentDays = obj.parentDays ? obj.parentDays : null; // link to Days interface
 		};
 		DayEntry.prototype.getDuration = function() {
 			var duration = 0;
@@ -273,11 +322,41 @@ angular.module("TimerwoodApp.services", [])
 			}
 			return duration;
 		}
+		DayEntry.prototype.addTask = function(obj) {
+			var taskEntry = new TaskEntry({
+				details: obj.details,
+				time: obj.time ? obj.time : [],
+				parentDay: this
+			});
+			this.tasks.push(taskEntry);
+			return taskEntry;
+		}
+		DayEntry.prototype.findTaskByDetails = function(details) {
+			var found = null;
+			for(var j = 0; j < this.tasks.length; j++) {
+				if(JSON.stringify(details) == JSON.stringify(this.tasks[j].details)) {
+					found = this.tasks[j];
+					break;
+				}
+			}
+			return found;
+		}
+		DayEntry.prototype.removeTaskEntry = function(task) {
+			if(this.tasks.indexOf(task) > -1) {
+				// во-первых удалить все StorageEntries
+				this.parentDays.storage.batchRemoveEntry(task.time);
+				// во-вторых удалить сам таск
+				this.tasks.splice(this.tasks.indexOf(task), 1);
+				// и пометить чтоб не перевосстанавливаться
+				this._selfDelete = true;
+			}
+		}
 
 		// Модель задачи дня
 		function TaskEntry(obj) {
-			this.details = obj.details;
-			this.time = obj.time;
+			this.details = obj.details ? obj.details : [];
+			this.time = obj.time ? obj.time : [];
+			this.parentDay = obj.parentDay ? obj.parentDay : null; // link to parent DayEntry
 		};
 		TaskEntry.prototype.getDuration = function() {
 			var duration = 0;
@@ -286,6 +365,15 @@ angular.module("TimerwoodApp.services", [])
 			}
 			return duration;
 		}
+		TaskEntry.prototype.addTime = function(storageEntry) {
+			this.time.push(storageEntry);
+			return storageEntry;
+		}
+		// TaskEntry.prototype.rename = function(details) {
+		// 	for(var i = 0; i < this.time.length; i++) {
+		// 		this.time[i].details = details;				
+		// 	}
+		// }
 
 		// утилита сравнения дат
 		function sameDate(d1, d2) {
@@ -309,9 +397,9 @@ angular.module("TimerwoodApp.services", [])
 			this.restore();
 			// привязываем пере-восстановление при изменениях. Оно дорогое, поэтому без фанатизма
 			var self = this;
-			this.storage.addListener("add", function() { self.restore(); console.log("taskview: add"); });
-			this.storage.addListener("remove", function() { self.restore(); console.log("taskview: remove"); });
-			this.storage.addListener("update.details", function() { self.restore(); console.log("taskview: update.details"); });
+			this.storage.addListener("add", function() { self.restore(); });
+			this.storage.addListener("remove", function() { self.restore(); });
+			this.storage.addListener("update.details", function() { self.restore(); });
 		}
 
 		Tasks.prototype.restore = function() {
@@ -330,7 +418,6 @@ angular.module("TimerwoodApp.services", [])
 					leaftask.time.push(this.storage.entries[i]);
 				}
 			}
-			console.log(this.entries, this.hierarchy)
 		}
 
 		function createFastHierarchyFromStorageEntry(entry, hierarchy, entries) {
@@ -384,6 +471,13 @@ angular.module("TimerwoodApp.services", [])
 				duration += this.children[i].getDuration();
 			}
 			// собственое время тоже считаем
+			for(var k = 0; k < this.time.length; k++) {
+				duration += this.time[k].getDuration();
+			}
+			return duration;
+		}
+		TaskNode.prototype.getOwnDuration = function() {
+			var duration = 0;
 			for(var k = 0; k < this.time.length; k++) {
 				duration += this.time[k].getDuration();
 			}
