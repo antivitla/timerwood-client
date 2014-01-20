@@ -33,7 +33,7 @@ input[type="text"] {
 	box-shadow: inset 0px 0px 0px 1px #e5e5e5;
 	padding: 0 0.625em;
 	display: inline-block;
-	vertical-align: middle;
+	vertical-align: baseline;
 	border-radius: 5px;
 }
 
@@ -246,9 +246,6 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 
 /* Список задач */
-.task-list { 
-	padding-top: 27px;
-}
 .task-list .duration {
 	font-family: PT Mono, monospace;
 	opacity: 0.5;
@@ -259,14 +256,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	margin-left: 1em;
 	/*opacity: 0.5;*/
 }
-.task-list {
-	padding-top: 27px;
-}
 .task-list > li.group {
 	padding-top: 27px;
-}
-.task-list > li.group:first-child {
-	padding-top: 0px;
 }
 .task-list > li:last-child {
 	padding-bottom: 27px;
@@ -288,7 +279,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .controls {
 	display: none;
 	text-align: right;
-	vertical-align: top;
+	vertical-align: baseline;
 	float: right;
 	padding-right: 14px;
 	font-size: 14px;
@@ -296,7 +287,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .controls > * {
 	margin-left: 0.5em;
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: baseline;
 }
 .task-list .task:hover .controls,
 .task-list .task.edit .controls {
@@ -305,6 +296,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .task {
 	padding-left: 14px;
 	font-size: 16px;
+	height: 27px;
+	line-height: 27px;
 }
 .task-list .task:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
@@ -315,8 +308,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .task.selected {
 	background-color: whitesmoke;
 }
-.task-list .task.group .name:hover {
-	/*text-decoration: none;*/
+.task-list > li > .task.group {
+	margin-bottom: 14px;
 }
 .task-list > li > .task.group .name {
 	/*font-weight: 500;*/
@@ -344,11 +337,12 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	position: relative;
 }
 .date-list header {
-	line-height: 54px;
-	height: 54px;
+	line-height: 27px;
+	height: 27px;
 	padding-left: 14px;
 	font-weight: 300;
 	font-size: 24px;
+	margin-bottom: 14px;
 }
 .date-list header .duration {
 	margin-left: 2em;
@@ -361,12 +355,12 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .date-list li li .task {
 	font-size: 16px;
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: baseline;
 }
 .date-list li li .duration {
 	font-family: PT Mono, monospace;
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: baseline;
 	font-size: 14px;
 	opacity: 0.5;
 }
@@ -379,7 +373,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .date-list .controls {
 	display: none;
 	text-align: right;
-	vertical-align: top;
+	vertical-align: baseline;
 	float: right;
 	padding-right: 14px;
 	font-size: 14px;
@@ -389,7 +383,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .date-list li li:hover .controls > * {
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: baseline;
 }
 .date-list li li.edit .controls {
 	display: inline-block;
