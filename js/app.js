@@ -313,7 +313,6 @@ angular.module("TimerwoodApp.controllers", [])
 
 		$scope.cancel = function(task) {
 			// восстанавливаем старые значения
-			console.log("cancel");
 			task.time[0].stop = task.oldStop;
 			task.details = task.oldDetails;
 		}
@@ -343,6 +342,45 @@ angular.module("TimerwoodApp.controllers", [])
 			});
 		}
 
+		// начало редактирования
+		$scope.edit = function(task) {
+			// во первых нужно показать полное имя к пути, не только текущего уровня
+			task.path = restoreDetails(task);
+			// потом сохранить старое имя
+			task.oldName = task.name;
+			// ну и
+			this.$broadcast("editLastItem");
+			window.taa = task;
+		}
+
+		// отмена
+		$scope.cancel = function(task) {
+			task.name = task.oldName;
+		}
+
+		// сохранить
+		$scope.save = function(task) {
+			console.log("save");
+			// теоретически мы должны переименовать не только сам таск, но и его подтаски...
+			task.name = task.path[task.path.length-1];
+			recursiveRenameDetailsPart(task, task.path);
+			Tasks.storage.save();
+			Tasks.restore();
+			return true;
+		}
+
+		// ловим enter 
+		$scope.checkSubmit = function(event, task, scope) {
+			if(event.keyCode == 13) {
+				var result = $scope.save(task);
+				if(result) scope.status = 'view';
+			}
+			// hit Esc
+			else if(event.keyCode == 27) {
+				scope.status = 'view';
+			}
+		}
+
 		/* Хелперы */
 		function restoreDetails(task) {
 			// пытаемся взять детали сразу из одной из временных промежутков
@@ -356,6 +394,20 @@ angular.module("TimerwoodApp.controllers", [])
 				}
 			}
 			return details;
+		}
+		function recursiveRenameDetailsPart(task, path) {
+			renameTaskTimeDetails(task, path);
+			var newPath = angular.copy(path);
+			for(var i = 0; i < task.children.length; i++) {
+				var childPath = angular.copy(path);
+				childPath.push(task.children[i].name);
+				recursiveRenameDetailsPart(task.children[i], childPath);
+			}
+		}
+		function renameTaskTimeDetails(task, path) {
+			for(var i = 0; i < task.time.length; i++) {
+				task.time[i].details = angular.copy(path);
+			}
 		}
 	}])
 	.controller("FooterCtrl", ["$scope", "Storage", function($scope, Storage) {
