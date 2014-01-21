@@ -26,7 +26,7 @@
 			<span class="ms">{{info.duration|filterMillisecondsTo:"ms":true}}</span>
 		</button>
 
-		<input class="task" type="text" 
+		<input type="text" class="task"
 			ng-show="type != 'simple'" 
 			ng-model="details" 
 			ng-list=","
@@ -96,8 +96,17 @@
 
 		<!-- Хранилище -->
 		<div class="view" ng-controller="StorageViewCtrl" ng-class="{show: currentView == 'storage'}">
+			<!-- Поиск -->
+			<form class="search-entries">
+				<input type="text" class="small"
+					ng-model="search" 
+					ng-list=","
+					placeholder="Введите фильтры через запятую">
+			</form>
+
+			<!-- Список -->
 			<ul class="storage-list">
-				<li ng-repeat="entry in entries">
+				<li ng-repeat="entry in filtered = (entries | filter:searchTags)">
 					<span 
 						class="start" 
 						ng-click="openEditStartDateDialog(entry.start)">{{entry.start | filterDateTo:'dd.mm.yyyy'}}</span> 
@@ -143,7 +152,7 @@
 				ng-show="status == 'view' && task.children.length > 0"
 				scroll-top-on-click>{{task.name}}</a>
 
-			<input type="text" class="name"
+			<input type="text" class="small name"
 				ng-model="task.path"
 				ng-list="," 
 				ng-show="status=='edit'" 
@@ -200,7 +209,7 @@
 					</span>
 				</a>
 				
-				<input type="text" class="details"
+				<input type="text" class="small details"
 					ng-model="task.details" 
 					ng-list="," 
 					ng-show="status=='edit'" 
@@ -211,7 +220,7 @@
 				
 				<span class="duration"  ng-show="status=='view'">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
 
-				<input type="text" class="duration" 
+				<input type="text" class="small duration" 
 					value="{{task.getDuration() | filterMillisecondsTo:'h m'}}" 
 					ng-model="task.durationEdit" 
 					ng-show="status=='edit'"

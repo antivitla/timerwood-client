@@ -36,6 +36,15 @@ input[type="text"] {
 	vertical-align: baseline;
 	border-radius: 5px;
 }
+input[type=text].small {
+	font-size: 16px;
+	height: 27px;
+	padding: 0 7px;
+	opacity: 1;
+	vertical-align: baseline;
+	display: inline-block;
+	box-shadow: 0px 0px 0px 1px #e5e5e5;
+} 
 
 
 /* Шрифты */
@@ -213,6 +222,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .switch-views > .view.show {
 	display: block;
+	position: relative;
 }
 .switch-views > nav {
 	text-align: right;
@@ -319,13 +329,6 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	/*text-transform: uppercase;*/
 }
 .task-list .edit input[type=text] {
-	font-size: 16px;
-	height: 27px;
-	padding: 0 7px;
-	opacity: 1;
-	vertical-align: baseline;
-	display: inline-block;
-	box-shadow: 0px 0px 0px 1px #e5e5e5;
 	margin-left: -7px;
 	width: 50%;
 }
@@ -391,15 +394,6 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .date-list li li .controls > * {
 	margin-left: 0.5em;
 }
-.date-list .edit input[type=text] {
-	font-size: 16px;
-	height: 27px;
-	padding: 0 7px;
-	opacity: 1;
-	vertical-align: baseline;
-	display: inline-block;
-	box-shadow: 0px 0px 0px 1px #e5e5e5;
-}
 .date-list .edit input[type=text].details {
 	margin-left: -7px;
 	width: 50%;
@@ -455,5 +449,21 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .storage-list li:hover .controls {
 	display: inline-block;
 }
+
+/* Поиск в видах */
+.view .search-entries {
+	position: absolute;
+	top: -28px;
+	left: 7px;
+	width: 50%;
+}
+.view .search-entries input[type="text"] {
+	box-shadow: none;
+	background-color: transparent;
+	width: 100%;
+	font-size: 14px;
+}
+
+
 
 

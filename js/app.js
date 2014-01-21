@@ -179,8 +179,26 @@ angular.module("TimerwoodApp.controllers", [])
 		$scope.deleteEntry = function(entry) {
 			Storage.removeEntry(entry);
 		}
+
 		$scope.editEntry = function(entry) {
 			console.log("Storage Edit call!")
+		}
+
+		// фильтр записей
+		$scope.searchTags = function(entry) {
+			if(!$scope.search) return true;
+			else {
+				var query = angular.copy($scope.search);
+				var entryDetails = JSON.stringify(entry.details).toLowerCase();
+				var entryDate = ("0"+entry.start.getDate()).slice(-2)+"."
+					+("0"+(entry.start.getMonth()+1)).slice(-2)+"."
+					+(entry.start.getFullYear());
+				for(var i = 0; i < query.length; i++) {
+					while(query[i][0] == " ") query[i] = query[i].slice(1);
+					if(!(entryDetails.search(query[i].toLowerCase()) >= 0 || entryDate.search(query[i].toLowerCase()) >= 0)) return false;
+				}
+				return true;
+			}
 		}
 	}])
 	.controller("DateViewCtrl", ["$scope", "$rootScope", "Days", function($scope, $rootScope, Days) {
