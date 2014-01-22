@@ -7,7 +7,6 @@
 angular.module("TimerwoodApp.filters", [])
 	.filter("filterMillisecondsTo", function() {
 
-
 		function niceRussianHourEnding(hr) {
 			var lastDigit = parseInt(("0"+hr).slice(-1));
 			var lastTwoDigits = parseInt(("0"+hr).slice(-2));
@@ -23,7 +22,6 @@ angular.module("TimerwoodApp.filters", [])
 			}
 			return result;
 		}
-
 
 		return function(ms, format, isPart) {
 			if(format == "hh" && !isPart) {
@@ -48,7 +46,8 @@ angular.module("TimerwoodApp.filters", [])
 			else if(format == "h m" && !isPart) {
 				var hrs = parseInt(ms/3600000);
 				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
-				return hrs + " " + ("0"+mins).slice(-2);
+				var minStr = mins > 0 ? ("0"+mins).slice(-2) : ""+mins;
+				return hrs + " " + minStr;
 			}
 			else if(format == "mm" && isPart) {
 				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
@@ -65,7 +64,7 @@ angular.module("TimerwoodApp.filters", [])
 			else if(format == "hour min" && !isPart) {
 				var hrs = parseInt(ms / 3600000);
 				var mins = parseInt((ms - hrs*3600000) / 60000);
-				return (hrs > 0 ? (hrs + " " + niceRussianHourEnding(hrs) + " ") : "") + mins + " мин";
+				return (hrs != 0 ? (hrs + " " + niceRussianHourEnding(Math.abs(hrs)) + " ") : "") + mins + " мин";
 			}
 			return ms;
 		}
@@ -144,35 +143,49 @@ angular.module("TimerwoodApp.filters", [])
 			return output;
 		}
 	})
-	.filter("filterDateStringStopToDuration", function() {
-		return function(stopDateString, startDateString, format) {
-			var duration = (new Date(stopDateString)) - (new Date(startDateString));
-			var output = duration;
-			var hh = parseInt(duration / (1000*60*60));
-			var mm = parseInt((duration-hh*60*60*1000) / (60*1000));
+	.filter("filterDurationStringToMilliseconds", function() {
+		return function(d, delimiter) {
+			var newDuration = d.split(delimiter ? delimiter: " ");
+			// если только одна цифра - это минуты
+			if(newDuration.length == 1) {
+				newDuration = parseInt(newDuration[0]) * 60 * 1000;
+			}
+			// если две - часы и минуты
+			else if(newDuration.length == 2) {
+				newDuration = (parseInt(newDuration[0]) * 60 * 60 * 1000) + (parseInt(newDuration[1]) * 60 * 1000)
+			}
+			// или вообще ничего не делаем
+			else return false;
 
-			function niceRussianHourEnding(hr) {
-				var lastDigit = parseInt(("0"+hr).slice(-1));
-				var lastTwoDigits = parseInt(("0"+hr).slice(-2));
-				var result = "часов";
-				if(lastTwoDigits > 10 && lastTwoDigits < 20) {
-					result = "часов";
-				}
-				else if(lastDigit == 2 || lastDigit == 3 || lastDigit == 4) {
-					result = "часа";
-				}
-				else if(hr == 1) {
-					result = "час";
-				}
-				return result;
-
+			// типа валидации
+			if(newDuration != NaN && newDuration > 0) {
+				return newDuration;
+			} else {
+				return false;
 			}
-			if(format == "hh:mm") {
-				output = ("0"+hh).slice(-2)+":"+("0"+mm).slice(-2);
+		}
+	})
+	.filter("updateDateFromDayTimeString", function() {
+		return function(date, time, delimiter) {
+			var daytime = time.split(delimiter ? delimiter : ":");
+			if(daytime.length == 2 && parseInt(daytime[0]) > -1 && parseInt(daytime[1]) > -1) {
+				date.setHours(daytime[0]);
+				date.setMinutes(daytime[1]);
 			}
-			else if(format == "hour min") {
-				output = (hh>0?(hh+" "+niceRussianHourEnding(hh)+" "):"")+mm+" мин";
+			return date;
+		}
+	})
+	.filter("updateDateFromDateString", function() {
+		return function(date, editDate, delimiter) {
+			var newDate = editDate.split(delimiter ? delimiter : ".");
+			if(newDate.length == 3 && 
+					parseInt(newDate[0]) > 0 && parseInt(newDate[0]) < 31 && 
+					parseInt(newDate[1]) > 0 && parseInt(newDate[1]) < 13 &&
+					parseInt(newDate[2]) != NaN) {
+				date.setDate(parseInt(newDate[0]));
+				date.setMonth(parseInt(newDate[1]-1));
+				date.setFullYear(parseInt(newDate[2]));
 			}
-			return output;
+			return date;
 		}
 	});

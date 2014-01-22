@@ -421,19 +421,22 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 }
-.storage-list .start,
-.storage-list .duration {
+.storage-list span.start,
+.storage-list span.duration {
 	opacity: 0.5;
 }
-.storage-list .details {
+.storage-list span.details {
 	cursor: pointer;
 }
-.storage-list .details:hover {
+.storage-list span.details:hover {
 	text-decoration: underline;
 }
 /* меню записи хранилища */
 .storage-list li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.storage-list li.edit:hover {
+	box-shadow: none;
 }
 .storage-list .controls {
 	position: absolute;
@@ -446,8 +449,26 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .storage-list .controls > * {
 	margin-left: 0.5em;
 }
+.storage-list li.edit .controls,
 .storage-list li:hover .controls {
 	display: inline-block;
+}
+.storage-list input[type=text] {
+	font-family: PT Mono, monospace;
+	font-size: 14px;
+}
+.storage-list input[type=text].date {
+	width: 6em;
+	margin-left: -7px;
+}
+.storage-list input[type=text].start {
+	width: 3.25em;
+}
+.storage-list input[type=text].duration {
+	width: 4em;
+}
+.storage-list input[type=text].details {
+	width: 40%;
 }
 
 /* Поиск в видах */

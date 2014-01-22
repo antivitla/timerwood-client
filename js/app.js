@@ -153,7 +153,7 @@ angular.module("TimerwoodApp.controllers", [])
 			});
 		}
 	}])
-	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$modal", function($scope, Storage, $rootScope, $modal) {
+	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$filter", function($scope, Storage, $rootScope, $filter) {
 		$scope.entries = Storage.entries; // массив записей Хранилища
 
 		/*
@@ -176,12 +176,59 @@ angular.module("TimerwoodApp.controllers", [])
 			});
 		}
 
-		$scope.deleteEntry = function(entry) {
+		$scope.delete = function(entry) {
 			Storage.removeEntry(entry);
 		}
 
-		$scope.editEntry = function(entry) {
-			console.log("Storage Edit call!")
+		$scope.edit = function(entry) {
+			entry.editDate = $filter("filterDateTo")(entry.start, "dd.mm.yyyy");
+			entry.editStart = $filter("filterDateTo")(entry.start, "hh:mm");
+			entry.editDetails = angular.copy(entry.details);
+			entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - entry.start, "h m");
+			// следим за изменением начала и пересчитываем длительность
+			entry.editStartWatcher = this.$watch("entry.editStart", function() {
+				var newStart = $filter("updateDateFromDayTimeString")(new Date(entry.start), entry.editStart, ":");
+				entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - newStart, "h m");
+			});
+			entry.editDateWatcher = this.$watch("entry.editDate", function() {
+				var newDate = $filter("updateDateFromDateString")(new Date(entry.start), entry.editDate, ".");
+				entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - newDate, "h m");
+			})
+			this.$broadcast("editLastItem");
+		}
+
+		$scope.cancel = function(entry) {
+			entry.editStartWatcher();
+			entry.editDateWatcher();
+		};
+
+		$scope.save = function(entry) {
+			entry.details = entry.editDetails;
+			// тут непростая задача
+			// если мы меняем дату начала - то дата конца так как та же, длительность возрастает
+			// если мы меняем время начала - то же самое
+			// если же мы поменяли и/или длительность... нужно вычислить текущие отображаемые значения длительности и начала
+			$filter("updateDateFromDayTimeString")(entry.start, entry.editStart, ":");
+			$filter("updateDateFromDateString")(entry.start, entry.editDate, ".");
+			// длительность
+			var duration = $filter("filterDurationStringToMilliseconds")(entry.editDuration, " ");
+			entry.stop = new Date(entry.start.getTime() + duration);
+			// Шубись эврибади!
+			Storage.broadcastUpdateDetails();
+			// сохраняем и на выход
+			Storage.save();
+			return true;
+		}
+
+		$scope.checkSubmit = function(event, entry, scope) {
+			if(event.keyCode == 13) {
+				var result = $scope.save(entry);
+				if(result) scope.status = 'view';
+			}
+			// hit Esc
+			else if(event.keyCode == 27) {
+				scope.status = 'view';
+			}
 		}
 
 		// фильтр записей
@@ -200,8 +247,12 @@ angular.module("TimerwoodApp.controllers", [])
 				return true;
 			}
 		}
+
+		function getDateFromInput(entry) {
+			var d = $filter("setDateFromDayTimeString")(entry.start, entry.editStart, ":"); // время дня
+		}
 	}])
-	.controller("DateViewCtrl", ["$scope", "$rootScope", "Days", function($scope, $rootScope, Days) {
+	.controller("DateViewCtrl", ["$scope", "$rootScope", "$filter", "Days", function($scope, $rootScope, $filter, Days) {
 		$scope.days = Days.entries; 
 
 		// фильтруем недавнее
@@ -229,12 +280,12 @@ angular.module("TimerwoodApp.controllers", [])
 		}
 
 		$scope.edit = function(task) {
+			task.editDuration = $filter("filterMillisecondsTo")(task.getDuration(), "h m");
+			task.editDetails = angular.copy(task.details);
 			this.$broadcast("editLastItem");
-			// инициализируем старые значения для редактирования
-			task.durationEdit = 0;
-			task.oldDetails = angular.copy(task.details)
-			task.oldStop = task.time[0].stop;
 		}
+
+		$scope.cancel = function(task) {}
 
 		$scope.checkSubmit = function(event, task, scope) {
 			if(event.keyCode == 13) {
@@ -261,7 +312,7 @@ angular.module("TimerwoodApp.controllers", [])
 		$scope.save = function(task) {
 			// проходимся по каждой записи и переименовываем сначала
 			for(var i = 0; i < task.time.length; i++) {
-				task.time[i].details = task.details;				
+				task.time[i].details = task.editDetails;				
 			}
 			Days.storage.broadcastUpdateDetails(task.time);
 
@@ -288,23 +339,9 @@ angular.module("TimerwoodApp.controllers", [])
 			}
 
 			// теперь сохраняем длительность (если её меняли)
-			if(task.durationEdit) {
-				var newDuration = task.durationEdit.split(" ");
-				// если только одна цифра - это минуты
-				if(newDuration.length == 1) {
-					newDuration = parseInt(newDuration[0]) * 60 * 1000;
-				}
-				// если две - часы и минуты
-				else if(newDuration.length == 2) {
-					newDuration = (parseInt(newDuration[0]) * 60 * 60 * 1000) + (parseInt(newDuration[1]) * 60 * 1000)
-				}
-				// или вообще ничего не делаем
-				else return false;
+			if(Boolean(task.editDuration)) {
 
-				// типа валидации
-				if(Boolean(newDuration)) {
-					return false;
-				}
+				var newDuration = $filter("filterDurationStringToMilliseconds")(task.editDuration, " ");
 
 				var delta = newDuration - task.getDuration();
 				// если новая (суммарная) длительность больше старой, прибавляем время
@@ -327,12 +364,6 @@ angular.module("TimerwoodApp.controllers", [])
 			// сохраняем и на выход
 			Days.storage.save();
 			return true;
-		}
-
-		$scope.cancel = function(task) {
-			// восстанавливаем старые значения
-			task.time[0].stop = task.oldStop;
-			task.details = task.oldDetails;
 		}
 	}])
 	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", function($scope, $rootScope, Tasks) {
@@ -368,7 +399,6 @@ angular.module("TimerwoodApp.controllers", [])
 			task.oldName = task.name;
 			// ну и
 			this.$broadcast("editLastItem");
-			window.taa = task;
 		}
 
 		// отмена
