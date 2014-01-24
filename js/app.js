@@ -53,6 +53,9 @@ angular.module("TimerwoodApp.controllers", [])
 				$scope.details = data.taskDetails;
 				startTimer();
 			} 
+			$timeout(function(){
+				$scope.$broadcast("editLastItem");
+			}, 10);
 		});
 
 		// Кто-то хочет сделать новый под-таск
@@ -65,10 +68,10 @@ angular.module("TimerwoodApp.controllers", [])
 			data.taskDetails.push(window.funnyPhrase ? window.funnyPhrase() : "Задача " + (new Date()).getTime()*Math.random());
 			$scope.details = data.taskDetails;
 			$timeout(function(){
-				$scope.$broadcast("focusNewSubTask");
+				$scope.$broadcast("editLastItem");
 				// или может быть всё-таки стартуем
 				startTimer();
-			}, 100);
+			}, 10);
 		})
 
 		// Вкл/Выкл таймера
@@ -102,14 +105,14 @@ angular.module("TimerwoodApp.controllers", [])
 			});
 			TimerClock.addTickListener(ticklistener);
 			TimerClock.start();
-			$rootScope.$broadcast("timerStatus", $scope.status);
+			//$rootScope.$broadcast("timerStatus", $scope.status);
 		}
 
 		function stopTimer() {
 			$scope.status = "stopped";
 			TimerClock.removeTickListener(ticklistener);
 			TimerClock.stop();
-			$rootScope.$broadcast("timerStatus", $scope.status);
+			//$rootScope.$broadcast("timerStatus", $scope.status);
 		}
 
 		// Переключатель типа UI таймера (сложный/простой)
@@ -265,9 +268,10 @@ angular.module("TimerwoodApp.controllers", [])
 
 		// при переключении на нас, фокус на фильтр и очищаем при переключении куда-то ещё
 		$scope.$on("view-changed", function(event, view) {
-			$scope.$broadcast("editLastItem");
 			if(view != "storage") {
 				$scope.search = null;
+			} else {
+				$scope.$broadcast("editLastItemOnSwitchView");				
 			}
 		});
 

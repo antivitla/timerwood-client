@@ -28,7 +28,7 @@
 			ng-list=","
 			ng-keydown="save($event);"
 			placeholder="{{funnytask}}"
-			tw-focus-on-subtask>
+			tw-focus-on-edit>
 	</div>
 
 	<div>&nbsp;</div>
@@ -97,7 +97,7 @@
 				<input type="text" class="small"
 					ng-model="search" 
 					ng-list=","
-					tw-focus-on-edit 
+					tw-focus-on-switch-view 
 					placeholder="Введите фильтры через запятую">
 			</form>
 
