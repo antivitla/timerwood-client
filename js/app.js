@@ -5,7 +5,7 @@ Timerwood 3.0
 */
 
 // app
-angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters", "TimerwoodApp.directives", "ui.bootstrap"]);
+angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters", "TimerwoodApp.directives"]);
 
 // controllers
 angular.module("TimerwoodApp.controllers", [])
@@ -180,7 +180,7 @@ angular.module("TimerwoodApp.controllers", [])
 		*/
 
 		$scope.start = function(details) {
-			var newDetails = JSON.parse(JSON.stringify(details));
+			var newDetails = angular.copy(details);
 			$rootScope.$broadcast("startNewTask", {
 				taskDetails: newDetails
 			});
@@ -246,7 +246,7 @@ angular.module("TimerwoodApp.controllers", [])
 			if(!$scope.search) return true;
 			else {
 				var query = angular.copy($scope.search);
-				var entryDetails = JSON.stringify(entry.details).toLowerCase();
+				var entryDetails = angular.toJson(entry.details).toLowerCase();
 				var entryDate = ("0"+entry.start.getDate()).slice(-2)+"."
 					+("0"+(entry.start.getMonth()+1)).slice(-2)+"."
 					+(entry.start.getFullYear());
@@ -296,7 +296,7 @@ angular.module("TimerwoodApp.controllers", [])
 		*/
 
 		$scope.start = function(details) {
-			var newDetails = JSON.parse(JSON.stringify(details));
+			var newDetails = angular.copy(details);
 			$rootScope.$broadcast("startNewTask", {
 				taskDetails: newDetails
 			});
@@ -344,7 +344,7 @@ angular.module("TimerwoodApp.controllers", [])
 			var found = false;
 			for(var j = 0; j < day.tasks.length; j++) {
 				// не забыть пропустить текущий таск
-				if(JSON.stringify(task.details) == JSON.stringify(day.tasks[j].details) && task != day.tasks[j]) {
+				if(angular.toJson(task.details) == angular.toJson(day.tasks[j].details) && task != day.tasks[j]) {
 					// попался
 					// мы хотим всё добавить в самый последний таск
 					if(day.tasks.indexOf(task) > i) {
@@ -392,15 +392,17 @@ angular.module("TimerwoodApp.controllers", [])
 		// переключаем на Хранилище и ищем соотв. записи
 		$scope.filterStorageView = function(task) {
 			$rootScope.$broadcast("change-view", "storage");
-			var dateFilter = task.parentDay.date.getDate()+"."+(task.parentDay.date.getMonth()+1)+"."+task.parentDay.date.getFullYear();
+			var dateFilter = $filter("filterDateTo")(task.parentDay.date, "dd.mm.yyyy");
 			var query = angular.copy(task.details);
 			query.unshift(dateFilter);
+			console.log(query);
 			$rootScope.$broadcast("filter-storage-entries", query);
 		}
 
 		$scope.filterStorageViewByDate = function(date) {
 			$rootScope.$broadcast("change-view", "storage");
-			var dateFilter = [date.getDate() + "." + (date.getMonth()+1) + "." + date.getFullYear()];
+			var dateFilter = [$filter("filterDateTo")(date, "dd.mm.yyyy")];
+			console.log(dateFilter);
 			$rootScope.$broadcast("filter-storage-entries", dateFilter);
 		}
 	}])

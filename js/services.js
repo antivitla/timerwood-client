@@ -130,12 +130,12 @@ angular.module("TimerwoodApp.services", [])
 		Storage.prototype.save = function() {
 			var storageEntries = this.entries;
 			// save to localStorage
-			localStorage.setItem("Timerwood-Log", JSON.stringify({ entries: storageEntries }));
+			localStorage.setItem("Timerwood-Log", angular.toJson({ entries: storageEntries }));
 		};
 
 		// Загрузить из локального хранилища
 		Storage.prototype.load = function() {
-			var data = localStorage.getItem("Timerwood-Log") ? JSON.parse(localStorage.getItem("Timerwood-Log")).entries : [];
+			var data = localStorage.getItem("Timerwood-Log") ? angular.fromJson(localStorage.getItem("Timerwood-Log")).entries : [];
 			for(var i = 0; i < data.length; i++) {
 				this.entries.push(new StorageEntry({
 					start: new Date(data[i].start),
@@ -334,7 +334,7 @@ angular.module("TimerwoodApp.services", [])
 		DayEntry.prototype.findTaskByDetails = function(details) {
 			var found = null;
 			for(var j = 0; j < this.tasks.length; j++) {
-				if(JSON.stringify(details) == JSON.stringify(this.tasks[j].details)) {
+				if(angular.toJson(details) == angular.toJson(this.tasks[j].details)) {
 					found = this.tasks[j];
 					break;
 				}
@@ -422,7 +422,7 @@ angular.module("TimerwoodApp.services", [])
 
 		function createFastHierarchyFromStorageEntry(entry, hierarchy, entries) {
 			// копируем массив имен
-			var path = JSON.parse(JSON.stringify(entry.details));
+			var path = angular.copy(entry.details);
 			// определяем новый корневой уровень
 			if(!hierarchy[path[0]]) {
 				hierarchy[path[0]] = new TaskNode({ name: path[0] });

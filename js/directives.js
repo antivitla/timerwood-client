@@ -19,10 +19,11 @@ angular.module("TimerwoodApp.directives", [])
 			restrict: 'A',
 			link: function(scope, $elm) {
 				$elm.on('mouseenter', function() {
-					$(this).parent().addClass("hover");
+					window.el = $elm;
+					$elm.parent().addClass("hover");
 				});
 				$elm.on('mouseleave', function() {
-					$(this).parent().removeClass("hover");
+					$elm.parent().removeClass("hover");
 				});
 			}
 		}
