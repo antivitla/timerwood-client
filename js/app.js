@@ -140,17 +140,27 @@ angular.module("TimerwoodApp.controllers", [])
 	}])
 	.controller("SwitchViewCtrl", ["$scope", "$rootScope", "Storage", function($scope, $rootScope, Storage) {
 		$scope.storage = Storage.entries;
+		
 		$scope.currentView = window.localStorage ? (window.localStorage.getItem("Timerwood-view") ? window.localStorage.getItem("Timerwood-view") : "task") : "task"; // date, storage, task
-		$scope.$watch("currentView", updateView);
 
+		// переключаем вид по просьбе
+		var views = ["storage", "date", "task"];
+		$scope.$on("change-view", function(event, data) {
+			if(views.indexOf(data) > -1) {
+				$scope.currentView = data;
+			} else {
+				console.log("Неправильный вид попросили поменять!", data);
+			}
+		});
+
+		// следим за изменением вида
+		$scope.$watch("currentView", updateView);
 		function updateView() {
 			if(window.localStorage)  {
 				window.localStorage.setItem("Timerwood-view", $scope.currentView);
 			}
 			// Нам нужно передать в таймер состояние переключателя
-			$rootScope.$broadcast("changeView", {
-				currentView: $scope.currentView
-			});
+			$rootScope.$broadcast("view-changed", $scope.currentView);
 		}
 	}])
 	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$filter", function($scope, Storage, $rootScope, $filter) {
@@ -247,6 +257,20 @@ angular.module("TimerwoodApp.controllers", [])
 				return true;
 			}
 		}
+
+		// фильтруем записи по просьбе
+		$scope.$on("filter-storage-entries", function(event, query) {
+			console.log(query);
+			$scope.search = query;
+		});
+
+		// при переключении на нас, фокус на фильтр и очищаем при переключении куда-то ещё
+		$scope.$on("view-changed", function(event, view) {
+			$scope.$broadcast("editLastItem");
+			if(view != "storage") {
+				$scope.search = null;
+			}
+		});
 
 		function getDateFromInput(entry) {
 			var d = $filter("setDateFromDayTimeString")(entry.start, entry.editStart, ":"); // время дня
@@ -365,6 +389,21 @@ angular.module("TimerwoodApp.controllers", [])
 			Days.storage.save();
 			return true;
 		}
+
+		// переключаем на Хранилище и ищем соотв. записи
+		$scope.filterStorageView = function(task) {
+			$rootScope.$broadcast("change-view", "storage");
+			var dateFilter = task.parentDay.date.getDate()+"."+(task.parentDay.date.getMonth()+1)+"."+task.parentDay.date.getFullYear();
+			var query = angular.copy(task.details);
+			query.unshift(dateFilter);
+			$rootScope.$broadcast("filter-storage-entries", query);
+		}
+
+		$scope.filterStorageViewByDate = function(date) {
+			$rootScope.$broadcast("change-view", "storage");
+			var dateFilter = [date.getDate() + "." + (date.getMonth()+1) + "." + date.getFullYear()];
+			$rootScope.$broadcast("filter-storage-entries", dateFilter);
+		}
 	}])
 	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", function($scope, $rootScope, Tasks) {
 		$scope.tasks = Tasks.entries;
@@ -427,6 +466,12 @@ angular.module("TimerwoodApp.controllers", [])
 			else if(event.keyCode == 27) {
 				scope.status = 'view';
 			}
+		}
+
+		// переключаем на Хранилище и ищем соотв. записи
+		$scope.filterStorageView = function(task) {
+			$rootScope.$broadcast("change-view", "storage");
+			$rootScope.$broadcast("filter-storage-entries", restoreDetails(task));
 		}
 
 		/* Хелперы */

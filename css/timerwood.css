@@ -394,6 +394,12 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .date-list li li .controls > * {
 	margin-left: 0.5em;
 }
+.date-list header:hover .controls {
+	display: inline-block;
+}
+.date-list header:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
 .date-list .edit input[type=text].details {
 	margin-left: -7px;
 	width: 50%;
@@ -485,6 +491,12 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	font-size: 14px;
 }
 
+/* Иконка в контролах */
+.controls .icon {
+	position: relative;
+	top: 2px;
+	height: 16px;
+}
 
 
 

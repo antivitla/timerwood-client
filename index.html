@@ -101,6 +101,7 @@
 				<input type="text" class="small"
 					ng-model="search" 
 					ng-list=","
+					tw-focus-on-edit 
 					placeholder="Введите фильтры через запятую">
 			</form>
 
@@ -134,8 +135,7 @@
 					<input type="text" class="small details"
 						ng-model="entry.editDetails" 
 						ng-list="," 
-						ng-show="status=='edit'" 
-						
+						ng-show="status=='edit'" 						
 						ng-keydown="checkSubmit($event, entry, this)">
 
 					<span class="duration"
@@ -191,6 +191,9 @@
 			<span class="controls" ng-class="status">
 				<a class="sub-task" ng-click="subTask(task)" ng-show="status=='view'" scroll-top-on-click>подзадача</a>
 				<a class="edit" ng-click="edit(task); status='edit'" ng-show="status=='view'">редактировать</a>
+				<a class="filter-storage" ng-click="filterStorageView(task);" ng-show="status=='view'" title="Поиск записей по хранилищу">
+					<img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу">
+				</a>
 				<!--a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a-->
 				<a class="save" ng-click="save(task); status='view'" ng-show="status=='edit'">сохранить</a>
 				<a class="cancel" ng-click="cancel(task); status='view'" ng-show="status=='edit'">отмена</a>
@@ -215,6 +218,12 @@
 			<span class="date">{{ entry.date | filterDateTo:'d' }}</span>
 			<span class="month">{{ entry.date | filterDateTo:'M' }}</span>
 			<span class="duration">{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}</span>
+
+			<span class="controls">
+				<a class="filter-storage" ng-click="filterStorageViewByDate(entry.date);" title="Поиск записей по хранилищу">
+					<img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу">
+				</a>
+			</span>
 		</header>
 
 		<ul class="leaf-task-list">
@@ -251,6 +260,9 @@
 
 				<span class="controls">
 					<a class="edit" ng-click="edit(task); status='edit'" ng-show="status=='view'">редактировать</a>
+					<a class="filter-storage" ng-click="filterStorageView(task);" ng-show="status=='view'" title="Поиск записей по хранилищу">
+						<img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу">
+					</a>
 					<a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a>
 					<a class="save" ng-click="save(task); status='view'" ng-show="status=='edit'">сохранить</a>
 					<a class="cancel" ng-click="cancel(task); status='view'" ng-show="status=='edit'">отмена</a>
