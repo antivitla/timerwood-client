@@ -260,7 +260,6 @@ angular.module("TimerwoodApp.controllers", [])
 
 		// фильтруем записи по просьбе
 		$scope.$on("filter-storage-entries", function(event, query) {
-			console.log(query);
 			$scope.search = query;
 		});
 

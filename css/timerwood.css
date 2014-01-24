@@ -1,13 +1,7 @@
 /* Timerwood */
 
 @import url('../fonts/pfbeausanspro.css');
-@import url('../fonts/icomoon.css');
-@font-face {
-    font-family: 'PT Mono';
-    src: url('../fonts/ptmono-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-}
+@import url('../fonts/ptmono.css');
 
 * {
 	margin: 0;
@@ -180,7 +174,9 @@ div[ng-controller="TimerCtrl"] .time .sec {
 	top: 15px;
 	width: 25px;
 	text-align: center;
-	font-weight: bold;
+}
+div[ng-controller="TimerCtrl"].started .time .sec {
+	font-weight: bold;	
 }
 div[ng-controller="TimerCtrl"] .time .ms {
 	font-size: 10px;
