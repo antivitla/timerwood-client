@@ -187,9 +187,11 @@
 			<span class="controls" ng-class="status">
 				<a class="sub-task" ng-click="subTask(task)" ng-show="status=='view'" scroll-top-on-click>подзадача</a>
 				<a class="edit" ng-click="edit(task); status='edit'" ng-show="status=='view'">редактировать</a>
-				<a class="filter-storage" ng-click="filterStorageView(task);" ng-show="status=='view'" title="Поиск записей по хранилищу">
-					<img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу">
-				</a>
+				<a class="filter-storage" 
+					ng-click="filterStorageView(task);" 
+					ng-show="status=='view'" 
+					title="Поиск записей по хранилищу" 
+					scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 				<!--a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a-->
 				<a class="save" ng-click="save(task); status='view'" ng-show="status=='edit'">сохранить</a>
 				<a class="cancel" ng-click="cancel(task); status='view'" ng-show="status=='edit'">отмена</a>
@@ -216,9 +218,10 @@
 			<span class="duration">{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}</span>
 
 			<span class="controls">
-				<a class="filter-storage" ng-click="filterStorageViewByDate(entry.date);" title="Поиск записей по хранилищу">
-					<img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу">
-				</a>
+				<a class="filter-storage" 
+					ng-click="filterStorageViewByDate(entry.date);" 
+					title="Поиск записей по хранилищу" 
+					scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 			</span>
 		</header>
 
@@ -256,9 +259,11 @@
 
 				<span class="controls">
 					<a class="edit" ng-click="edit(task); status='edit'" ng-show="status=='view'">редактировать</a>
-					<a class="filter-storage" ng-click="filterStorageView(task);" ng-show="status=='view'" title="Поиск записей по хранилищу">
-						<img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу">
-					</a>
+					<a class="filter-storage" 
+						ng-click="filterStorageView(task);" 
+						ng-show="status=='view'" 
+						title="Поиск записей по хранилищу" 
+						scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 					<a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a>
 					<a class="save" ng-click="save(task); status='view'" ng-show="status=='edit'">сохранить</a>
 					<a class="cancel" ng-click="cancel(task); status='view'" ng-show="status=='edit'">отмена</a>
