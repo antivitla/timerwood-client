@@ -41,24 +41,6 @@ angular.module("TimerwoodApp.services", [])
 		function Storage() {
 			// простой список записей
 			this.entries = [];
-			// // импортируем старые данные, если нужно
-			// if(localStorage.getItem("Timerwood-imported") != "true") {
-			// 	if(window["jQuery"] && window["jQuery"]["jStorage"]) {
-			// 		var importdata = JSON.parse($.jStorage.get("timer",-1)).periods; // используем старые библиотеки
-			// 		// конвертим в наш формат и добавляем
-			// 		if(importdata) {
-			// 			for(var i = 0; i < importdata.length; i++) {
-			// 				this.entries.push(new StorageEntry({
-			// 					start: new Date(importdata[i].start),
-			// 					stop: new Date(importdata[i].end),
-			// 					details: [(importdata[i].notes ? JSON.parse(importdata[i].notes) : (window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача"))]
-			// 				}));
-			// 			}
-			// 		}
-			// 		// больше не импортируем
-			// 		localStorage.setItem("Timerwood-imported", true);
-			// 	}
-			// }
 			// загружаемся из локального хранилища
 			this.load();
 		}
@@ -228,15 +210,15 @@ angular.module("TimerwoodApp.services", [])
 			// привязываем пере-восстановление при изменениях. Оно дорогое, поэтому без фанатизма
 			var self = this;
 			this._selfDelete = false;
-			this.storage.addListener("add", function() { self.restore(); });
-			this.storage.addListener("remove", function() { 
-				// только если не мы сами удалили в режиме редактирования - тогда мы уже все сделали сами
-				if(!self._selfDelete) {
-					self.restore(); 
-					self._selfDelete = false;
-				}
-			});
-			this.storage.addListener("update.details", function() { self.restore(); });
+			// this.storage.addListener("add", function() { self.restore(); });
+			// this.storage.addListener("remove", function() { 
+			// 	// только если не мы сами удалили в режиме редактирования - тогда мы уже все сделали сами
+			// 	if(!self._selfDelete) {
+			// 		self.restore(); 
+			// 		self._selfDelete = false;
+			// 	}
+			// });
+			// this.storage.addListener("update.details", function() { self.restore(); });
 		}
 
 		// Восстанавление из Хранилища
