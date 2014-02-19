@@ -4,18 +4,23 @@
 	<meta charset="utf-8">
 	<title>Таймер</title>
 	<link rel="stylesheet" href="css/timerwood.css">
-
 	<!-- <script src="http://mr-woodman.ru/js/typogrid.js"></script> -->
-
+	
 	<script src="js/funnyphrases.js"></script>
 </head>
-<body ng-app="TimerwoodApp">
+<body>
 
-	<!-- <div class="help"><a title="Меню и помощь">&equiv;</a></div> -->
+<page ng-app="TimerwoodApp">
 
-	<div ng-controller="TimerCtrl" ng-class="[status, type]">
-		<!-- <a ng-click="toggleType()" title="{{typeTip[type]}}">{{ (type=="simple") && "сложный таймер →" || "← простой таймер"}}</a> -->
+	<div ng-controller="HelpCtrl" ng-cloak>
+		<a class="open-help" ng-click="toggleHelp()" title="Открыть помощь">?</a>
 
+		<div id="help" ng-show="help">
+			<!--  -->
+		</div>
+	</div>
+
+	<div ng-controller="TimerCtrl" ng-class="[status, type]" ng-cloak>
 		<button class="time" ng-click="toggle()" title="{{toggleTip[status]}}">
 			<span class="hour" ng-class="{low: info.duration < 3600000}">{{info.duration|filterMillisecondsTo:"hh"}}</span><span class="divider" ng-class="{low: info.duration < 60000}">:</span><span class="min" ng-class="{low: info.duration < 60000}">{{info.duration|filterMillisecondsTo:"mm":true}}</span>
 			<span class="sec">{{info.duration|filterMillisecondsTo:"ss":true}}</span>
@@ -29,6 +34,19 @@
 			ng-keydown="save($event);"
 			placeholder="{{funnytask}}"
 			tw-focus-on-edit>
+
+		<help class="button-help" ng-show="help" ng-cloak>
+			<img src="images/help-arrow-01.png">
+			<strong>Главная Кнопка таймера,</strong><br>
+			запускать также можно:<br>
+			&mdash; кликами по задачам в видах задачи/дни/хранилище,<br>
+			&mdash; и Enter’ом в поле справа.
+		</help>
+		<help class="input-help" ng-show="help" ng-cloak>
+			<img src="images/help-arrow-02.png">
+			Ввод названия задачи (генерится случайно, если не вводить).<br>
+			<strong>Через запятую</strong> задаётся вложенность задачи, <strong>enter</strong>’ом запускается таймер.  
+		</help>
 	</div>
 
 	<div>&nbsp;</div>
@@ -36,13 +54,20 @@
 	<div>&nbsp;</div>
 	<div>&nbsp;</div>
 
-	<div class="switch-views" ng-controller="SwitchViewCtrl" ng-show="storage.length > 0">
+	<div class="switch-views" ng-controller="SwitchViewCtrl" ng-show="storage.length > 0" ng-cloak>
 		<nav>
 			<a ng-click="currentView = 'task'" title="">задачи</a>
 			<a ng-click="currentView = 'date'" title="">дни</a>
 			<!-- <a ng-click="currentView = 'log'" title="">лог</a> -->
 			<a ng-click="currentView = 'storage'" title="Формат хранения задач на сервере, недавние вверху. Для низкоуровневого редактирования и дебага">хранилище</a>
 		</nav>
+
+		<help class="views-help" ng-show="help" ng-cloak>
+			<img src="images/help-arrow-03.png">
+			Записи внутренне хранятся простым списком (<strong>хранилище</strong>). <br>
+			Для удобства они группируются в виде истории (<strong>дни</strong>) или <br>
+			дерева подзадач (<strong>задачи</strong>).  
+		</help>
 
 		<!-- Задачи -->
 		<div class="view" ng-controller="TasksViewCtrl" ng-class="{show: currentView == 'task'}" ng-init="recentTasks = false">
@@ -153,9 +178,10 @@
 		</div>
 	</div>
 
-	<footer ng-controller="FooterCtrl" ng-show="storage.length > 0">
+	<footer ng-controller="FooterCtrl" ng-show="storage.length > 0" ng-cloak>
 		<span style="font-size: 18px;">Таймер 3.0</span>
 		<br><span>сделано на левом берегу &trade;</span>
+		<br><br><img src="images/cat-preloader.gif">
 	</footer>
 
 	<!-- Шаблон задачи -->
@@ -272,10 +298,42 @@
 		</ul>
 	</script>
 
-	<script src="lib/angular/angular.js"></script>
-	<script src="js/app.js"></script>
-	<script src="js/filters.js"></script>
-	<script src="js/services.js"></script>
-	<script src="js/directives.js"></script>
+
+	<!-- Попапы -->
+	<div class="dialog" ng-controller="PopupCtrl" ng-show="greetingPopup">
+		<article style="width: 550px;">
+			<h3>Таймер 3.0</h3>
+			<p>Это крупное изменение.</p>
+			<p>В нём я постарался реализовать все что хотел и так, как хотел. И это получилось.</p>
+			<p>Среди фич, которых просили:<br>
+				&emsp; &mdash; &nbsp; разбиение по задачам (вид &laquo;задачи&raquo;)<br>
+				&emsp; &mdash; &nbsp; редактирование<br>
+				&emsp; &mdash; &nbsp; <del>отчёты и синхронизация</del> (в след. апдейтах)
+			</p>
+			<p>Несмотря на кажущуюся мне его простоту, возможно вы всё-таки не догадаетесь до некоторых фишечек. Над строкой таймера будет висеть ссылочка &laquo;?&raquo;, (хелп) проглядите её на досуге.</p>
+			<p style="text-align: center;">
+				<a class="ok" ng-click="close('greetingPopup')">Очень рад</a>
+				&emsp;
+				<a class="ok" ng-click="close('greetingPopup')">Да пофиг</a>
+			</p>
+			<p style="text-align: center;"><label><input type="checkbox" ng-model="hideGreetingPopup" checked="checked" ng-change="save(hideGreetingPopup)"> Не показывать в след. раз</label></p>
+		</article>
+	</div>
+
+</page>
+
+
+<script src="lib/jquery/jquery-1.9.1.min.js"></script>
+<script src="lib/angular/angular.js"></script>
+<script src="js/app.js"></script>
+<script src="js/ctrl-timer.js"></script>
+<script src="js/ctrl-switchview.js"></script>
+<script src="js/ctrl-storageview.js"></script>
+<script src="js/ctrl-dateview.js"></script>
+<script src="js/ctrl-taskview.js"></script>
+<script src="js/filters.js"></script>
+<script src="js/services.js"></script>
+<script src="js/directives.js"></script>
+
 </body>
 </html>

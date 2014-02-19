@@ -41,6 +41,24 @@ angular.module("TimerwoodApp.services", [])
 		function Storage() {
 			// простой список записей
 			this.entries = [];
+			// // импортируем старые данные, если нужно
+			// if(localStorage.getItem("Timerwood-imported") != "true") {
+			// 	if(window["jQuery"] && window["jQuery"]["jStorage"]) {
+			// 		var importdata = JSON.parse($.jStorage.get("timer",-1)).periods; // используем старые библиотеки
+			// 		// конвертим в наш формат и добавляем
+			// 		if(importdata) {
+			// 			for(var i = 0; i < importdata.length; i++) {
+			// 				this.entries.push(new StorageEntry({
+			// 					start: new Date(importdata[i].start),
+			// 					stop: new Date(importdata[i].end),
+			// 					details: [(importdata[i].notes ? JSON.parse(importdata[i].notes) : (window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача"))]
+			// 				}));
+			// 			}
+			// 		}
+			// 		// больше не импортируем
+			// 		localStorage.setItem("Timerwood-imported", true);
+			// 	}
+			// }
 			// загружаемся из локального хранилища
 			this.load();
 		}

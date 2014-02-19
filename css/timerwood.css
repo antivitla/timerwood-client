@@ -55,14 +55,11 @@ body, input, button, textarea {
 strong {
 	font-weight: 600;
 }
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 500;
+}
 
 /* Ближе к серёдке страница */
-body {
-	padding: 4.5em 4.5em 2em 4.5em;
-	max-width: 50em;
-	margin: 0 auto;
-	position: relative;
-}
 @media screen and (max-width: 800px) {
 	body {
 		padding-left: 2.5em;
@@ -75,19 +72,30 @@ body {
 		padding-right: 1.5em;
 	}
 }
+page {
+	padding: 4.5em 4.5em 2em 4.5em;
+	max-width: 50em;
+	margin: 0 auto;
+	display: block;
+	position: relative;
+}
 
 /* Мелкие детали */
 a.delete {
 	color: #F15A22;
 }
 
+*[ng-controller] {
+	position: relative;
+}
+
 /* Футер */
-body > footer {
+page > footer {
 	text-align: center;
 	box-shadow: 0px -1px 0px 0px #e5e5e5;
-	padding-top: 81px;
+	padding: 4em;
 }
-body > footer > * {
+page > footer > * {
 	font-size: 14px;
 }
 
@@ -494,5 +502,110 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	height: 16px;
 }
 
+/* попап */
+.dialog {
+	position: fixed;
+	left: 0px; right: 0px; top: 0px; bottom: 0px;
+	width: 100%; height: 100%;
+	background-color: rgba(255,255,255,0.8); 
+	text-align: center;
+	z-index: 10; 
+}
+.dialog:before { 
+	content: " ";
+	height: 100%; 
+	display: inline-block; 
+	vertical-align: middle; 
+	width: 1px;
+}
+.dialog article {
+	display: inline-block; 
+	vertical-align: middle; 
+	text-align: left;
+	width: 400px;
+	padding: 20px 40px;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+}
+.dialog a.ok,
+.dialog a.cancel {
+	text-decoration: underline;
+	cursor: pointer;
+}
+.dialog article h3 {
+	text-align: center;
+	margin-bottom: 27px;
+}
+.dialog article p {
+	margin-bottom: 27px;
+}
+.dialog article p:last-child {
+	margin-bottom: 0px;
+}
+.dialog article label {
+	font-size: 14px;
+	text-align: center;
+	cursor: pointer;
+}
+
+
+/* помощь */
+*[ng-controller=HelpCtrl] {
+	position: relative;
+}
+*[ng-controller=HelpCtrl] a {
+	font-size: 14px;
+	padding: 0 14px;
+	font-weight: 500;
+	position: absolute;
+	right: 0;
+	top: -54px;
+}
+
+help {
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.45;
+	display: inline-block;
+	font-style: italic;
+	color: rgba(0,0,0,0.5);
+}
+help strong {
+	font-weight: 600;
+	color: #F05A24;
+}
+
+help.button-help {
+	position: absolute;
+	top: 80px;
+	left: 110px;
+}
+help.button-help img {
+	position: absolute;
+	left: -60px;
+	top: -10px;
+}
+help.input-help {
+	position: absolute;
+	top: -50px;
+	left: 340px;
+}
+help.input-help img {
+	position: absolute;
+	left: -45px;
+	top: 15px;
+}
+help.views-help {
+	position: absolute;
+	top: -85px;
+	left: 580px;
+	width: 360px;
+}
+help.views-help img {
+	position: absolute;
+	left: 180px;
+	top: 45px;
+}
 
 
