@@ -20,15 +20,22 @@ button, a {
 a:hover {
 	text-decoration: underline;
 }
+a {
+	color: #333;
+}
 
 input[type="text"] {
 	font-size: 24px;
 	height: 54px;
 	box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-webkit-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-moz-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
 	padding: 0 0.625em;
 	display: inline-block;
 	vertical-align: baseline;
 	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 input[type=text].small {
 	font-size: 16px;
@@ -37,7 +44,9 @@ input[type=text].small {
 	opacity: 1;
 	vertical-align: baseline;
 	display: inline-block;
-	box-shadow: 0px 0px 0px 1px #e5e5e5;
+	box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-webkit-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-moz-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
 } 
 
 
@@ -142,6 +151,8 @@ div[ng-controller="TimerCtrl"].stopped button[ng-click="toggle()"]:active,
 div[ng-controller="TimerCtrl"].started button[ng-click="toggle()"] {
 	background-color: #F15A22;
 	box-shadow: 0 -3px 0px 0px #C1272D;
+	-webkit-box-shadow: 0 -3px 0px 0px #C1272D;
+	-moz-box-shadow: 0 -3px 0px 0px #C1272D;
 	top: 3px;
 	color: #fff;
 }
@@ -198,6 +209,8 @@ div[ng-controller="TimerCtrl"] .time .ms {
 }
 div[ng-controller="TimerCtrl"] .task {
 	box-shadow: inset 0 0 0 1px #e5e5e5;
+	-webkit-box-shadow: inset 0 0 0 1px #e5e5e5;
+	-moz-box-shadow: inset 0 0 0 1px #e5e5e5;
 	position: relative;
 	padding: 0 1em 0 215px;
 	font-size: 24px;
@@ -232,8 +245,11 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	text-align: right;
 	padding-right: 1em;
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 	font-size: 14px;
 	line-height: 27px;
+	position: relative;
 }
 .switch-views > nav a {
 	margin-left: 0.5em;
@@ -315,6 +331,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .task-list .task:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
 .task-list .task.edit {
 	box-shadow: none;
@@ -373,6 +391,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .date-list li li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
 .date-list li li.edit:hover {
 	box-shadow: none;
@@ -403,6 +423,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .date-list header:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
 .date-list .edit input[type=text].details {
 	margin-left: -7px;
@@ -444,6 +466,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 /* меню записи хранилища */
 .storage-list li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
 }
 .storage-list li.edit:hover {
 	box-shadow: none;
@@ -527,6 +551,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	background-color: white;
 	border-radius: 10px;
 	box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+	-webkit-box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
 }
 .dialog a.ok,
 .dialog a.cancel {
@@ -571,6 +597,17 @@ help {
 	font-style: italic;
 	color: rgba(0,0,0,0.5);
 }
+help.plain {
+	 font-size: 14px;
+	 line-height: 27px;
+	 color: #333;
+	 font-style: normal;
+	 padding-left: 14px;
+	 padding-right: 14px;
+}
+help.plain p {
+	margin-bottom: 27px;
+}
 help strong {
 	font-weight: 600;
 	color: #F05A24;
@@ -601,11 +638,13 @@ help.views-help {
 	top: -85px;
 	left: 580px;
 	width: 360px;
+	text-align: left;
 }
 help.views-help img {
 	position: absolute;
 	left: 180px;
 	top: 45px;
 }
+
 
 

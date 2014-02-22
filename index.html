@@ -54,20 +54,35 @@
 	<div>&nbsp;</div>
 	<div>&nbsp;</div>
 
-	<div class="switch-views" ng-controller="SwitchViewCtrl" ng-show="storage.length > 0" ng-cloak>
+	<div class="switch-views" ng-controller="SwitchViewCtrl" ng-show="storage.length > 0" ng-cloak ng-init="samples=false">
 		<nav>
+			<help class="views-help" ng-show="help" ng-cloak>
+				<img src="images/help-arrow-03.png">
+				Записи внутренне хранятся простым списком (<strong>хранилище</strong>). <br>
+				Для удобства они группируются в виде истории (<strong>дни</strong>) или <br>
+				дерева подзадач (<strong>задачи</strong>).
+			</help>
+
 			<a ng-click="currentView = 'task'" title="">задачи</a>
 			<a ng-click="currentView = 'date'" title="">дни</a>
 			<!-- <a ng-click="currentView = 'log'" title="">лог</a> -->
 			<a ng-click="currentView = 'storage'" title="Формат хранения задач на сервере, недавние вверху. Для низкоуровневого редактирования и дебага">хранилище</a>
 		</nav>
 
-		<help class="views-help" ng-show="help" ng-cloak>
-			<img src="images/help-arrow-03.png">
-			Записи внутренне хранятся простым списком (<strong>хранилище</strong>). <br>
-			Для удобства они группируются в виде истории (<strong>дни</strong>) или <br>
-			дерева подзадач (<strong>задачи</strong>).  
-		</help>
+
+		<!-- Попапы -->
+		<div class="dialog" ng-show="samples" ng-cloak>
+			<article style="width: 550px;">
+				<h3>Примеры ст</h3>
+				<p>Это крупное изменение.</p>
+
+				<p style="text-align: center;">
+					<a class="ok" ng-click="samples=false">Ладно</a>
+				</p>
+			</article>
+		</div>
+
+
 
 		<!-- Задачи -->
 		<div class="view" ng-controller="TasksViewCtrl" ng-class="{show: currentView == 'task'}" ng-init="recentTasks = false">
@@ -175,6 +190,12 @@
 					</span>
 				</li>
 			</ul>
+
+			<!-- Хелп по хранилищу -->
+			<help class="storage-help" ng-show="help" ng-cloak>
+				<!-- <img src="images/help-arrow-04.png"> -->
+
+			</help>
 		</div>
 	</div>
 
@@ -300,17 +321,17 @@
 
 
 	<!-- Попапы -->
-	<div class="dialog" ng-controller="PopupCtrl" ng-show="greetingPopup">
+	<div class="dialog" ng-controller="PopupCtrl" ng-show="greetingPopup" ng-cloak>
 		<article style="width: 550px;">
 			<h3>Таймер 3.0</h3>
 			<p>Это крупное изменение.</p>
 			<p>В нём я постарался реализовать все что хотел и так, как хотел. И это получилось.</p>
-			<p>Среди фич, которых просили:<br>
+			<p>Среди фич, которые просили:<br>
 				&emsp; &mdash; &nbsp; разбиение по задачам (вид &laquo;задачи&raquo;)<br>
 				&emsp; &mdash; &nbsp; редактирование<br>
-				&emsp; &mdash; &nbsp; <del>отчёты и синхронизация</del> (в след. апдейтах)
+				&emsp; &mdash; &nbsp; <del>отчёты c баблом и синхронизация</del> (в след. апдейтах)
 			</p>
-			<p>Несмотря на кажущуюся мне его простоту, возможно вы всё-таки не догадаетесь до некоторых фишечек. Над строкой таймера будет висеть ссылочка &laquo;?&raquo;, (хелп) проглядите её на досуге.</p>
+			<p>Если не разберетесь или чего-то не хватает, пишите на <a href="http://www.facebook.com/woodmanswork" target="_blank">facebook.com/woodmanswork</a></p>
 			<p style="text-align: center;">
 				<a class="ok" ng-click="close('greetingPopup')">Очень рад</a>
 				&emsp;
