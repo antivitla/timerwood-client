@@ -264,7 +264,7 @@
 
 			<span style="opacity: 0.5; padding: 0 0.125em;" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">&ndash;</span>
 
-			<span class="duration" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price">,</span></span>
+			<span class="duration" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price.hour">,</span></span>
 			
 			<span class="duration-total" ng-show="task.children.length > 0">
 				{{task.getDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price.hour">,</span>
