@@ -1,0 +1,696 @@
+/* Timerwood */
+
+@import url('../fonts/pfbeausanspro.css');
+@import url('../fonts/ptmono.css');
+
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+ul, ol {
+	list-style: none;
+}
+input:focus, button:focus, textarea:focus {
+	outline: none;
+}
+button, a {
+	cursor: pointer;
+}
+a:hover {
+	text-decoration: underline;
+}
+a {
+	color: #333;
+}
+
+input[type="text"] {
+	font-size: 24px;
+	height: 54px;
+	box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-webkit-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-moz-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	padding: 0 0.625em;
+	display: inline-block;
+	vertical-align: baseline;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+input[type=text].small {
+	font-size: 16px;
+	height: 27px;
+	padding: 0 7px;
+	opacity: 1;
+	vertical-align: baseline;
+	display: inline-block;
+	box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-webkit-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+	-moz-box-shadow: inset 0px 0px 0px 1px #e5e5e5;
+} 
+
+
+/* Шрифты */
+body, input, button, textarea {
+	font-family: PF Beau Sans, sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+	line-height: 27px;
+	color: #333;
+}
+*[number] {
+	font-family: PT Mono, monospace;
+}
+strong {
+	font-weight: 600;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 500;
+}
+
+/* Ближе к серёдке страница */
+@media screen and (max-width: 800px) {
+	body {
+		padding-left: 2.5em;
+		padding-right: 2.5em;
+	}
+}
+@media screen and (max-width: 600px) {
+	body {
+		padding-left: 1.5em;
+		padding-right: 1.5em;
+	}
+}
+page {
+	padding: 4.5em 4.5em 2em 4.5em;
+	max-width: 50em;
+	margin: 0 auto;
+	display: block;
+	position: relative;
+}
+
+/* Мелкие детали */
+a.delete {
+	color: #F15A22;
+}
+
+*[ng-controller] {
+	position: relative;
+}
+
+/* Футер */
+page > footer {
+	text-align: center;
+	box-shadow: 0px -1px 0px 0px #e5e5e5;
+	padding: 4em;
+}
+page > footer > * {
+	font-size: 14px;
+}
+
+/* Сложная кнопка старт-стоп таймера */
+div[ng-controller="TimerCtrl"] {
+	position: relative;
+	height: 3em;
+	text-align: center;
+}
+div[ng-controller="TimerCtrl"] > * {
+	display: inline-block;
+	vertical-align: top;
+	text-align: left;
+}
+div[ng-controller="TimerCtrl"] button[ng-click="toggle()"] {
+	font-weight: normal;
+	font-size: 21px;
+	color: #fff;
+	height: 51px;
+	line-height: 51px;
+	padding: 0 65px 0 1.5em;
+	text-align: left;
+	background-color: #f2f2f2;
+	box-shadow: 0 3px 0px 0px #e5e5e5;
+	color: #333;
+	border-radius: 10px;
+	z-index: 1;
+	position: relative;
+	border-bottom-right-radius: 0;
+	border-top-right-radius: 0;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	width: 190px;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+div[ng-controller="TimerCtrl"].simple button[ng-click="toggle()"] {
+	border-radius: 10px;
+	position: relative;
+}
+div[ng-controller="TimerCtrl"].stopped button[ng-click="toggle()"]:active,
+div[ng-controller="TimerCtrl"].started button[ng-click="toggle()"] {
+	background-color: #F15A22;
+	box-shadow: 0 -3px 0px 0px #C1272D;
+	-webkit-box-shadow: 0 -3px 0px 0px #C1272D;
+	-moz-box-shadow: 0 -3px 0px 0px #C1272D;
+	top: 3px;
+	color: #fff;
+}
+div[ng-controller="TimerCtrl"] .new-subtask {
+	position: absolute;
+	font-size: 14px;
+	bottom: -36px;
+	right: 1em;
+}
+div[ng-controller="TimerCtrl"] .path {
+	position: absolute;
+	left: 210px;
+	top: -36px;
+	font-size: 14px;
+}
+div[ng-controller="TimerCtrl"] .time {
+	position: relative;
+	font-family: PT Mono, monospace;
+}
+div[ng-controller="TimerCtrl"] .time .hour,
+div[ng-controller="TimerCtrl"] .time .divider,
+div[ng-controller="TimerCtrl"] .time .min {
+	font-size: 30px;
+	position: relative;
+	top: 2px;
+}
+div[ng-controller="TimerCtrl"].started .time .hour.low,
+div[ng-controller="TimerCtrl"].started .time .divider.low,
+div[ng-controller="TimerCtrl"].started .time .min.low {
+	opacity: 0.5;
+}
+div[ng-controller="TimerCtrl"] .time .sec {
+	font-size: 15px;
+	line-height: 1em;
+	display: block;
+	position: absolute;
+	right: 25px;
+	top: 15px;
+	width: 25px;
+	text-align: center;
+}
+div[ng-controller="TimerCtrl"].started .time .sec {
+	font-weight: bold;	
+}
+div[ng-controller="TimerCtrl"] .time .ms {
+	font-size: 10px;
+	line-height: 1em;
+	display: block;
+	position: absolute;
+	right: 25px;
+	bottom: 11px;
+	width: 25px;
+	text-align: center;
+}
+div[ng-controller="TimerCtrl"] .task {
+	box-shadow: inset 0 0 0 1px #e5e5e5;
+	-webkit-box-shadow: inset 0 0 0 1px #e5e5e5;
+	-moz-box-shadow: inset 0 0 0 1px #e5e5e5;
+	position: relative;
+	padding: 0 1em 0 215px;
+	font-size: 24px;
+	line-height: normal;
+	height: 54px;
+	width: 100%;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	border-radius: 10px;
+}
+div[ng-controller="TimerCtrl"] a[ng-click="toggleType()"] {
+	position: absolute;
+	bottom: -36px;
+	font-size: 14px;
+	left: 36px;
+}
+div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
+	left: 50%;
+	margin-left: -60px;
+}
+
+/* Виды списков таймера */
+.switch-views > .view {
+	display: none;
+}
+.switch-views > .view.show {
+	display: block;
+	position: relative;
+}
+.switch-views > nav {
+	text-align: right;
+	padding-right: 1em;
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	font-size: 14px;
+	line-height: 27px;
+	position: relative;
+}
+.switch-views > nav a {
+	margin-left: 0.5em;
+}
+
+/* Переключение недавних задач */
+.toggle-all {
+	position: relative;
+}
+.toggle-all a {
+	font-size: 14px;
+	position: absolute;
+	top: -27px;
+	right: 1em;
+}
+.toggle-all:after {
+	content: " ";
+	position: absolute;
+	left: 0;
+	bottom: 0px;
+	height: 0px;
+	width: 100%;
+	border-bottom: solid #e5e5e5 1px;
+}
+
+/* Список задач */
+.task-list .duration {
+	font-family: PT Mono, monospace;
+	opacity: 0.5;
+	font-size: 80%;
+}
+.task-list .duration-total {
+	font-weight: 200;
+	margin-left: 1em;
+	/*opacity: 0.5;*/
+}
+.task-list .price {
+	font-weight: 200;
+	margin-left: 1em;
+}
+.task-list .leaf > .price {
+	margin-left: 1em;
+	font-family: PT Mono, monospace;
+	opacity: 0.5;
+	font-size: 80%;
+}
+.task-list > li.group {
+	padding-top: 27px;
+}
+.task-list > li:last-child {
+	padding-bottom: 27px;
+}
+.task-list > li.group:last-child {
+	padding-bottom: 0px;
+}
+.task-list > li > .task .duration-total {
+	font-weight: 200;
+	opacity: 1;
+	font-size: 24px;
+}
+.task-list > li > .task .price {
+	font-weight: 400;
+	opacity: 1;
+	font-size: 24px;
+}
+.task-list li li {
+	padding-left: 2em;
+}
+.task-list ul {
+	margin-bottom: 27px;
+}
+.task-list .controls {
+	display: none;
+	text-align: right;
+	vertical-align: baseline;
+	float: right;
+	padding-right: 14px;
+	font-size: 14px;
+}
+.task-list .controls > * {
+	margin-left: 0.5em;
+	display: inline-block;
+	vertical-align: baseline;
+}
+.task-list .task:hover .controls,
+.task-list .task.edit .controls {
+	display: inline-block;
+}
+.task-list .task {
+	padding-left: 14px;
+	font-size: 16px;
+	height: 27px;
+	line-height: 27px;
+}
+.task-list .task:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.task-list .task.edit {
+	box-shadow: none;
+}
+.task-list .task.selected {
+	background-color: whitesmoke;
+}
+.task-list > li > .task.group {
+	margin-bottom: 14px;
+}
+.task-list > li > .task.group .name {
+	/*font-weight: 500;*/
+	font-size: 24px;
+	line-height: 27px;
+	height: 27px;
+	/*text-transform: uppercase;*/
+}
+.task-list .edit input[type=text] {
+	margin-left: -7px;
+	width: 50%;
+}
+
+/* Хронология задач по дате */
+.date-list > li {
+	padding-top: 27px;
+	padding-bottom: 27px;
+	position: relative;
+}
+.date-list header {
+	line-height: 27px;
+	height: 27px;
+	padding-left: 14px;
+	font-weight: 300;
+	font-size: 24px;
+	margin-bottom: 14px;
+}
+.date-list header .duration {
+	margin-left: 2em;
+	font-weight: 200;
+}
+.date-list header .price {
+	font-weight: 400;
+	margin-left: 1em;
+}
+.date-list li li {
+	padding-left: 14px;
+	height: 27px;
+}
+.date-list li li .task {
+	font-size: 16px;
+	display: inline-block;
+	vertical-align: baseline;
+}
+.date-list li li .duration {
+	font-family: PT Mono, monospace;
+	display: inline-block;
+	vertical-align: baseline;
+	font-size: 14px;
+	opacity: 0.5;
+}
+.date-list li li .price {
+	font-family: PT Mono, monospace;
+	display: inline-block;
+	vertical-align: baseline;
+	font-size: 14px;
+	opacity: 0.5;
+}
+.date-list li li:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.date-list li li.edit:hover {
+	box-shadow: none;
+}
+.date-list .controls {
+	display: none;
+	text-align: right;
+	vertical-align: baseline;
+	float: right;
+	padding-right: 14px;
+	font-size: 14px;
+}
+.date-list li li:hover .controls {
+	display: inline-block;
+}
+.date-list li li:hover .controls > * {
+	display: inline-block;
+	vertical-align: baseline;
+}
+.date-list li li.edit .controls {
+	display: inline-block;
+}
+.date-list li li .controls > * {
+	margin-left: 0.5em;
+}
+.date-list header:hover .controls {
+	display: inline-block;
+}
+.date-list header:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.date-list .edit input[type=text].details {
+	margin-left: -7px;
+	width: 50%;
+}
+.date-list .edit input[type=text].duration {
+	opacity: 1;
+	position: relative;
+	top: -1px;
+	width: 4em;
+}
+.leaf-task-list .task .group:first-child {
+	/*text-transform: uppercase;*/
+}
+
+/* Список записей хранилища */
+.storage-list {
+	font-family: PT Mono, monospace;
+	font-size: 14px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+.storage-list li {
+	position: relative;
+	padding: 0 1em;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.storage-list span.start,
+.storage-list span.duration {
+	opacity: 0.5;
+}
+.storage-list span.details {
+	cursor: pointer;
+}
+.storage-list span.details:hover {
+	text-decoration: underline;
+}
+/* меню записи хранилища */
+.storage-list li:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.storage-list li.edit:hover {
+	box-shadow: none;
+}
+.storage-list .controls {
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: none;
+	font-family: PF Beau Sans, sans-serif;
+	margin-right: 1em;
+}
+.storage-list .controls > * {
+	margin-left: 0.5em;
+}
+.storage-list li.edit .controls,
+.storage-list li:hover .controls {
+	display: inline-block;
+}
+.storage-list input[type=text] {
+	font-family: PT Mono, monospace;
+	font-size: 14px;
+}
+.storage-list input[type=text].date {
+	width: 6em;
+	margin-left: -7px;
+}
+.storage-list input[type=text].start {
+	width: 3.25em;
+}
+.storage-list input[type=text].duration {
+	width: 4em;
+}
+.storage-list input[type=text].details {
+	width: 40%;
+}
+
+/* Поиск в видах */
+.view .search-entries {
+	position: absolute;
+	top: -28px;
+	left: 7px;
+	width: 50%;
+}
+.view .search-entries input[type="text"] {
+	box-shadow: none;
+	background-color: transparent;
+	width: 100%;
+	font-size: 14px;
+}
+
+/* цена в видах */
+.view .price-hour {
+	position: absolute;
+	top: -28px;
+	left: 14px;
+	white-space: nowrap;
+	font-size: 14px;
+}
+.view .price-hour input[type="text"] {
+	box-shadow: none;
+	background-color: transparent;
+	width: 40px;
+	font-size: 14px;
+	text-align: right;
+	font-weight: 600;
+}
+.view .price-hour input[type="text"]:after {
+	content: "рублей";
+}
+
+/* Иконка в контролах */
+.controls .icon {
+	position: relative;
+	top: 2px;
+	height: 16px;
+}
+
+/* попап */
+.dialog {
+	position: fixed;
+	left: 0px; right: 0px; top: 0px; bottom: 0px;
+	width: 100%; height: 100%;
+	background-color: rgba(255,255,255,0.8); 
+	text-align: center;
+	z-index: 10; 
+}
+.dialog:before { 
+	content: " ";
+	height: 100%; 
+	display: inline-block; 
+	vertical-align: middle; 
+	width: 1px;
+}
+.dialog article {
+	display: inline-block; 
+	vertical-align: middle; 
+	text-align: left;
+	width: 400px;
+	padding: 20px 40px;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+	-webkit-box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+}
+.dialog a.ok,
+.dialog a.cancel {
+	text-decoration: underline;
+	cursor: pointer;
+}
+.dialog article h3 {
+	text-align: center;
+	margin-bottom: 27px;
+}
+.dialog article p {
+	margin-bottom: 27px;
+}
+.dialog article p:last-child {
+	margin-bottom: 0px;
+}
+.dialog article label {
+	font-size: 14px;
+	text-align: center;
+	cursor: pointer;
+}
+
+
+/* помощь */
+*[ng-controller=HelpCtrl] {
+	position: relative;
+}
+*[ng-controller=HelpCtrl] a {
+	font-size: 14px;
+	padding: 0 14px;
+	font-weight: 500;
+	position: absolute;
+	right: 0;
+	top: -54px;
+}
+
+help {
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.45;
+	display: inline-block;
+	font-style: italic;
+	color: rgba(0,0,0,0.5);
+}
+help.plain {
+	 font-size: 14px;
+	 line-height: 27px;
+	 color: #333;
+	 font-style: normal;
+	 padding-left: 14px;
+	 padding-right: 14px;
+}
+help.plain p {
+	margin-bottom: 27px;
+}
+help strong {
+	font-weight: 600;
+	color: #F05A24;
+}
+
+help.button-help {
+	position: absolute;
+	top: 80px;
+	left: 110px;
+}
+help.button-help img {
+	position: absolute;
+	left: -60px;
+	top: -10px;
+}
+help.input-help {
+	position: absolute;
+	top: -50px;
+	left: 340px;
+}
+help.input-help img {
+	position: absolute;
+	left: -45px;
+	top: 15px;
+}
+help.views-help {
+	position: absolute;
+	top: -85px;
+	left: 580px;
+	width: 360px;
+	text-align: left;
+}
+help.views-help img {
+	position: absolute;
+	left: 180px;
+	top: 45px;
+}
+
+
+
