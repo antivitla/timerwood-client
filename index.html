@@ -17,12 +17,25 @@
 	
 	<script src="js/funnyphrases.js"></script>
 </head>
+
+<!-- Google Script -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48337655-1', 'mr-woodman.ru');
+  ga('send', 'pageview');
+
+</script>
+
 <body>
 
 <!-- Share -->
 <img src="http://mr-woodman.ru/timer/images/share3.png" style="display: none;">
 
-<page ng-app="TimerwoodApp">
+<page ng-app="TimerwoodApp" ng-cloak>
 
 	<div ng-controller="HelpCtrl" ng-cloak>
 		<a class="open-help" ng-click="toggleHelp()" title="Открыть помощь">?</a>
@@ -98,6 +111,12 @@
 
 		<!-- Задачи -->
 		<div class="view" ng-controller="TasksViewCtrl" ng-class="{show: currentView == 'task'}" ng-init="recentTasks = false">
+			<!-- Цена -->
+			<form class="price-hour">
+				Цена часа: <input type="text" class="small"
+					ng-model="price.hour" 
+					placeholder="?"> рублей
+			</form>
 			<section class="recent">
 				<ul class="task-list">
 					<li ng-repeat="task in tasks | filter:recent" ng-include="'task-template'" ng-class="{group: task.children.length > 0}"></li>
@@ -119,6 +138,12 @@
 
 		<!-- По дням -->
 		<div class="view" ng-controller="DateViewCtrl" ng-class="{show: currentView == 'date'}" ng-init="recentDates = false">
+			<!-- Цена -->
+			<form class="price-hour">
+				Цена часа: <input type="text" class="small"
+					ng-model="price.hour" 
+					placeholder="?"> рублей
+			</form>
 			<section class="recent">
 				<ul class="date-list">
 					<li 
@@ -239,9 +264,13 @@
 
 			<span style="opacity: 0.5; padding: 0 0.125em;" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">&ndash;</span>
 
-			<span class="duration" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
+			<span class="duration" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price">,</span></span>
 			
-			<span class="duration-total" ng-show="task.children.length > 0">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
+			<span class="duration-total" ng-show="task.children.length > 0">
+				{{task.getDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price.hour">,</span>
+			</span>
+
+			<span class="price" ng-show="task.getDuration() > 60000 && price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
 
 			<span class="controls" ng-class="status">
 				<a class="sub-task" ng-click="subTask(task)" ng-show="status=='view'" scroll-top-on-click>подзадача</a>
@@ -274,7 +303,11 @@
 			<span class="today">{{entry.date | filterDateTo: 'today'}}</span>
 			<span class="date">{{ entry.date | filterDateTo:'d' }}</span>
 			<span class="month">{{ entry.date | filterDateTo:'M' }}</span>
-			<span class="duration">{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}</span>
+			<span class="duration">
+				{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}<span ng-show="entry.getDuration() > 60000 && price.hour">,</span>
+			</span>
+			<span class="price" ng-show="entry.getDuration() > 60000 && price.hour">{{getPrice(entry.getDuration())|spacedNumber}} руб.</span>
+
 
 			<span class="controls">
 				<a class="filter-storage" 
@@ -308,7 +341,11 @@
 
 				<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
 				
-				<span class="duration"  ng-show="status=='view'">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
+				<span class="duration"  ng-show="status=='view'">
+					{{ task.getDuration() | filterMillisecondsTo:'hour min' }}<span ng-show="task.getDuration() > 60000 && price.hour">,</span>
+				</span>
+
+				<span class="price" ng-show="task.getDuration() > 60000 && price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
 
 				<input type="text" class="small duration" 
 					value="{{task.getDuration() | filterMillisecondsTo:'h m'}}" 
@@ -367,6 +404,10 @@
 <script src="js/filters.js"></script>
 <script src="js/services.js"></script>
 <script src="js/directives.js"></script>
+
+
+
+
 
 </body>
 </html>

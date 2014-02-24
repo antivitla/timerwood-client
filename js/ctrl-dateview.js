@@ -141,4 +141,19 @@ angular.module("TimerwoodApp.controllers")
 			console.log(dateFilter);
 			$rootScope.$broadcast("filter-storage-entries", dateFilter);
 		}
+
+		// деньги
+		// временно - деньги
+		if(!$rootScope.price) {
+			$rootScope.price = {
+				hour: localStorage.getItem("Timerwood-price-hour")
+			}
+		}
+		$scope.price = $rootScope.price;
+		$scope.$watch("price.hour", function(val, oldval) {
+			localStorage.setItem("Timerwood-price-hour", val);
+		});
+		$scope.getPrice = function(ms) {
+			return parseInt(ms * parseInt($scope.price.hour) / (60*60*1000));
+		}
 	}]);

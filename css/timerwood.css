@@ -286,6 +286,16 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	margin-left: 1em;
 	/*opacity: 0.5;*/
 }
+.task-list .price {
+	font-weight: 200;
+	margin-left: 1em;
+}
+.task-list .leaf > .price {
+	margin-left: 1em;
+	font-family: PT Mono, monospace;
+	opacity: 0.5;
+	font-size: 80%;
+}
 .task-list > li.group {
 	padding-top: 27px;
 }
@@ -297,6 +307,11 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .task-list > li > .task .duration-total {
 	font-weight: 200;
+	opacity: 1;
+	font-size: 24px;
+}
+.task-list > li > .task .price {
+	font-weight: 400;
 	opacity: 1;
 	font-size: 24px;
 }
@@ -373,6 +388,10 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	margin-left: 2em;
 	font-weight: 200;
 }
+.date-list header .price {
+	font-weight: 400;
+	margin-left: 1em;
+}
 .date-list li li {
 	padding-left: 14px;
 	height: 27px;
@@ -383,6 +402,13 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	vertical-align: baseline;
 }
 .date-list li li .duration {
+	font-family: PT Mono, monospace;
+	display: inline-block;
+	vertical-align: baseline;
+	font-size: 14px;
+	opacity: 0.5;
+}
+.date-list li li .price {
 	font-family: PT Mono, monospace;
 	display: inline-block;
 	vertical-align: baseline;
@@ -517,6 +543,26 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	background-color: transparent;
 	width: 100%;
 	font-size: 14px;
+}
+
+/* цена в видах */
+.view .price-hour {
+	position: absolute;
+	top: -28px;
+	left: 14px;
+	white-space: nowrap;
+	font-size: 14px;
+}
+.view .price-hour input[type="text"] {
+	box-shadow: none;
+	background-color: transparent;
+	width: 40px;
+	font-size: 14px;
+	text-align: right;
+	font-weight: 600;
+}
+.view .price-hour input[type="text"]:after {
+	content: "рублей";
 }
 
 /* Иконка в контролах */

@@ -188,4 +188,18 @@ angular.module("TimerwoodApp.filters", [])
 			}
 			return date;
 		}
+	})
+	.filter("spacedNumber", function() {
+		return function(n) {
+			var limit = 1;
+			var oldstr = String(n);
+			var newstr = [];
+			for(var i = oldstr.length; i > 0; i--) {
+				if((oldstr.length-i)%3 == 0) newstr.push(" ");
+				newstr.push(oldstr[i-1]);
+			}
+			if(newstr[0] == " ") newstr = newstr.slice(1, newstr.length);
+			return newstr.reverse().join("");
+
+		}
 	});
