@@ -480,7 +480,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	border-bottom-right-radius: 0;
 }
 .storage-list span.start,
-.storage-list span.duration {
+.storage-list span.duration,
+.storage-list span.grey {
 	opacity: 0.5;
 }
 .storage-list span.details {
@@ -530,6 +531,36 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .storage-list input[type=text].details {
 	width: 40%;
 }
+.storage-list .view span.start,
+.storage-list .view span.details,
+.storage-list .view span.duration,
+.storage-list .view a.delete,
+.storage-list .view a.edit {
+	display: inline;
+}
+.storage-list .edit span.start,
+.storage-list .edit span.details,
+.storage-list .edit span.duration,
+.storage-list .edit a.edit {
+	display: none;
+}
+
+.storage-list .view input.start,
+.storage-list .view input.details,
+.storage-list .view input.duration,
+.storage-list .view a.save,
+.storage-list .view a.cancel {
+	display: none;
+}
+.storage-list .edit input.start,
+.storage-list .edit input.details,
+.storage-list .edit input.duration {
+	display: inline-block;
+}
+.storage-list .edit a.save,
+.storage-list .edit a.cancel {
+	display: inline;
+} 
 
 /* Поиск в видах */
 .view .search-entries {

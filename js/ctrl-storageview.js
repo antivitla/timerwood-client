@@ -4,7 +4,7 @@
 //
  
 angular.module("TimerwoodApp.controllers")
-	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$filter", function($scope, Storage, $rootScope, $filter) {
+	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$filter", "$timeout", function($scope, Storage, $rootScope, $filter, $timeout) {
 		$scope.entries = Storage.entries; // массив записей Хранилища
 
 		/*
@@ -45,7 +45,11 @@ angular.module("TimerwoodApp.controllers")
 				var newDate = $filter("updateDateFromDateString")(new Date(entry.start), entry.editDate, ".");
 				entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - newDate, "h m");
 			})
-			this.$broadcast("editLastItem");
+			// сообщаем спецдирективам чтоб выделило содержимое инпута
+			var entryScope = this;
+			$timeout(function() {
+				entryScope.$broadcast("editLastItem");
+			},1);
 		}
 
 		$scope.cancel = function(entry) {

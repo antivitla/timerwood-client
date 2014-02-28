@@ -8,10 +8,11 @@ angular.module("TimerwoodApp.directives", [])
 		return {
 			restrict: 'A',
 			link: function(scope, $elm) {
+				var w = $(window);
 				function scrollDelta(delta) {
-					document.documentElement.scrollTop -= document.documentElement.scrollTop * delta;
-					if(document.documentElement.scrollTop < 5) {
-						document.documentElement.scrollTop = 0;
+					w.scrollTop(w.scrollTop() - w.scrollTop()*0.8);
+					if(w.scrollTop() < 5) {
+						w.scrollTop(0);
 					} else {
 						$timeout(function() {
 							scrollDelta(delta);						
@@ -63,7 +64,7 @@ angular.module("TimerwoodApp.directives", [])
 						$element[0].focus();
 						console.log("focu");
 					},10)
-				})
+				});
 			}
 		}
 	}])
