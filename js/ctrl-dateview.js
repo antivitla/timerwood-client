@@ -1,10 +1,10 @@
 //
 // Таймер 3.0
-// Контроллер вида "Дата"
+// Контроллер "Дата"
 //
  
 angular.module("TimerwoodApp.controllers")
-	.controller("DateViewCtrl", ["$scope", "$rootScope", "$filter", "Days", function($scope, $rootScope, $filter, Days) {
+	.controller("DateViewCtrl", ["$scope", "$rootScope", "$filter", "Days", "$timeout", function($scope, $rootScope, $filter, Days, $timeout) {
 		$scope.days = Days.entries; 
 
 		// фильтруем недавнее
@@ -41,7 +41,11 @@ angular.module("TimerwoodApp.controllers")
 		$scope.edit = function(task) {
 			task.editDuration = $filter("filterMillisecondsTo")(task.getDuration(), "h m");
 			task.editDetails = angular.copy(task.details);
-			this.$broadcast("editLastItem");
+			// сообщаем спецдирективам чтоб выделило содержимое инпута
+			var entryScope = this;
+			$timeout(function() {
+				entryScope.$broadcast("editLastItem");
+			},1);
 		}
 
 		$scope.cancel = function(task) {}

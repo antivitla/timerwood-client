@@ -1,6 +1,6 @@
 //
 // Таймер 3.0
-// Контроллер строки таймера
+// Контроллер таймера
 //
 
 angular.module("TimerwoodApp.controllers")
@@ -110,12 +110,6 @@ angular.module("TimerwoodApp.controllers")
 			TimerClock.stop();
 			//$rootScope.$broadcast("timerStatus", $scope.status);
 		}
-
-		// Переключатель типа UI таймера (сложный/простой)
-		$scope.type = "complex";
-		$scope.toggleType = function() {
-			$scope.type = ($scope.type == "simple" ? "complex" : "simple");
-		};
 
 		// сохраняем имя таска каждое нажатие клавиши (но ждем пока юзер перестанет печатать в теч. 0,2 сек)
 		// а также переключаем таймер по enter

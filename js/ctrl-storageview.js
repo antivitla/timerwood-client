@@ -1,6 +1,6 @@
 //
 // Таймер 3.0
-// Контроллер вида "Хранилище"
+// Контроллер "Хранилище"
 //
  
 angular.module("TimerwoodApp.controllers")
@@ -116,8 +116,4 @@ angular.module("TimerwoodApp.controllers")
 				$scope.$broadcast("editLastItemOnSwitchView");				
 			}
 		});
-
-		function getDateFromInput(entry) {
-			var d = $filter("setDateFromDayTimeString")(entry.start, entry.editStart, ":"); // время дня
-		}
 	}]);

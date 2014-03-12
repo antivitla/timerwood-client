@@ -70,13 +70,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Ближе к серёдке страница */
 @media screen and (max-width: 800px) {
-	body {
+	page.front {
 		padding-left: 2.5em;
 		padding-right: 2.5em;
 	}
 }
 @media screen and (max-width: 600px) {
-	body {
+	page.front {
 		padding-left: 1.5em;
 		padding-right: 1.5em;
 	}
@@ -88,6 +88,56 @@ page {
 	display: block;
 	position: relative;
 }
+page > nav {
+	position: relative;
+}
+page {
+	position: relative;
+	-webkit-transition: all 0.2s ease-out;
+	-moz-transition: all 0.2s ease-out;
+	transition: all 0.2s ease-out;
+	right: 0em;
+}
+page.back {
+	color: #888;
+	background-color: #333;
+	position: fixed;
+	top: 0px;
+	right: -25em;
+	bottom: 0px;
+	width: 20em;
+	padding-left: 2.5em;
+	padding-right: 2.5em;
+	opacity: 0;
+	transition: all 0.2s ease-out;
+}
+page.back.menu {
+	right: 0em;
+	opacity: 1;
+	z-index: 1;
+}
+page.front.menu {
+	right: 25em;
+}
+page.notes.menu {
+	right: 25em;
+}
+page.notes {
+	height: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	overflow: hidden;
+	opacity: 0;
+}
+page.notes.shownotes {
+	height: 300px;
+	padding: 4.5em 4.5em 2em 4.5em;
+	opacity: 1;
+}
+
+body {
+	overflow-x: hidden;
+}
 
 /* Мелкие детали */
 a.delete {
@@ -96,6 +146,19 @@ a.delete {
 
 *[ng-controller] {
 	position: relative;
+}
+
+
+/* задник чёрный */
+page.back strong {
+	color: #ccc;
+	font-weight: 400;
+}
+page.back article {
+	font-size: 14px;
+}
+page.back article a {
+	color: #ccc;
 }
 
 /* Футер */
@@ -113,6 +176,7 @@ div[ng-controller="TimerCtrl"] {
 	position: relative;
 	height: 3em;
 	text-align: center;
+	margin-bottom: 6em;
 }
 div[ng-controller="TimerCtrl"] > * {
 	display: inline-block;
@@ -281,14 +345,38 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	opacity: 0.5;
 	font-size: 80%;
 }
+.task-list .task.selfshort .duration {
+	display: none;
+}
+.task-list .task.selfshort.leaf .duration {
+	display: inline;
+}
+.task-list .duration:before {
+	content: "–";
+	padding: 0px 0.5em;
+}
 .task-list .duration-total {
 	font-weight: 200;
-	margin-left: 1em;
-	/*opacity: 0.5;*/
+	margin-left: 2em;
+}
+.price[ng-controller=TasksViewCtrl] .task-list .duration-total:after,
+.price[ng-controller=TasksViewCtrl] .task-list > li > .task.leaf .duration:after {
+	content: ",";
+}
+.price[ng-controller=TasksViewCtrl] .task-list .task.leaf .duration:after {
+	content: "/";
+	margin-left: 0.25em;
 }
 .task-list .price {
-	font-weight: 200;
+	font-weight: 400;
 	margin-left: 1em;
+	display: none;
+}
+.task-list .price:after {
+	content: " руб.";
+}
+.price[ng-controller=TasksViewCtrl] .task-list .price {
+	display: inline;
 }
 .task-list .leaf > .price {
 	margin-left: 1em;
@@ -296,14 +384,35 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	opacity: 0.5;
 	font-size: 80%;
 }
-.task-list > li.group {
+.task-list > li > .task.leaf > .price {
+	margin-left: 1em;
+}
+.task-list .leaf > .price {
+	margin-left: 0.25em;
+}
+.task-list > li:first-child {
 	padding-top: 27px;
 }
-.task-list > li:last-child {
-	padding-bottom: 27px;
+.task-list > li > .task {
+	margin-top: 81px;
 }
-.task-list > li.group:last-child {
-	padding-bottom: 0px;
+.recent .task-list > li > .task {
+	margin-top: 54px;
+}
+.task-list > li:first-child > .task {
+	margin-top: 0px;
+}
+.all .task-list > li:first-child > .task {
+	margin-top: 27px;
+}
+.all .task-list > li:first-child > .task.leaf {
+	margin-top: 0px;
+}
+.task-list > li > .task.leaf {
+	margin-top: 0px;
+}
+.task-list > li:last-child > .task:last-child {
+	margin-bottom: 27px;
 }
 .task-list > li > .task .duration-total {
 	font-weight: 200;
@@ -315,10 +424,20 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	opacity: 1;
 	font-size: 24px;
 }
+.task-list > li > .task.leaf .price {
+	font-size: 80%;
+}
 .task-list li li {
 	padding-left: 2em;
 }
 .task-list ul {
+	margin-bottom: 27px;
+}
+.task-list > li > ul {
+	margin-top: 14px;
+	margin-bottom: 81px;
+}
+.task-list > li:last-child > ul {
 	margin-bottom: 27px;
 }
 .task-list .controls {
@@ -355,20 +474,57 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .task.selected {
 	background-color: whitesmoke;
 }
-.task-list > li > .task.group {
-	margin-bottom: 14px;
-}
-.task-list > li > .task.group .name {
-	/*font-weight: 500;*/
+.task-list > li > .task .name {
 	font-size: 24px;
 	line-height: 27px;
 	height: 27px;
-	/*text-transform: uppercase;*/
+}
+.task-list > li > .task.leaf .name {
+	font-size: inherit;
 }
 .task-list .edit input[type=text] {
 	margin-left: -7px;
 	width: 50%;
 }
+.task-list .task.leaf  a.continue-task,
+.task-list .task a.create-subtask,
+.task-list .task .duration-total {
+	display: inline;
+}
+.task-list .task a.continue-task,
+.task-list .task.leaf a.create-subtask,
+.task-list .task.leaf .duration-total {
+	display: none;
+}
+.task-list .task.edit a.continue-task,
+.task-list .task.edit a.create-subtask {
+	display: none;
+}
+.task-list .task .controls .sub-task,
+.task-list .task .controls .edit,
+.task-list .task .controls .filter-storage {
+	display: inline;
+}
+.task-list .task .controls .save,
+.task-list .task .controls .cancel {
+	display: none;
+}
+.task-list .task.edit .controls .sub-task,
+.task-list .task.edit .controls .edit,
+.task-list .task.edit .controls .filter-storage {
+	display: none;
+}
+.task-list .task.edit .controls .save,
+.task-list .task.edit .controls .cancel {
+	display: inline;
+}
+.task-list .task input[type="text"].name {
+	display: none;
+}
+.task-list .task.edit input[type="text"].name {
+	display: inline-block;
+}
+
 
 /* Хронология задач по дате */
 .date-list > li {
@@ -388,13 +544,26 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	margin-left: 2em;
 	font-weight: 200;
 }
+*[ng-controller=DateViewCtrl].price .date-list header .duration:after {
+	content: ",";
+}
+*[ng-controller=DateViewCtrl].price .date-list header.short .duration:after {
+	content: none;
+}
 .date-list header .price {
 	font-weight: 400;
 	margin-left: 1em;
 }
+.date-list header .price:after {
+	content: " руб.";
+}
+.date-list header.short .price {
+	display: none;
+}
 .date-list li li {
 	padding-left: 14px;
 	height: 27px;
+	position: relative;
 }
 .date-list li li .task {
 	font-size: 16px;
@@ -426,13 +595,15 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .date-list .controls {
 	display: none;
 	text-align: right;
-	vertical-align: baseline;
-	float: right;
-	padding-right: 14px;
+	margin-right: 1em;
 	font-size: 14px;
+	position: absolute;
+	font-family: PF Beau Sans, sans-serif;
+	right: 0;
+	top: 0;
 }
 .date-list li li:hover .controls {
-	display: inline-block;
+	display: block;
 }
 .date-list li li:hover .controls > * {
 	display: inline-block;
@@ -445,7 +616,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	margin-left: 0.5em;
 }
 .date-list header:hover .controls {
-	display: inline-block;
+	display: block;
+	top: 27px;
 }
 .date-list header:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
@@ -462,9 +634,48 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	top: -1px;
 	width: 4em;
 }
-.leaf-task-list .task .group:first-child {
-	/*text-transform: uppercase;*/
+.leaf-task-list li.view .task {
+	display: inline-block;
 }
+.leaf-task-list .task span:after {
+	content: ", ";
+}
+.leaf-task-list .task span:last-child:after {
+	content: none;
+}
+.leaf-task-list li.edit .task {
+	display: none;
+}
+.leaf-task-list li.view input[type=text].details {
+	display: none;
+}
+.leaf-task-list li.edit input[type=text].details {
+	display: inline-block;
+}
+*[ng-controller=DateViewCtrl].price .leaf-task-list .duration:after {
+	content: ",";
+}
+*[ng-controller=DateViewCtrl].price .leaf-task-list li.short .duration:after {
+	content: none;
+}
+*[ng-controller=DateViewCtrl].price .leaf-task-list li.short .price {
+	display: none;
+}
+.leaf-task-list li.edit span.duration,
+.leaf-task-list li.view input.duration,
+.leaf-task-list li.edit span.price,
+.leaf-task-list li.edit .controls .edit,
+.leaf-task-list li.view .controls .delete,
+.leaf-task-list li.view .controls .save,
+.leaf-task-list li.view .controls .cancel,
+.leaf-task-list li.edit .controls .filter-storage  {
+	display: none;
+}
+.leaf-task-list li.edit input.duration,
+.leaf-task-list li.view span.duration {
+	display: inline-block;
+}
+
 
 /* Список записей хранилища */
 .storage-list {
@@ -653,17 +864,65 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 
 
-/* помощь */
-*[ng-controller=HelpCtrl] {
-	position: relative;
-}
-*[ng-controller=HelpCtrl] a {
-	font-size: 14px;
-	padding: 0 14px;
-	font-weight: 500;
+/* меню */
+page > nav.menu {
 	position: absolute;
-	right: 0;
-	top: -54px;
+	right: 4.5em;
+	top: 27px;
+	margin-right: 14px;
+	text-decoration: none;
+}
+page.back > nav.menu {
+	right: auto;
+	left: 2em;
+}
+page > nav.menu > * {
+	font-size: 14px;
+}
+page > nav.menu a {
+	/*display: none;*/
+}
+page > nav.menu:hover a {
+	/*display: inline-block;*/
+	/*padding-right: 0.625em;*/
+}
+page > nav.menu > .menu-icon {
+	cursor: pointer;
+	font-weight: 500;
+	position: relative;
+	margin-left: 7px;
+	display: inline-block;
+	vertical-align: top;
+	text-decoration: none;
+}
+page > nav.menu > .menu-icon:before {
+	content: "—";
+	position: absolute;
+	top: -0.375em;
+	left: 0;
+}
+page > nav.menu > .menu-icon:after {
+	content: "—";
+	position: absolute;
+	top: 0.375em;
+	left: 0;
+}
+
+
+/* помощь */
+page > nav > .help {
+	font-size: 14px;	
+	/*padding: 0 14px;*/
+	/*font-weight: 400;*/
+	/*position: absolute;*/
+	/*right: 0px;*/
+	/*top: -54px;*/
+}
+page.front > nav > .help {
+	display: none;
+}
+page.front > nav:hover > .help {
+	display: inline;
 }
 
 help {
@@ -703,7 +962,7 @@ help.button-help img {
 help.input-help {
 	position: absolute;
 	top: -50px;
-	left: 340px;
+	left: 280px;
 }
 help.input-help img {
 	position: absolute;
@@ -713,7 +972,7 @@ help.input-help img {
 help.views-help {
 	position: absolute;
 	top: -85px;
-	left: 580px;
+	right: 0px;
 	width: 360px;
 	text-align: left;
 }
@@ -724,4 +983,15 @@ help.views-help img {
 }
 
 
+/* иконки */
+.icon-dropbox {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	vertical-align: middle;
+	background: url(../images/dropbox.png) no-repeat -48px top;
+}
+page.front .icon-dropbox {
+	background-position: -16px top;
+}
 

@@ -1,8 +1,7 @@
-
-
-
-
-// Filters
+//
+// Timerwood 3.0
+// фильтры
+// 
 
 angular.module("TimerwoodApp.filters", [])
 	.filter("filterMillisecondsTo", function() {

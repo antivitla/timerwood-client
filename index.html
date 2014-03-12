@@ -13,9 +13,11 @@
 
 	<title>Таймер</title>
 	<link rel="stylesheet" href="css/timerwood.css">
-	<!-- <script src="http://mr-woodman.ru/js/typogrid.js"></script> -->
+	<script src="http://mr-woodman.ru/js/typogrid.js"></script>
 	
 	<script src="js/funnyphrases.js"></script>
+
+
 </head>
 
 <!-- Google Script -->
@@ -30,22 +32,59 @@
 
 </script>
 
-<body>
-
-<!-- Share -->
+<body ng-app="TimerwoodApp" tw-global-shortcuts>
 <img src="http://mr-woodman.ru/timer/images/share3.png" style="display: none;">
 
-<page ng-app="TimerwoodApp" ng-cloak>
 
-	<div ng-controller="HelpCtrl" ng-cloak>
-		<a class="open-help" ng-click="toggleHelp()" title="Открыть помощь">?</a>
+<page class="notes" ng-class="{shownotes: notes, menu: menu}" ng-cloak>
+	<header style="text-align: center;">&darr;</header>
+	<article>
+		<iframe src="http://mr-woodman.ru/note" width="100%" height="300px" border="0px"></iframe>
+	</article>
+</page>
 
-		<div id="help" ng-show="help">
-			<!--  -->
+
+<page class="back" ng-class="{menu: menu}" ng-cloak>
+	<nav class="menu">
+		<span class="menu-icon" ng-click="menu=!menu;" title="Спрятать панель меню">&mdash;</span>
+	</nav>
+
+	<article>
+		<p><strong>Клавиши</strong></p>
+		<p>
+			<strong>H</strong> &mdash; помощь (<a ng-click="help=!help; menu=false;"><span ng-if="!help">показать</span><span ng-if="help">скрыть</span></a>)<br>
+			<strong>M</strong> &mdash; панель меню (<a ng-click="menu=false;">спрятать</a>)<br>
+			<strong>N</strong> &mdash; записки (<a ng-click="notes=!notes; menu=false;"><span ng-if="!notes">показать</span><span ng-if="notes">скрыть</span></a>)
+		</p>
+		<p>&nbsp;</p>
+		<div ng-controller="DropboxSyncCtrl">
+			<p ng-show="!connected"><a ng-click="connect()">Синхронизировать с <span class="icon-dropbox"></span> Dropbox</a></p>
+			<p ng-show="connected">
+				<strong>Синхронизация</strong><br>
+				{{dropboxName}} <span class="icon-dropbox"></span> Dropbox &mdash; <a ng-click="disconnect()">отключить</a>
+			</p>
 		</div>
-	</div>
+		<p>&nbsp;</p>
+		<p><strong>Изменения</strong></p>
+		<p>Кнопка <strong style="cursor: pointer;" ng-click="menu=false;" title="Спрятать панель меню">&equiv;</strong> &mdash; переключает панель меню.</p>
+	</article>
+</page>
 
-	<div ng-controller="TimerCtrl" ng-class="[status, type]" ng-cloak>
+
+
+<page class="front" ng-class="{menu: menu, shownotes: notes}" ng-cloak>
+
+	<nav class="menu" ng-show="!menu">
+		<!-- <span ng-show="connected" style="">{{dropboxName}} <span class="icon-dropbox"></span></span> &nbsp; -->
+		<a class="menu-icon" ng-click="menu=!menu;" title="Открыть панель меню">&mdash;</a>
+	</nav>
+
+
+
+
+
+
+	<div ng-controller="TimerCtrl" ng-class="[status]" ng-cloak>
 		<button class="time" ng-click="toggle()" title="{{toggleTip[status]}}">
 			<span class="hour" ng-class="{low: info.duration < 3600000}">{{info.duration|filterMillisecondsTo:"hh"}}</span><span class="divider" ng-class="{low: info.duration < 60000}">:</span><span class="min" ng-class="{low: info.duration < 60000}">{{info.duration|filterMillisecondsTo:"mm":true}}</span>
 			<span class="sec">{{info.duration|filterMillisecondsTo:"ss":true}}</span>
@@ -62,24 +101,31 @@
 
 		<help class="button-help" ng-show="help" ng-cloak>
 			<img src="images/help-arrow-01.png">
-			<strong>Главная Кнопка таймера,</strong><br>
-			запускать также можно:<br>
-			&mdash; кликами по задачам в видах задачи/дни/хранилище,<br>
-			&mdash; и Enter’ом в поле справа.
+			<strong>Главная Кнопка</strong><br>
+			Запускать также можно кликами по задачам<br>
+			и Enter’ом в поле справа.
 		</help>
 		<help class="input-help" ng-show="help" ng-cloak>
 			<img src="images/help-arrow-02.png">
-			Ввод названия задачи (генерится случайно, если не вводить).<br>
+			Название задачи (генерится случайно, если не вводить).<br>
 			<strong>Через запятую</strong> задаётся вложенность задачи, <strong>enter</strong>’ом запускается таймер.  
 		</help>
 	</div>
 
-	<div>&nbsp;</div>
-	<div>&nbsp;</div>
-	<div>&nbsp;</div>
-	<div>&nbsp;</div>
 
-	<div class="switch-views" ng-controller="SwitchViewCtrl" ng-show="storage.length > 0" ng-cloak ng-init="samples=false">
+
+
+
+
+
+
+
+
+
+	<div ng-controller="SwitchViewCtrl" class="switch-views" ng-show="storage.length > 0" ng-cloak>
+
+
+
 		<nav>
 			<help class="views-help" ng-show="help" ng-cloak>
 				<img src="images/help-arrow-03.png">
@@ -95,42 +141,22 @@
 		</nav>
 
 
-		<!-- Попапы -->
-		<div class="dialog" ng-show="samples" ng-cloak>
-			<article style="width: 550px;">
-				<h3>Примеры ст</h3>
-				<p>Это крупное изменение.</p>
-
-				<p style="text-align: center;">
-					<a class="ok" ng-click="samples=false">Ладно</a>
-				</p>
-			</article>
-		</div>
 
 
 
-		<!-- Задачи -->
-		<div class="view" ng-controller="TasksViewCtrl" ng-class="{show: currentView == 'task'}" ng-init="recentTasks = false">
-			<!-- Цена -->
-			<form class="price-hour">
-				Цена часа: <input type="text" class="small"
-					ng-model="price.hour" 
-					placeholder="?"> рублей
-			</form>
-
+		<div ng-controller="TasksViewCtrl" class="view" ng-class="{show: currentView == 'task', price: price.hour}" ng-init="recentTasks = false">
+			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?"> рублей</form>
 			<div ng-if="currentView == 'task'">
 				<section class="recent">
 					<ul class="task-list">
 						<li ng-repeat="task in tasks | filter:recent" ng-include="'task-template'" ng-class="{group: task.children.length > 0}"></li>
 					</ul>
 				</section>
-
 				<div class="toggle-all" ng-show="tasks.length > recentCount">
 					<a ng-click="recentTasks = !recentTasks">
 						{{ recentTasks && "Скрыть" || "Показать" }} ранние проекты
 					</a>
 				</div>
-
 				<section class="all" ng-show="recentTasks == true">
 					<ul class="task-list">
 						<li ng-repeat="task in tasks | filter:excludeRecent" ng-include="'task-template'" ng-class="{group: task.children.length > 0}"></li>
@@ -139,43 +165,37 @@
 			</div>
 		</div>
 
-		<!-- По дням -->
-		<div class="view" ng-controller="DateViewCtrl" ng-class="{show: currentView == 'date'}" ng-init="recentDates = false">
-			<!-- Цена -->
-			<form class="price-hour">
-				Цена часа: <input type="text" class="small"
-					ng-model="price.hour" 
-					placeholder="?"> рублей
-			</form>
 
+
+
+
+
+		<div ng-controller="DateViewCtrl" class="view" ng-class="{show: currentView == 'date', price: price.hour}" ng-init="recentDates = false">
+			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?"> рублей</form>
 			<div ng-if="currentView == 'date'">
 				<section class="recent">
 					<ul class="date-list">
-						<li 
-							ng-repeat="entry in days | filter:recent" 
-							ng-include="'day-template'"></li>
+						<li ng-repeat="entry in days | filter:recent" ng-include="'day-template'"></li>
 					</ul>
 				</section>
-
 				<div class="toggle-all" ng-show="days.length > recentCount">
-					<a ng-click="recentDates = !recentDates">
-						{{ recentDates && "Скрыть" || "Показать" }} ранние даты
-					</a>
+					<a ng-click="recentDates = !recentDates">{{ recentDates && "Скрыть" || "Показать" }} ранние даты</a>
 				</div>
-
 				<section class="all" ng-show="recentDates == true">
 					<ul class="date-list">
-						<li 
-							ng-repeat="entry in days | filter:excludeRecent" 
-							ng-include="'day-template'"></li>
+						<li ng-repeat="entry in days | filter:excludeRecent" ng-include="'day-template'"></li>
 					</ul>
 				</section>
 			</div>
 		</div>
 
-		<!-- Хранилище -->
-		<div class="view" ng-controller="StorageViewCtrl" ng-class="{show: currentView == 'storage'}">
-			<!-- Поиск -->
+
+
+
+
+
+
+		<div ng-controller="StorageViewCtrl" class="view" ng-class="{show: currentView == 'storage'}">
 			<form class="search-entries">
 				<input type="text" class="small"
 					ng-model="search" 
@@ -183,39 +203,31 @@
 					tw-focus-on-switch-view 
 					placeholder="Введите фильтры через запятую">
 			</form>
-
 			<div ng-if="currentView == 'storage'">
 				<ul class="storage-list">
 					<li ng-repeat="entry in filtered = (entries | filter:searchTags)" ng-init="status='view'; entryScope = this" ng-class="status">
-
 						<div ng-if="status == 'edit'">
 							<input type="text" class="small date" 
 								ng-model="entry.editDate" 
-								ng-keydown="checkSubmit($event, entry, entryScope)">
-							
+								ng-keydown="checkSubmit($event, entry, entryScope)">							
 							<span class="grey">в</span> 
-
 							<input type="text" class="small start" 
 								tw-focus-on-edit 
 								ng-model="entry.editStart" 
-								ng-keydown="checkSubmit($event, entry, entryScope)">
-							
+								ng-keydown="checkSubmit($event, entry, entryScope)">						
 							<input type="text" class="small details"
 								ng-model="entry.editDetails" 
 								ng-list="," 
-								ng-keydown="checkSubmit($event, entry, entryScope)">
-		
+								ng-keydown="checkSubmit($event, entry, entryScope)">		
 							<input type="text" class="small duration" 
 								ng-model="entry.editDuration" 
 								ng-keydown="checkSubmit($event, entry, entryScope)">
 						</div>
-
 						<div ng-if="status == 'view'">
 							<span class="start">{{entry.start | filterDateTo:'dd.mm.yyyy'}} в {{entry.start | filterDateTo: 'hh:mm'}}</span>
 							<span class="details" title="Запустить задачу" ng-click="start(entry.details)" scroll-top-on-click>{{entry.details}}</span>
 							<span class="duration">{{entry.stop - entry.start | filterMillisecondsTo:'hour min'}}</span>
 						</div>
-
 						<span class="controls">
 							<a class="delete" ng-click="delete(entry); status='view'">удалить</a>
 							<a class="edit" ng-click="edit(entry); status='edit';">редактировать</a>
@@ -228,79 +240,69 @@
 		</div>
 	</div>
 
+
+
+
+
+
 	<footer ng-controller="FooterCtrl" ng-show="storage.length > 0" ng-cloak>
 		<span style="font-size: 18px;">Таймер 3.0</span>
 		<br><span>сделано на левом берегу &trade;</span>
 		<br><br><img src="images/cat-preloader.gif">
 	</footer>
 
+
+
+
+
+
+
+
 	<!-- Шаблон задачи -->
 	<script type="text/ng-template" id="task-template">
-		<div class="task" ng-class="{group: task.children.length > 0, leaf: task.children.length == 0, view: status=='view', edit: status=='edit'}" tw-parent-hover ng-init="status='view'">
-			<a class="name" title="Продолжить задачу" 
+		<div class="task" ng-class="{ leaf: task.children.length == 0, edit: status=='edit', short: task.getDuration() < 60000, selfshort: task.getOwnDuration() < 60000 }" tw-parent-hover ng-init="status='view'">
+			<a class="continue-task name" title="Продолжить задачу" 
 				ng-click="start(task)" 
-				ng-show="status == 'view' && task.children.length < 1"
 				scroll-top-on-click>{{task.name}}</a>
-
-			<a class="name" title="Начать подзадачу" 
+			<a class="create-subtask name" title="Начать подзадачу" 
 				ng-click="subTask(task)" 
-				ng-show="status == 'view' && task.children.length > 0"
 				scroll-top-on-click>{{task.name}}</a>
-
 			<input type="text" class="small name"
 				ng-model="task.path"
 				ng-list="," 
-				ng-show="status=='edit'" 
 				tw-focus-on-edit 
 				ng-keydown="checkSubmit($event, task, this)">
-
-			<span style="opacity: 0.5; padding: 0 0.125em;" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">&ndash;</span>
-
-			<span class="duration" ng-show="(task.getOwnDuration() > 60000 && task.children.length > 0) || task.children.length == 0">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price.hour">,</span></span>
-			
-			<span class="duration-total" ng-show="task.children.length > 0">
-				{{task.getDuration() | filterMillisecondsTo:'hour min'}}<span ng-show="task.getDuration() > 60000 && price.hour">,</span>
-			</span>
-
-			<span class="price" ng-show="task.getDuration() > 60000 && price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
-
+			<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>			
+			<span class="duration-total">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
+			<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}}</span>
 			<span class="controls" ng-class="status">
-				<a class="sub-task" ng-click="subTask(task)" ng-show="status=='view'" scroll-top-on-click>подзадача</a>
-				<a class="edit" ng-click="edit(task); status='edit'" ng-show="status=='view'">редактировать</a>
-				<a class="filter-storage" 
-					ng-click="filterStorageView(task);" 
-					ng-show="status=='view'" 
-					title="Поиск записей по хранилищу" 
-					scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
+				<a class="sub-task" ng-click="subTask(task)" scroll-top-on-click>подзадача</a>
+				<a class="edit" ng-click="edit(task); status='edit'">редактировать</a>
+				<a class="filter-storage" ng-click="filterStorageView(task);" title="Поиск записей по хранилищу" scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 				<!--a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a-->
-				<a class="save" ng-click="save(task); status='view'" ng-show="status=='edit'">сохранить</a>
-				<a class="cancel" ng-click="cancel(task); status='view'" ng-show="status=='edit'">отмена</a>
+				<a class="save" ng-click="save(task); status='view'">сохранить</a>
+				<a class="cancel" ng-click="cancel(task); status='view'">отмена</a>
 			</span>
 		</div>
-
-
 		<ul ng-if="task.children.length > 0">
-			<li 
-				ng-repeat="task in task.children" 
-				ng-include="'task-template'" 
-				ng-class="{group: task.children.length > 0}" 
-				ng-init="status='view'" 
-				tw-hover-leaf-li>
+			<li ng-repeat="task in task.children" ng-include="'task-template'" tw-hover-leaf-li>
 		</ul>
 	</script>
 
+
+
+
+
+
+
 	<!-- Шаблоны дня -->
 	<script type="text/ng-template" id="day-template">
-		<header>
+		<header ng-class="{short: entry.getDuration() < 60000}">
 			<span class="today">{{entry.date | filterDateTo: 'today'}}</span>
 			<span class="date">{{ entry.date | filterDateTo:'d' }}</span>
 			<span class="month">{{ entry.date | filterDateTo:'M' }}</span>
-			<span class="duration">
-				{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}<span ng-show="entry.getDuration() > 60000 && price.hour">,</span>
-			</span>
-			<span class="price" ng-show="entry.getDuration() > 60000 && price.hour">{{getPrice(entry.getDuration())|spacedNumber}} руб.</span>
-
-
+			<span class="duration">{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}</span>
+			<span class="price" ng-if="price.hour">{{getPrice(entry.getDuration())|spacedNumber}}</span>
 			<span class="controls">
 				<a class="filter-storage" 
 					ng-click="filterStorageViewByDate(entry.date);" 
@@ -308,60 +310,50 @@
 					scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 			</span>
 		</header>
-
 		<ul class="leaf-task-list">
-			<li ng-repeat="task in entry.tasks" ng-init="status = 'view'" ng-class="status">
-				<a class="task" title="Продолжить задачу" 
-					ng-click="start(task.details)" 
-					scroll-top-on-click 
-					parent-hover parent-hover-class="hover-task" 
-					ng-show="status=='view'">
-
-					<span 
-						ng-repeat-start="name in task.details track by $index" 
-						ng-class="{group : $index < task.details.length - 1, leaf: $index == task.details.length -1}">
-							{{name}}</span><span ng-repeat-end class="divider" ng-show="$index < task.details.length - 1">, 
-					</span>
-				</a>
-				
-				<input type="text" class="small details"
-					ng-model="task.editDetails" 
-					ng-list="," 
-					ng-show="status=='edit'" 
-					tw-focus-on-edit 
-					ng-keydown="checkSubmit($event, task, this)">
-
-				<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
-				
-				<span class="duration"  ng-show="status=='view'">
-					{{ task.getDuration() | filterMillisecondsTo:'hour min' }}<span ng-show="task.getDuration() > 60000 && price.hour">,</span>
-				</span>
-
-				<span class="price" ng-show="task.getDuration() > 60000 && price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
-
-				<input type="text" class="small duration" 
-					value="{{task.getDuration() | filterMillisecondsTo:'h m'}}" 
-					ng-model="task.editDuration" 
-					ng-show="status=='edit'"
-					ng-keydown="checkSubmit($event, task, this)">
-
+			<li ng-repeat="task in entry.tasks" ng-init="status = 'view'; entryScope = this" class="{{status}}" ng-class="{ short: task.getDuration() < 60000 }">
+				<div ng-if="status == 'edit'">				
+					<input type="text" class="small details"
+						ng-model="task.editDetails" 
+						ng-list="," 
+						tw-focus-on-edit 
+						ng-keydown="checkSubmit($event, task, entryScope)">						
+					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
+					<input type="text" class="small duration" 
+						value="{{task.getDuration() | filterMillisecondsTo:'h m'}}" 
+						ng-model="task.editDuration" 
+						ng-keydown="checkSubmit($event, task, entryScope)">
+				</div>
+				<div ng-if="status == 'view'">
+					<a class="task" title="Продолжить задачу" 
+						ng-click="start(task.details)" 
+						scroll-top-on-click>
+						<span ng-repeat="name in task.details track by $index">{{name}}</span>
+					</a>
+					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
+					<span class="duration">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
+					<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
+				</div>
 				<span class="controls">
-					<a class="edit" ng-click="edit(task); status='edit'" ng-show="status=='view'">редактировать</a>
+					<a class="edit" ng-click="edit(task); status='edit'">редактировать</a>
 					<a class="filter-storage" 
 						ng-click="filterStorageView(task);" 
-						ng-show="status=='view'" 
 						title="Поиск записей по хранилищу" 
 						scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
-					<a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a>
-					<a class="save" ng-click="save(task); status='view'" ng-show="status=='edit'">сохранить</a>
-					<a class="cancel" ng-click="cancel(task); status='view'" ng-show="status=='edit'">отмена</a>
+					<a class="delete" ng-click="delete(task); status='view'">удалить</a>
+					<a class="save" ng-click="save(task); status='view'">сохранить</a>
+					<a class="cancel" ng-click="cancel(task); status='view'">отмена</a>
 				</span>
 			</li>
 		</ul>
 	</script>
 
 
-	<!-- Попапы -->
+
+
+
+
+	<!-- Попапы 
 	<div class="dialog" ng-controller="PopupCtrl" ng-show="greetingPopup" ng-cloak>
 		<article style="width: 550px;">
 			<h3>Таймер 3.0</h3>
@@ -380,14 +372,21 @@
 			</p>
 			<p style="text-align: center;"><label><input type="checkbox" ng-model="hideGreetingPopup" checked="checked" ng-change="save(hideGreetingPopup)"> Не показывать в след. раз</label></p>
 		</article>
-	</div>
+	</div>-->
 
 </page>
 
 
-<script src="lib/jquery/jquery-1.9.1.min.js"></script>
+
+<!-- <script src="lib/jquery/jquery-1.9.1.js"></script> -->
+<script src="lib/dropbox/dropbox-datastores-1.0-latest.js"></script>
 <script src="lib/angular/angular.js"></script>
+<!-- <script src="lib/angular/dropstore-ng.js"></script> -->
 <script src="js/app.js"></script>
+<script src="js/srv-storage.js"></script>
+<script src="js/srv-timer.js"></script>
+<script src="js/srv-tasks.js"></script>
+<script src="js/srv-days.js"></script>
 <script src="js/ctrl-timer.js"></script>
 <script src="js/ctrl-switchview.js"></script>
 <script src="js/ctrl-storageview.js"></script>
@@ -396,10 +395,6 @@
 <script src="js/filters.js"></script>
 <script src="js/services.js"></script>
 <script src="js/directives.js"></script>
-
-
-
-
 
 </body>
 </html>

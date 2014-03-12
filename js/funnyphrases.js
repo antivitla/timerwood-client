@@ -1,7 +1,9 @@
-/* 
-	Забавные фразы из случайных слов 
-	http://ru.wikipedia.org/wiki/Падеж
-*/
+//
+// Timerwood 3.0
+// 
+// Забавные фразы из случайных слов 
+// http://ru.wikipedia.org/wiki/Падеж
+//
 
 var funnyVocabulary = {
 	verb: [

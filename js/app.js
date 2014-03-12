@@ -1,14 +1,23 @@
-
 //
 // Таймер 3.0
-//
+// приложение
 
-// app
+// 
+// сборка angular модулей
+// 
+
 angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters", "TimerwoodApp.directives"]);
 angular.module("TimerwoodApp.controllers", []);
 angular.module("TimerwoodApp.services", []);
 angular.module("TimerwoodApp.filters", []);
 angular.module("TimerwoodApp.directive", []);
+
+// Хак для dropbox редиректа
+// angular.module("TimerwoodApp")
+// 	.config(['$locationProvider', function($locationProvider) {
+//     	$locationProvider.html5Mode(false);
+//     	$locationProvider.hashPrefix("!"); 
+//     }]);
 
 //
 // Контроллер подвала
@@ -24,35 +33,25 @@ angular.module("TimerwoodApp.controllers")
 //
 
 angular.module("TimerwoodApp.controllers")	
-	.controller("HelpCtrl", ["$scope", "$rootScope", function($scope, $rootScope) {
+	.controller("DropboxSyncCtrl", ["$scope", "DropboxClient", "$rootScope", function($scope, DropboxClient, $rootScope) {
+		$scope.connected = false;
+		$scope.dropboxName = "Unknown";
 
-		// если первый раз, показываем приветствие
-		if(localStorage.getItem("Timerwood-hideGreetingPopup") === null) {
-			$rootScope.hideGreetingPopup = true;
-			$rootScope.greetingPopup = true;
-			localStorage.setItem("Timerwood-hideGreetingPopup", true);
-		} else {
-			$rootScope.hideGreetingPopup = localStorage.getItem("Timerwood-hideGreetingPopup") == "false" ? false : true;
-			$rootScope.greetingPopup = !$rootScope.hideGreetingPopup;
-		}
-
-		// если что, сохраняем показывание или нет приветствия при загрузке
-		$rootScope.$watch("hideGreetingPopup", function(val, oldval) {
-			localStorage.setItem("Timerwood-hideGreetingPopup", val);
+		// проверяем, вдруг авторизованы, выводим инфу
+		DropboxClient.info().then(function(i) {
+			$scope.connected = true;
+			$scope.dropboxName = i.display_name;
 		});
 
-		// переключение показывать или нет приветствие
-		$rootScope.save = function(val) {
-			$rootScope.hideGreetingPopup = val;
-		};
-
-		// дальше делаем хакинг антиангуларовский...
-		// а может и ангуларовский
-		$rootScope.help = false;
-		$scope.toggleHelp = function() {
-			$rootScope.help = !$rootScope.help;
+		$scope.connect = function() {
+			DropboxClient.connect();
 		}
-
+		$scope.disconnect = function() {
+			DropboxClient.disconnect().then(function() {
+				$scope.connected = false;
+				$scope.dropboxName = "Unknown";
+			});
+		}
 	}]);
 
 //

@@ -1,6 +1,6 @@
 //
 // Таймер 3.0
-// Контроллер вида "Задачи"
+// Контроллер "Задачи"
 //
  
 angular.module("TimerwoodApp.controllers")
