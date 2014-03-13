@@ -13,9 +13,29 @@
 
 	<title>Таймер</title>
 	<link rel="stylesheet" href="css/timerwood.css">
-	<script src="http://mr-woodman.ru/js/typogrid.js"></script>
+	<!--<script src="http://mr-woodman.ru/js/typogrid.js"></script>-->
 	
 	<script src="js/funnyphrases.js"></script>
+
+	<script src="lib/jquery/jquery-1.9.1.js"></script>
+	<script src="lib/dropbox/dropbox-datastores-1.0-latest.js"></script>
+	<script src="lib/parse/parse-1.2.17.js"></script>
+	<script src="lib/parse/jquery.parse.js"></script>
+	<script src="lib/angular/angular.js"></script>
+	<!-- <script src="lib/angular/dropstore-ng.js"></script> -->
+	<script src="js/app.js"></script>
+	<script src="js/srv-storage.js"></script>
+	<script src="js/srv-timer.js"></script>
+	<script src="js/srv-tasks.js"></script>
+	<script src="js/srv-days.js"></script>
+	<script src="js/ctrl-timer.js"></script>
+	<script src="js/ctrl-switchview.js"></script>
+	<script src="js/ctrl-storageview.js"></script>
+	<script src="js/ctrl-dateview.js"></script>
+	<script src="js/ctrl-taskview.js"></script>
+	<script src="js/filters.js"></script>
+	<script src="js/services.js"></script>
+	<script src="js/directives.js"></script>
 
 
 </head>
@@ -32,14 +52,50 @@
 
 </script>
 
-<body ng-app="TimerwoodApp" tw-global-shortcuts>
+<body tw-global-shortcuts>
 <img src="http://mr-woodman.ru/timer/images/share3.png" style="display: none;">
 
 
+	<!-- Инициализация Facebook SDK -->
+    <div id="fb-root"></div>
+<!--     <div id="fb-sdk-preloader" class="dialog" style="display: none;">
+        <article>Грузим Facebook SDK (без него ничего не выйдет)...</article>
+    </div> -->
+    <script>
+        // прелоадер загрузки SDK
+        //$("#fb-sdk-preloader").show();
+        // асинхронный старт
+        window.fbAsyncInit = function() {
+            var id = "";
+            if(location.hostname == "localhost") {
+                id = "723250731029172";
+            }
+            else if(location.hostname == "mr-woodman.ru") {
+                id = "1450152585220960";
+            }
+            FB.init({
+                appId      : id,
+                status     : false,
+                xfbml      : false
+            });
+            // успех загрузки - убираем прелоадер
+            //$("#fb-sdk-preloader").remove();            
+            // Инициализация приложения эпик-тред анализа
+            angular.bootstrap(document.body, ["TimerwoodApp"]);
+        };
+        (function(d, s, id){
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement(s); js.id = id;
+            js.src = "http://connect.facebook.net/en_US/all.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+
 <page class="notes" ng-class="{shownotes: notes, menu: menu}" ng-cloak>
-	<header style="text-align: center;">&darr;</header>
 	<article>
-		<iframe src="http://mr-woodman.ru/note" width="100%" height="300px" border="0px"></iframe>
+		<iframe src="http://mr-woodman.ru/notes" width="100%" height="300px" border="0px"></iframe>
 	</article>
 </page>
 
@@ -58,7 +114,10 @@
 		</p>
 		<p>&nbsp;</p>
 		<div ng-controller="DropboxSyncCtrl">
-			<p ng-show="!connected"><a ng-click="connect()">Синхронизировать с <span class="icon-dropbox"></span> Dropbox</a></p>
+			<p ng-show="!connected && !ssl">				
+				<a ng-click="connect()">Синхронизировать с <span class="icon-dropbox"></span> Dropbox</a>
+			</p>
+			<p ng-show="!connected && ssl">Чтоб синхронизироваться с <strong><span class="icon-dropbox"></span> Dropbox</strong> нужно зайти на таймер через <a href="https://mr-woodman.ru/timer/">защищённое соединение.</a> Броузер напугает вас отсутсвием сертификата &mdash; забейте, если верите мне. Чтоб сохранить свои данные нужно будет <a href="#">экспортировать</a> их отсюда и импортировать там.</p>
 			<p ng-show="connected">
 				<strong>Синхронизация</strong><br>
 				{{dropboxName}} <span class="icon-dropbox"></span> Dropbox &mdash; <a ng-click="disconnect()">отключить</a>
@@ -97,7 +156,8 @@
 			ng-list=","
 			ng-keydown="save($event);"
 			placeholder="{{funnytask}}"
-			tw-focus-on-edit>
+			tw-focus-on-edit
+			tw-prevent-shortcuts>
 
 		<help class="button-help" ng-show="help" ng-cloak>
 			<img src="images/help-arrow-01.png">
@@ -145,7 +205,7 @@
 
 
 		<div ng-controller="TasksViewCtrl" class="view" ng-class="{show: currentView == 'task', price: price.hour}" ng-init="recentTasks = false">
-			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?"> рублей</form>
+			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?" tw-prevent-shortcuts> рублей</form>
 			<div ng-if="currentView == 'task'">
 				<section class="recent">
 					<ul class="task-list">
@@ -171,7 +231,7 @@
 
 
 		<div ng-controller="DateViewCtrl" class="view" ng-class="{show: currentView == 'date', price: price.hour}" ng-init="recentDates = false">
-			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?"> рублей</form>
+			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?" tw-prevent-shortcuts> рублей</form>
 			<div ng-if="currentView == 'date'">
 				<section class="recent">
 					<ul class="date-list">
@@ -201,6 +261,7 @@
 					ng-model="search" 
 					ng-list=","
 					tw-focus-on-switch-view 
+					tw-prevent-shortcuts 
 					placeholder="Введите фильтры через запятую">
 			</form>
 			<div ng-if="currentView == 'storage'">
@@ -209,18 +270,22 @@
 						<div ng-if="status == 'edit'">
 							<input type="text" class="small date" 
 								ng-model="entry.editDate" 
+								tw-prevent-shortcuts 
 								ng-keydown="checkSubmit($event, entry, entryScope)">							
 							<span class="grey">в</span> 
 							<input type="text" class="small start" 
 								tw-focus-on-edit 
+								tw-prevent-shortcuts 
 								ng-model="entry.editStart" 
 								ng-keydown="checkSubmit($event, entry, entryScope)">						
 							<input type="text" class="small details"
 								ng-model="entry.editDetails" 
 								ng-list="," 
+								tw-prevent-shortcuts 
 								ng-keydown="checkSubmit($event, entry, entryScope)">		
 							<input type="text" class="small duration" 
 								ng-model="entry.editDuration" 
+								tw-prevent-shortcuts 
 								ng-keydown="checkSubmit($event, entry, entryScope)">
 						</div>
 						<div ng-if="status == 'view'">
@@ -271,6 +336,7 @@
 				ng-model="task.path"
 				ng-list="," 
 				tw-focus-on-edit 
+				tw-prevent-shortcuts 
 				ng-keydown="checkSubmit($event, task, this)">
 			<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>			
 			<span class="duration-total">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
@@ -317,11 +383,13 @@
 						ng-model="task.editDetails" 
 						ng-list="," 
 						tw-focus-on-edit 
+						tw-prevent-shortcuts 
 						ng-keydown="checkSubmit($event, task, entryScope)">						
 					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
 					<input type="text" class="small duration" 
 						value="{{task.getDuration() | filterMillisecondsTo:'h m'}}" 
 						ng-model="task.editDuration" 
+						tw-prevent-shortcuts 
 						ng-keydown="checkSubmit($event, task, entryScope)">
 				</div>
 				<div ng-if="status == 'view'">
@@ -375,26 +443,6 @@
 	</div>-->
 
 </page>
-
-
-
-<!-- <script src="lib/jquery/jquery-1.9.1.js"></script> -->
-<script src="lib/dropbox/dropbox-datastores-1.0-latest.js"></script>
-<script src="lib/angular/angular.js"></script>
-<!-- <script src="lib/angular/dropstore-ng.js"></script> -->
-<script src="js/app.js"></script>
-<script src="js/srv-storage.js"></script>
-<script src="js/srv-timer.js"></script>
-<script src="js/srv-tasks.js"></script>
-<script src="js/srv-days.js"></script>
-<script src="js/ctrl-timer.js"></script>
-<script src="js/ctrl-switchview.js"></script>
-<script src="js/ctrl-storageview.js"></script>
-<script src="js/ctrl-dateview.js"></script>
-<script src="js/ctrl-taskview.js"></script>
-<script src="js/filters.js"></script>
-<script src="js/services.js"></script>
-<script src="js/directives.js"></script>
 
 </body>
 </html>

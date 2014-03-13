@@ -37,6 +37,12 @@ angular.module("TimerwoodApp.controllers")
 		$scope.connected = false;
 		$scope.dropboxName = "Unknown";
 
+		// проверяем на безопасном ли мы (или локалхосте)
+		$scope.ssl = false;
+		if(location.protocol == "https:" || location.hostname == "localhost") {
+			$scope.ssl = true;
+		}
+
 		// проверяем, вдруг авторизованы, выводим инфу
 		DropboxClient.info().then(function(i) {
 			$scope.connected = true;

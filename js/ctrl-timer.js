@@ -127,7 +127,7 @@ angular.module("TimerwoodApp.controllers")
 					Storage.updateEntry(currentEntry, {
 						details: $scope.details
 					});					
-				}, 200)
+				}, 2000);
 			}
 		}
 	}]);

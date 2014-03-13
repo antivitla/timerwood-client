@@ -10,7 +10,7 @@ angular.module("TimerwoodApp.directives", [])
 		return {
 			restrict: 'A',
 			link: function(scope, $elm) {
-				var w = $window;
+				var w = $(window);
 				function scrollDelta(delta) {
 					w.scrollTop(w.scrollTop() - w.scrollTop()*0.8);
 					if(w.scrollTop() < 5) {
@@ -90,7 +90,7 @@ angular.module("TimerwoodApp.directives", [])
 			link: function($scope, $element, $attr) {
 				$document.bind("keypress", function(e) {
 					$rootScope.$broadcast("keypress:"+e.which, e);
-					console.log(e.which);
+					//console.log(e.which);
 
 					// сразу раздаём какие-то шорткаты
 
@@ -111,6 +111,16 @@ angular.module("TimerwoodApp.directives", [])
 						$rootScope.notes = $rootScope.notes ? false : true; 
 						$rootScope.$apply();
 					}
+				});
+			}
+		}
+	}])
+	.directive("twPreventShortcuts", [function() {
+		return {
+			restrict: "A",
+			link: function($scope, $element, $attr) {
+				$element.bind("keypress", function(e) {
+					e.stopPropagation();
 				});
 			}
 		}
