@@ -157,7 +157,7 @@ angular.module("TimerwoodApp.filters", [])
 			else return false;
 
 			// типа валидации
-			if(newDuration != NaN && newDuration > 0) {
+			if(newDuration != NaN) {
 				return newDuration;
 			} else {
 				return false;
@@ -167,25 +167,27 @@ angular.module("TimerwoodApp.filters", [])
 	.filter("updateDateFromDayTimeString", function() {
 		return function(date, time, delimiter) {
 			var daytime = time.split(delimiter ? delimiter : ":");
+			var datecopy = new Date(date);
 			if(daytime.length == 2 && parseInt(daytime[0]) > -1 && parseInt(daytime[1]) > -1) {
-				date.setHours(daytime[0]);
-				date.setMinutes(daytime[1]);
+				datecopy.setHours(daytime[0]);
+				datecopy.setMinutes(daytime[1]);
 			}
-			return date;
+			return datecopy;
 		}
 	})
 	.filter("updateDateFromDateString", function() {
 		return function(date, editDate, delimiter) {
 			var newDate = editDate.split(delimiter ? delimiter : ".");
+			var datecopy = new Date(date);
 			if(newDate.length == 3 && 
 					parseInt(newDate[0]) > 0 && parseInt(newDate[0]) < 31 && 
 					parseInt(newDate[1]) > 0 && parseInt(newDate[1]) < 13 &&
 					parseInt(newDate[2]) != NaN) {
-				date.setDate(parseInt(newDate[0]));
-				date.setMonth(parseInt(newDate[1]-1));
-				date.setFullYear(parseInt(newDate[2]));
+				datecopy.setDate(parseInt(newDate[0]));
+				datecopy.setMonth(parseInt(newDate[1]-1));
+				datecopy.setFullYear(parseInt(newDate[2]));
 			}
-			return date;
+			return datecopy;
 		}
 	})
 	.filter("spacedNumber", function() {

@@ -5,88 +5,80 @@
  
 angular.module("TimerwoodApp.controllers")
 	.controller("StorageViewCtrl", ["$scope", "Storage", "$rootScope", "$filter", "$timeout", function($scope, Storage, $rootScope, $filter, $timeout) {
-		$scope.entries = Storage.entries; // массив записей Хранилища
+		
+		// Записи Хранилища (показываем)
+		$scope.entries = Storage.entries; 
 
-		/*
-
-		При нажатии на название таска - подставляем его в контрол таймера (в поле ввода) и стартуем его.
-		типа либо:
-		timer.add(task.details)
-		timer.start(task.details)
-
-		Так же, мы можем редактировать название таска и его длительность/время старта. это апдейтит определенную запись хранилища (а оно заставляет перерисовывать все остальные виды)
-
-		нам нужно передать в таймер название задачи по которой кликнули
-
-		*/
-
+		// можем стартовать таймер при нажатии на задачу
 		$scope.start = function(details) {
-			var newDetails = angular.copy(details);
-			$rootScope.$broadcast("startNewTask", {
-				taskDetails: newDetails
-			});
+			$rootScope.$broadcast("start-task", angular.copy(details));
 		}
 
+		//
+		// UI редактирования
+		//
+
+		// удалить запись
 		$scope.delete = function(entry) {
 			Storage.removeEntry(entry);
 		}
 
+		// подготовка редактирования
 		$scope.edit = function(entry) {
 			entry.editDate = $filter("filterDateTo")(entry.start, "dd.mm.yyyy");
 			entry.editStart = $filter("filterDateTo")(entry.start, "hh:mm");
 			entry.editDetails = angular.copy(entry.details);
 			entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - entry.start, "h m");
-			// следим за изменением начала и пересчитываем длительность
+			// следим за изменением времени начала (обратное соответствие длительности чтоб показывать)
 			entry.editStartWatcher = this.$watch("entry.editStart", function() {
 				var newStart = $filter("updateDateFromDayTimeString")(new Date(entry.start), entry.editStart, ":");
 				entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - newStart, "h m");
 			});
-			entry.editDateWatcher = this.$watch("entry.editDate", function() {
-				var newDate = $filter("updateDateFromDateString")(new Date(entry.start), entry.editDate, ".");
-				entry.editDuration = $filter("filterMillisecondsTo")(entry.stop - newDate, "h m");
-			})
 			// сообщаем спецдирективам чтоб выделило содержимое инпута
 			var entryScope = this;
 			$timeout(function() {
 				entryScope.$broadcast("editLastItem");
-			},1);
+			},10);
 		}
 
+		// отмена редактирования
 		$scope.cancel = function(entry) {
 			entry.editStartWatcher();
-			entry.editDateWatcher();
 		};
 
-		$scope.save = function(entry) {
-			entry.details = entry.editDetails;
-			// тут непростая задача
-			// если мы меняем дату начала - то дата конца так как та же, длительность возрастает
-			// если мы меняем время начала - то же самое
-			// если же мы поменяли и/или длительность... нужно вычислить текущие отображаемые значения длительности и начала
-			$filter("updateDateFromDayTimeString")(entry.start, entry.editStart, ":");
-			$filter("updateDateFromDateString")(entry.start, entry.editDate, ".");
-			// длительность
-			var duration = $filter("filterDurationStringToMilliseconds")(entry.editDuration, " ");
-			entry.stop = new Date(entry.start.getTime() + duration);
-			// Шубись эврибади!
-			Storage.broadcastUpdateDetails();
-			// сохраняем и на выход
-			Storage.save();
-			return true;
-		}
-
+		// конец редактирования по enter и esc
 		$scope.checkSubmit = function(event, entry, scope) {
+			// enter
 			if(event.keyCode == 13) {
 				var result = $scope.save(entry);
-				if(result) scope.status = 'view';
+				scope.status = 'view';
 			}
-			// hit Esc
+			// esc
 			else if(event.keyCode == 27) {
 				scope.status = 'view';
 			}
 		}
 
+		// сохраняем результат в хранилище
+		$scope.save = function(entry) {
+			var date = new Date(entry.start);
+			date = $filter("updateDateFromDayTimeString")(date, entry.editStart, ":");
+			date = $filter("updateDateFromDateString")(date, entry.editDate, ".");
+			// длительность
+			var duration = $filter("filterDurationStringToMilliseconds")(entry.editDuration, " ");
+			// проверяем изменения, и апдейтим хранилище
+			Storage.updateEntry(entry, {
+				start: date,
+				stop: new Date(date.getTime() + duration),
+				details: angular.copy(entry.editDetails)
+			});
+		}
+
+		//
 		// фильтр записей
+		//
+
+		// основная функция фильтрации (по любым параметрам записи)
 		$scope.searchTags = function(entry) {
 			if(!$scope.search) return true;
 			else {
@@ -103,17 +95,16 @@ angular.module("TimerwoodApp.controllers")
 			}
 		}
 
-		// фильтруем записи по просьбе
+		// фильтруем записи по просьбе других видов
 		$scope.$on("filter-storage-entries", function(event, query) {
 			$scope.search = query;
 		});
 
-		// при переключении на нас, фокус на фильтр и очищаем при переключении куда-то ещё
+		// при переключении на вид хранилища, фокус клавы ставим на фильтр
 		$scope.$on("view-changed", function(event, view) {
-			if(view != "storage") {
-				$scope.search = null;
-			} else {
+			if(view == "storage") {
 				$scope.$broadcast("editLastItemOnSwitchView");				
 			}
 		});
+
 	}]);

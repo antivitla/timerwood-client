@@ -5,7 +5,7 @@
  
 angular.module("TimerwoodApp.controllers")
 	.controller("SwitchViewCtrl", ["$scope", "$rootScope", "Storage", function($scope, $rootScope, Storage) {
-		$scope.storage = Storage.entries;
+		$scope.storage = Storage;
 		
 		$scope.currentView = window.localStorage ? (window.localStorage.getItem("Timerwood-view") ? window.localStorage.getItem("Timerwood-view") : "task") : "task"; // date, storage, task
 

@@ -4,9 +4,17 @@
 //
  
 angular.module("TimerwoodApp.controllers")
-	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", function($scope, $rootScope, Tasks) {
-		$scope.tasks = Tasks.entries;
-		// фильтруем недавнее
+	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", "Storage", function($scope, $rootScope, Tasks, Storage) {
+
+		// первичных список проектов
+		$scope.tasks = Tasks.children;
+
+
+		// разделение на недавнее и всё остальное (меняем в опциях)
+		$scope.recentCount = 2;
+		$rootScope.$watch("taskRecent", function(newval, oldval) {
+			$scope.recentCount = newval;
+		});
 		$scope.recentCount = 2; // сколько дней в недавние запихнуть
 		$scope.recent = function(task) {
 			return $scope.tasks.indexOf(task) > $scope.recentCount-1 ? false : true;
@@ -15,47 +23,54 @@ angular.module("TimerwoodApp.controllers")
 			return $scope.tasks.indexOf(task) > $scope.recentCount-1 ? true : false;
 		};
 
-		// При нажатии на таск, стартуем его
+
+		// можем стартовать таск
 		$scope.start = function(task) {
-			$rootScope.$broadcast("startNewTask", {
-				taskDetails: restoreDetails(task)
-			});
-		}
+			$rootScope.$broadcast("start-task", task.restoreDetails());
+		};
 
-		// создаём под-таск
+		// или под-таск
 		$scope.subTask = function(task) {
-			$rootScope.$broadcast("startNewSubTask", {
-				taskDetails: restoreDetails(task)
-			});
-		}
+			$rootScope.$broadcast("start-task", task.restoreDetails().concat([generateName()]) );
+		};
 
-		// начало редактирования
+		// редактировать мы можем имя (структурируя таким образом)
 		$scope.edit = function(task) {
-			// во первых нужно показать полное имя к пути, не только текущего уровня
-			task.path = restoreDetails(task);
-			// потом сохранить старое имя
-			task.oldName = task.name;
-			// ну и
+			task.path = angular.copy(task.restoreDetails());
+			//
+			// по-мелочи сигналим директивам
 			this.$broadcast("editLastItem");
 		}
 
-		// отмена
+		// отмена редактирования
 		$scope.cancel = function(task) {
-			task.name = task.oldName;
-		}
+			//
+		};
 
-		// сохранить
+		// удаление
+		$scope.delete = function(task) {
+			// а что я парюсь, ведь удаляется целиком таск
+			// и потом сортируется, скажем
+			var id = task.parent.children.indexOf(task);
+			if(id == -1) {
+				alert("задачи сломались");
+			} 
+			task.parent.children.splice(id, 1);
+			delete task.parent[task.name];
+			// и из хранилища
+			Storage.batchRemoveEntries(task.collectEntries());
+		};
+
+		// сохранение изменений
 		$scope.save = function(task) {
-			console.log("save");
-			// теоретически мы должны переименовать не только сам таск, но и его подтаски...
-			task.name = task.path[task.path.length-1];
-			recursiveRenameDetailsPart(task, task.path);
-			Tasks.storage.save();
-			Tasks.restore();
+			Storage.batchUpdateEntries(task.collectEntries(), {
+				detailsNewPart: task.path,
+				detailsStopDepth: task.depth
+			});
 			return true;
 		}
 
-		// ловим enter 
+		// ждем enter и esc
 		$scope.checkSubmit = function(event, task, scope) {
 			if(event.keyCode == 13) {
 				var result = $scope.save(task);
@@ -67,13 +82,13 @@ angular.module("TimerwoodApp.controllers")
 			}
 		}
 
-		// переключаем на Хранилище и ищем соотв. записи
+		// фильтруем записи в хранилище
 		$scope.filterStorageView = function(task) {
 			$rootScope.$broadcast("change-view", "storage");
-			$rootScope.$broadcast("filter-storage-entries", restoreDetails(task));
+			$rootScope.$broadcast("filter-storage-entries", task.restoreDetails());
 		}
 
-		// временно - деньги
+		// деньги
 		if(!$rootScope.price) {
 			$rootScope.price = {
 				hour: localStorage.getItem("Timerwood-price-hour")
@@ -87,32 +102,123 @@ angular.module("TimerwoodApp.controllers")
 			return parseInt(ms * parseInt($scope.price.hour) / (60*60*1000));
 		}
 
-		/* Хелперы */
-		function restoreDetails(task) {
-			// пытаемся взять детали сразу из одной из временных промежутков
-			var details = task.time.length > 0 ? angular.copy(task.time[0].details) : [];
-			if(!(details.length > 0)) {
-				// если время пустое, придется по родителями собирать детали
-				var node = task;
-				while(node) {
-					details.unshift(node.name);
-					node = node.parent;
-				}
-			}
-			return details;
+		//
+		// Хелперы
+		//
+
+		function recursiveBatchUpdateStorageEntries(task, changes) {
+			//
 		}
-		function recursiveRenameDetailsPart(task, path) {
-			renameTaskTimeDetails(task, path);
-			var newPath = angular.copy(path);
-			for(var i = 0; i < task.children.length; i++) {
-				var childPath = angular.copy(path);
-				childPath.push(task.children[i].name);
-				recursiveRenameDetailsPart(task.children[i], childPath);
-			}
+
+		// Генерим случайное имя		
+		function generateName() {
+			if(window.funnyPhrase) { return funnyPhrase(); } 
+			else { return "Задача " + new Date().getTime(); }
 		}
-		function renameTaskTimeDetails(task, path) {
-			for(var i = 0; i < task.time.length; i++) {
-				task.time[i].details = angular.copy(path);
-			}
-		}
+
+
+		// фильтруем недавнее
+
+		// // При нажатии на таск, стартуем его
+		// $scope.start = function(task) {
+		// 	$rootScope.$broadcast("start-task", {
+		// 		taskDetails: restoreDetails(task)
+		// 	});
+		// }
+
+		// // создаём под-таск
+		// $scope.subTask = function(task) {
+		// 	$rootScope.$broadcast("start-subtask", {
+		// 		taskDetails: restoreDetails(task)
+		// 	});
+		// }
+
+		// // начало редактирования
+		// $scope.edit = function(task) {
+		// 	// во первых нужно показать полное имя к пути, не только текущего уровня
+		// 	task.path = restoreDetails(task);
+		// 	// потом сохранить старое имя
+		// 	task.oldName = task.name;
+		// 	// ну и
+		// 	this.$broadcast("editLastItem");
+		// }
+
+		// // отмена
+		// $scope.cancel = function(task) {
+		// 	task.name = task.oldName;
+		// }
+
+		// // сохранить
+		// $scope.save = function(task) {
+		// 	console.log("save");
+		// 	// теоретически мы должны переименовать не только сам таск, но и его подтаски...
+		// 	task.name = task.path[task.path.length-1];
+		// 	recursiveRenameDetailsPart(task, task.path);
+		// 	Tasks.storage.save();
+		// 	//Tasks.restore();
+		// 	return true;
+		// }
+
+		// // ловим enter 
+		// $scope.checkSubmit = function(event, task, scope) {
+		// 	if(event.keyCode == 13) {
+		// 		var result = $scope.save(task);
+		// 		if(result) scope.status = 'view';
+		// 	}
+		// 	// hit Esc
+		// 	else if(event.keyCode == 27) {
+		// 		scope.status = 'view';
+		// 	}
+		// }
+
+		// // переключаем на Хранилище и ищем соотв. записи
+		// $scope.filterStorageView = function(task) {
+		// 	$rootScope.$broadcast("change-view", "storage");
+		// 	$rootScope.$broadcast("filter-storage-entries", restoreDetails(task));
+		// }
+
+		// // временно - деньги
+		// if(!$rootScope.price) {
+		// 	$rootScope.price = {
+		// 		hour: localStorage.getItem("Timerwood-price-hour")
+		// 	}
+		// }
+		// $scope.price = $rootScope.price;
+		// $scope.$watch("price.hour", function(val, oldval) {
+		// 	localStorage.setItem("Timerwood-price-hour", val);
+		// });
+		// $scope.getPrice = function(ms) {
+		// 	return parseInt(ms * parseInt($scope.price.hour) / (60*60*1000));
+		// }
+
+		// /* Хелперы */
+		// function restoreDetails(task) {
+		// 	// пытаемся взять детали сразу из одной из временных промежутков
+		// 	var details = task.time.length > 0 ? angular.copy(task.time[0].details) : [];
+		// 	if(details.length == 0) {
+		// 		// если время пустое, придется по родителями собирать детали
+		// 		var node = task;
+		// 		while(node) {
+		// 			details.unshift(node.name);
+		// 			node = node.parent;
+		// 			if(node.isRoot) break;
+		// 		}
+		// 	}
+		// 	console.log(details);
+		// 	return details;
+		// }
+		// function recursiveRenameDetailsPart(task, path) {
+		// 	renameTaskTimeDetails(task, path);
+		// 	var newPath = angular.copy(path);
+		// 	for(var i = 0; i < task.children.length; i++) {
+		// 		var childPath = angular.copy(path);
+		// 		childPath.push(task.children[i].name);
+		// 		recursiveRenameDetailsPart(task.children[i], childPath);
+		// 	}
+		// }
+		// function renameTaskTimeDetails(task, path) {
+		// 	for(var i = 0; i < task.time.length; i++) {
+		// 		task.time[i].details = angular.copy(path);
+		// 	}
+		// }
 	}]);

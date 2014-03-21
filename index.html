@@ -18,9 +18,9 @@
 	<script src="js/funnyphrases.js"></script>
 
 	<script src="lib/jquery/jquery-1.9.1.js"></script>
-	<script src="lib/dropbox/dropbox-datastores-1.0-latest.js"></script>
+	<!--<script src="lib/dropbox/dropbox-datastores-1.0-latest.js"></script>
 	<script src="lib/parse/parse-1.2.17.js"></script>
-	<script src="lib/parse/jquery.parse.js"></script>
+	<script src="lib/parse/jquery.parse.js"></script>-->
 	<script src="lib/angular/angular.js"></script>
 	<!-- <script src="lib/angular/dropstore-ng.js"></script> -->
 	<script src="js/app.js"></script>
@@ -52,44 +52,37 @@
 
 </script>
 
-<body tw-global-shortcuts>
+<body tw-global-shortcuts ng-app="TimerwoodApp">
 <img src="http://mr-woodman.ru/timer/images/share3.png" style="display: none;">
 
 
 	<!-- Инициализация Facebook SDK -->
     <div id="fb-root"></div>
-<!--     <div id="fb-sdk-preloader" class="dialog" style="display: none;">
-        <article>Грузим Facebook SDK (без него ничего не выйдет)...</article>
-    </div> -->
     <script>
-        // прелоадер загрузки SDK
-        //$("#fb-sdk-preloader").show();
-        // асинхронный старт
-        window.fbAsyncInit = function() {
-            var id = "";
-            if(location.hostname == "localhost") {
-                id = "723250731029172";
-            }
-            else if(location.hostname == "mr-woodman.ru") {
-                id = "1450152585220960";
-            }
-            FB.init({
-                appId      : id,
-                status     : false,
-                xfbml      : false
-            });
-            // успех загрузки - убираем прелоадер
-            //$("#fb-sdk-preloader").remove();            
-            // Инициализация приложения эпик-тред анализа
-            angular.bootstrap(document.body, ["TimerwoodApp"]);
-        };
-        (function(d, s, id){
-            var js, fjs = d.getElementsByTagName(s)[0];
-            if (d.getElementById(id)) {return;}
-            js = d.createElement(s); js.id = id;
-            js.src = "http://connect.facebook.net/en_US/all.js";
-            fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
+        // // асинхронный старт
+        // window.fbAsyncInit = function() {
+        //     var id = "";
+        //     if(location.hostname == "localhost") {
+        //         id = "723250731029172";
+        //     }
+        //     else if(location.hostname == "mr-woodman.ru") {
+        //         id = "1450152585220960";
+        //     }
+        //     FB.init({
+        //         appId      : id,
+        //         status     : false,
+        //         xfbml      : false
+        //     });           
+        //     // Инициализация приложения эпик-тред анализа
+        //     angular.bootstrap(document.body, ["TimerwoodApp"]);
+        // };
+        // (function(d, s, id){
+        //     var js, fjs = d.getElementsByTagName(s)[0];
+        //     if (d.getElementById(id)) {return;}
+        //     js = d.createElement(s); js.id = id;
+        //     js.src = "http://connect.facebook.net/en_US/all.js";
+        //     fjs.parentNode.insertBefore(js, fjs);
+        // }(document, 'script', 'facebook-jssdk'));
     </script>
 
 
@@ -100,7 +93,7 @@
 </page>
 
 
-<page class="back" ng-class="{menu: menu}" ng-cloak>
+<page class="back" ng-class="{menu: menu}" ng-controller="MenuCtrl" ng-cloak>
 	<nav class="menu">
 		<span class="menu-icon" ng-click="menu=!menu;" title="Спрятать панель меню">&mdash;</span>
 	</nav>
@@ -113,16 +106,17 @@
 			<strong>N</strong> &mdash; записки (<a ng-click="notes=!notes; menu=false;"><span ng-if="!notes">показать</span><span ng-if="notes">скрыть</span></a>)
 		</p>
 		<p>&nbsp;</p>
-		<div ng-controller="DropboxSyncCtrl">
-			<p ng-show="!connected && !ssl">				
-				<a ng-click="connect()">Синхронизировать с <span class="icon-dropbox"></span> Dropbox</a>
-			</p>
-			<p ng-show="!connected && ssl">Чтоб синхронизироваться с <strong><span class="icon-dropbox"></span> Dropbox</strong> нужно зайти на таймер через <a href="https://mr-woodman.ru/timer/">защищённое соединение.</a> Броузер напугает вас отсутсвием сертификата &mdash; забейте, если верите мне. Чтоб сохранить свои данные нужно будет <a href="#">экспортировать</a> их отсюда и импортировать там.</p>
-			<p ng-show="connected">
-				<strong>Синхронизация</strong><br>
-				{{dropboxName}} <span class="icon-dropbox"></span> Dropbox &mdash; <a ng-click="disconnect()">отключить</a>
-			</p>
-		</div>
+		<p><strong>Показывать</strong></p>
+		<p>
+			<select ng-model="settings.dateRecent" ng-options="r.value for r in recent"></select>
+				<span ng-show="settings.dateRecent.value == 1">последний день</span>
+				<span ng-show="settings.dateRecent.value >= 2 && settings.dateRecent.value <= 4">последниx дня</span>
+				<span ng-show="settings.dateRecent.value >= 5">последниx дней</span><br>
+			<select ng-model="settings.taskRecent" ng-options="r.value for r in recent"></select>
+				<span ng-show="settings.taskRecent.value == 1">последнюю задачу</span>
+				<span ng-show="settings.taskRecent.value >= 2 && settings.taskRecent.value <= 4">последние задачи</span>
+				<span ng-show="settings.taskRecent.value >= 5">последниx задач</span>
+		</p>
 		<p>&nbsp;</p>
 		<p><strong>Изменения</strong></p>
 		<p>Кнопка <strong style="cursor: pointer;" ng-click="menu=false;" title="Спрятать панель меню">&equiv;</strong> &mdash; переключает панель меню.</p>
@@ -131,10 +125,12 @@
 
 
 
+
+
+
 <page class="front" ng-class="{menu: menu, shownotes: notes}" ng-cloak>
 
 	<nav class="menu" ng-show="!menu">
-		<!-- <span ng-show="connected" style="">{{dropboxName}} <span class="icon-dropbox"></span></span> &nbsp; -->
 		<a class="menu-icon" ng-click="menu=!menu;" title="Открыть панель меню">&mdash;</a>
 	</nav>
 
@@ -155,7 +151,7 @@
 			ng-model="details" 
 			ng-list=","
 			ng-keydown="save($event);"
-			placeholder="{{funnytask}}"
+			placeholder="{{placeholder}}"
 			tw-focus-on-edit
 			tw-prevent-shortcuts>
 
@@ -182,7 +178,7 @@
 
 
 
-	<div ng-controller="SwitchViewCtrl" class="switch-views" ng-show="storage.length > 0" ng-cloak>
+	<div ng-controller="SwitchViewCtrl" class="switch-views" ng-show="storage.entries.length > 0" ng-cloak>
 
 
 
@@ -206,7 +202,7 @@
 
 		<div ng-controller="TasksViewCtrl" class="view" ng-class="{show: currentView == 'task', price: price.hour}" ng-init="recentTasks = false">
 			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?" tw-prevent-shortcuts> рублей</form>
-			<div ng-if="currentView == 'task'">
+			<div ng-show="currentView == 'task'">
 				<section class="recent">
 					<ul class="task-list">
 						<li ng-repeat="task in tasks | filter:recent" ng-include="'task-template'" ng-class="{group: task.children.length > 0}"></li>
@@ -232,10 +228,10 @@
 
 		<div ng-controller="DateViewCtrl" class="view" ng-class="{show: currentView == 'date', price: price.hour}" ng-init="recentDates = false">
 			<form class="price-hour">Цена часа: <input type="text" class="small" ng-model="price.hour" placeholder="?" tw-prevent-shortcuts> рублей</form>
-			<div ng-if="currentView == 'date'">
+			<div ng-show="currentView == 'date'">
 				<section class="recent">
 					<ul class="date-list">
-						<li ng-repeat="entry in days | filter:recent" ng-include="'day-template'"></li>
+						<li ng-repeat="day in days | filter:recent" ng-include="'day-template'"></li>
 					</ul>
 				</section>
 				<div class="toggle-all" ng-show="days.length > recentCount">
@@ -243,7 +239,7 @@
 				</div>
 				<section class="all" ng-show="recentDates == true">
 					<ul class="date-list">
-						<li ng-repeat="entry in days | filter:excludeRecent" ng-include="'day-template'"></li>
+						<li ng-repeat="day in days | filter:excludeRecent" ng-include="'day-template'"></li>
 					</ul>
 				</section>
 			</div>
@@ -263,8 +259,9 @@
 					tw-focus-on-switch-view 
 					tw-prevent-shortcuts 
 					placeholder="Введите фильтры через запятую">
+					<a class="clear-filter" ng-click="search=null" ng-show="search.length > 0">&times;</a>
 			</form>
-			<div ng-if="currentView == 'storage'">
+			<div ng-show="currentView == 'storage'">
 				<ul class="storage-list">
 					<li ng-repeat="entry in filtered = (entries | filter:searchTags)" ng-init="status='view'; entryScope = this" ng-class="status">
 						<div ng-if="status == 'edit'">
@@ -338,14 +335,14 @@
 				tw-focus-on-edit 
 				tw-prevent-shortcuts 
 				ng-keydown="checkSubmit($event, task, this)">
-			<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>			
+			<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
 			<span class="duration-total">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
 			<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}}</span>
 			<span class="controls" ng-class="status">
 				<a class="sub-task" ng-click="subTask(task)" scroll-top-on-click>подзадача</a>
 				<a class="edit" ng-click="edit(task); status='edit'">редактировать</a>
 				<a class="filter-storage" ng-click="filterStorageView(task);" title="Поиск записей по хранилищу" scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
-				<!--a class="delete" ng-click="delete(task); status='view'" ng-show="status=='edit'">удалить</a-->
+				<a class="delete" ng-click="delete(task); status='view'">удалить</a>
 				<a class="save" ng-click="save(task); status='view'">сохранить</a>
 				<a class="cancel" ng-click="cancel(task); status='view'">отмена</a>
 			</span>
@@ -363,40 +360,38 @@
 
 	<!-- Шаблоны дня -->
 	<script type="text/ng-template" id="day-template">
-		<header ng-class="{short: entry.getDuration() < 60000}">
-			<span class="today">{{entry.date | filterDateTo: 'today'}}</span>
-			<span class="date">{{ entry.date | filterDateTo:'d' }}</span>
-			<span class="month">{{ entry.date | filterDateTo:'M' }}</span>
-			<span class="duration">{{ entry.getDuration() | filterMillisecondsTo:'hour min' }}</span>
-			<span class="price" ng-if="price.hour">{{getPrice(entry.getDuration())|spacedNumber}}</span>
+		<header ng-class="{short: day.getDuration() < 60000}">
+			<span class="today">{{day.getDate() | filterDateTo: 'today'}}</span>
+			<span class="date">{{ day.getDate() | filterDateTo:'d' }}</span>
+			<span class="month">{{ day.getDate() | filterDateTo:'M' }}</span>
+			<span class="duration">{{ day.getDuration() | filterMillisecondsTo:'hour min' }}</span>
+			<span class="price" ng-if="price.hour">{{getPrice(day.getDuration())|spacedNumber}}</span>
 			<span class="controls">
 				<a class="filter-storage" 
-					ng-click="filterStorageViewByDate(entry.date);" 
+					ng-click="filterStorageViewByDate(date.getDate());" 
 					title="Поиск записей по хранилищу" 
 					scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 			</span>
 		</header>
 		<ul class="leaf-task-list">
-			<li ng-repeat="task in entry.tasks" ng-init="status = 'view'; entryScope = this" class="{{status}}" ng-class="{ short: task.getDuration() < 60000 }">
-				<div ng-if="status == 'edit'">				
+			<li ng-repeat="task in day.tasks" ng-init="status = 'view'; entryScope = this" class="{{status}}" ng-class="{ short: task.getDuration() < 60000 }">
+				<div ng-if="status == 'edit'">
+					<input type="text" class="small date" 
+						ng-model="task.editDate" 
+						tw-prevent-shortcuts 
+						ng-keydown="checkSubmit($event, task, entryScope)"> &nbsp; 
 					<input type="text" class="small details"
 						ng-model="task.editDetails" 
 						ng-list="," 
 						tw-focus-on-edit 
 						tw-prevent-shortcuts 
-						ng-keydown="checkSubmit($event, task, entryScope)">						
-					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
-					<input type="text" class="small duration" 
-						value="{{task.getDuration() | filterMillisecondsTo:'h m'}}" 
-						ng-model="task.editDuration" 
-						tw-prevent-shortcuts 
 						ng-keydown="checkSubmit($event, task, entryScope)">
 				</div>
 				<div ng-if="status == 'view'">
 					<a class="task" title="Продолжить задачу" 
-						ng-click="start(task.details)" 
+						ng-click="start(task)" 
 						scroll-top-on-click>
-						<span ng-repeat="name in task.details track by $index">{{name}}</span>
+						<span ng-repeat="name in task.getDetails() track by $index">{{name}}</span>
 					</a>
 					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
 					<span class="duration">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
@@ -405,7 +400,7 @@
 				<span class="controls">
 					<a class="edit" ng-click="edit(task); status='edit'">редактировать</a>
 					<a class="filter-storage" 
-						ng-click="filterStorageView(task);" 
+						ng-click="filterStorageViewByTask(task);" 
 						title="Поиск записей по хранилищу" 
 						scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 					<a class="delete" ng-click="delete(task); status='view'">удалить</a>

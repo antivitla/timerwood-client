@@ -29,35 +29,58 @@ angular.module("TimerwoodApp.controllers")
 	}]);
 
 //
-// Контроллер помощи
+// Контроллер меню
 //
 
 angular.module("TimerwoodApp.controllers")	
-	.controller("DropboxSyncCtrl", ["$scope", "DropboxClient", "$rootScope", function($scope, DropboxClient, $rootScope) {
-		$scope.connected = false;
-		$scope.dropboxName = "Unknown";
-
-		// проверяем на безопасном ли мы (или локалхосте)
-		$scope.ssl = false;
-		if(location.protocol == "https:" || location.hostname == "localhost") {
-			$scope.ssl = true;
+	.controller("MenuCtrl", ["$scope", "$rootScope", function($scope, $rootScope) {
+		$scope.recent = [
+			{value: 1},
+			{value: 2},
+			{value: 3},
+			{value: 4},
+			{value: 5}
+		];
+		var settings = angular.fromJson(localStorage.getItem("Timerwood-Settings"));
+		if(!settings) {
+			$scope.settings = {
+				dateRecent: $scope.recent[1],
+				taskRecent: $scope.recent[1]
+			}
+		} else {
+			$scope.settings = {
+				dateRecent: $scope.recent[settings.dateRecent.value-1],
+				taskRecent: $scope.recent[settings.taskRecent.value-1],
+			}
 		}
-
-		// проверяем, вдруг авторизованы, выводим инфу
-		DropboxClient.info().then(function(i) {
-			$scope.connected = true;
-			$scope.dropboxName = i.display_name;
+		$scope.$watch("settings.dateRecent", function(newval, oldval) {
+			$rootScope.dateRecent = newval.value;
+			saveSettings();
+		});
+		$scope.$watch("settings.taskRecent", function(newval, oldval) {
+			$rootScope.taskRecent = newval.value;
+			saveSettings();
+		});
+		$scope.$watch("menu", function(newval, oldval) {
+			$rootScope.menu = newval;
+		});
+		$rootScope.$watch("menu", function(newval, oldval) {
+			$scope.menu = newval;
+		});
+		$scope.$watch("help", function(newval, oldval) {
+			$rootScope.help = newval;
+		});
+		$scope.$watch("notes", function(newval, oldval) {
+			$rootScope.notes = newval;
 		});
 
-		$scope.connect = function() {
-			DropboxClient.connect();
+		function saveSettings() {
+			localStorage.setItem("Timerwood-Settings", angular.toJson($scope.settings));
 		}
-		$scope.disconnect = function() {
-			DropboxClient.disconnect().then(function() {
-				$scope.connected = false;
-				$scope.dropboxName = "Unknown";
-			});
-		}
+
+		$scope.$on("shortcut:H", function() { $scope.help = !$scope.help; });
+		$scope.$on("shortcut:M", function() { $scope.menu = !$scope.menu; });
+		$scope.$on("shortcut:N", function() { $scope.notes = !$scope.notes; });
 	}]);
 
 //

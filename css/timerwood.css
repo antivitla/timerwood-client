@@ -109,7 +109,6 @@ page.back {
 	padding-left: 2.5em;
 	padding-right: 2.5em;
 	opacity: 0;
-	transition: all 0.2s ease-out;
 }
 page.back.menu {
 	right: 0em;
@@ -131,7 +130,8 @@ page.notes {
 }
 page.notes.shownotes {
 	height: 300px;
-	padding: 4.5em 4.5em 2em 4.5em;
+	padding-top: 4.5em;
+	padding-bottom: 2em;
 	opacity: 1;
 }
 
@@ -506,7 +506,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	display: inline;
 }
 .task-list .task .controls .save,
-.task-list .task .controls .cancel {
+.task-list .task .controls .cancel,
+.task-list .task .controls .delete {
 	display: none;
 }
 .task-list .task.edit .controls .sub-task,
@@ -515,7 +516,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	display: none;
 }
 .task-list .task.edit .controls .save,
-.task-list .task.edit .controls .cancel {
+.task-list .task.edit .controls .cancel,
+.task-list .task.edit .controls .delete {
 	display: inline;
 }
 .task-list .task input[type="text"].name {
@@ -646,11 +648,18 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .leaf-task-list li.edit .task {
 	display: none;
 }
-.leaf-task-list li.view input[type=text].details {
+.leaf-task-list li.view input[type=text] {
 	display: none;
 }
-.leaf-task-list li.edit input[type=text].details {
+.leaf-task-list li.edit input[type=text] {
 	display: inline-block;
+	vertical-align: top;
+}
+.leaf-task-list input[type=text].date {
+	font-family: PT Mono, monospace;
+	font-size: 14px;
+	width: 6em;
+	margin-left: -7px;
 }
 *[ng-controller=DateViewCtrl].price .leaf-task-list .duration:after {
 	content: ",";
@@ -773,6 +782,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	display: inline;
 } 
 
+
 /* Поиск в видах */
 .view .search-entries {
 	position: absolute;
@@ -786,6 +796,14 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	width: 100%;
 	font-size: 14px;
 }
+.view .search-entries .clear-filter {
+	position: absolute;
+	left: -7px;
+	top: 2px;
+	cursor: pointer;
+	text-decoration: none;
+}
+
 
 /* цена в видах */
 .view .price-hour {
@@ -993,5 +1011,15 @@ help.views-help img {
 }
 page.front .icon-dropbox {
 	background-position: -16px top;
+}
+
+
+/* меню */
+select[ng-model="settings.dateRecent"],
+select[ng-model="settings.taskRecent"] {
+	width: 40px;
+	margin-right: 5px;
+	background-color: #888;
+	color: whitesmoke;
 }
 

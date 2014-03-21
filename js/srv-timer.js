@@ -4,26 +4,22 @@
 //
 
 angular.module("TimerwoodApp.services")
-	.factory("TimerClock", ["$timeout", function($timeout) {
+	.factory("TimerClock", ["$timeout", "$rootScope", function($timeout, $rootScope) {
 		var ticking = false;
-		var startDate = new Date();
-		var stopDate = new Date();
-		var listeners = []; // внешние слушатели тика
 		var info = {
 			start: new Date(),
 			stop: new Date(),
 			duration: 0
 		}
 		function tick() {
-			stopDate = new Date();
-			info.stop = stopDate;
-			info.duration = stopDate - startDate;
-			for(var i = 0; i < listeners.length; i++) { listeners[i](); } // оповещаем внешних слушателей
+			info.stop = new Date();
+			info.duration = info.stop.getTime() - info.start.getTime();
+			$rootScope.$broadcast("timer-tick", info);
 			if(ticking) { $timeout(tick, parseInt(Math.random()*50+20)); }
 		}
 		function startTick() {
-			startDate = new Date();
-			info.start = startDate;
+			info.start = new Date();
+			info.stop = new Date();
 			ticking = true;
 			tick();
 		}
@@ -40,25 +36,9 @@ angular.module("TimerwoodApp.services")
 			ticking: function() {
 				return ticking;
 			},
-			getStartDate: function() {
-				return time.start;
-			},
 			toggle: function() {
 				if(ticking) stopTick();
 				else startTick();
-			},
-			addTickListener: function(fn) {
-				listeners.push(fn);
-				return fn;
-			},
-			removeTickListener: function(fn) {
-				var id = listeners.indexOf(fn);
-				if(id == 0) {
-					listeners.shift();
-				}
-				else if(id > 0) {
-					listeners.splice(listeners.indexOf(fn), 1);
-				}
 			},
 			info: info
 		}

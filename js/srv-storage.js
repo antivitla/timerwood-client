@@ -4,109 +4,175 @@
 //
 
 angular.module("TimerwoodApp.services")
-	.factory("Storage", ["DropboxClient", function(DropboxClient) {
+	.factory("Storage", ["$rootScope", "$timeout", "PetrovStorage", function($rootScope, $timeout, PetrovStorage) {
 
-		/*	
-			В броузере первичный список - список промежутков времени. Зависимый от него - список задач, иерархичный.
+		// Хранилище записей таймера - последняя правда. 
+		// Хранится обычным списком. 
+		// Служит источником евентов
+		// Тип данных - сортированный список, всегда поддерживается сортированность по ключу "временя старта"
 
-			Мы должны мочь импортировать данные из старых таймеров.
-
-			Мы должны уметь хранить на сервере данные. Используем для этого список объектов:
-
-				{ 
-					start: (date), 
-					stop: (stop), 
-					details: ["group", "group", "task"]
-				}
-
-			details хранит путь к задаче, к которой принадлежит данная запись таймера.
-
-			ТУДУ: мы должны уметь искать записи. Удалить конкретную запись. Возможно дата начала есть уникальный идентификатор. Но тогда нужно сделать чтоб при редактировании времени создавать уникальное время автоматически (проверить на сервере?) - а то случайно сделаем начало такое же как и у старой-старой задачи. А с другой стороны - может ли такое быть? Разве что специально ломать.
-
-		*/
-
-
-
-		// Модель записи лога
-		function StorageEntry(entry) {
-			entry = entry ? entry : {};
-			this.start = entry.start ? entry.start : new Date();
-			this.stop = entry.stop ? entry.stop : new Date();
-			this.details = entry.details && entry.details.length > 0 ? entry.details : [(window.funnyPhrase ? window.funnyPhrase() : "Задача "+(new Date()).getTime()*Math.random())];
+		// Запись хранилища
+		function StorageEntry(obj) {
+			obj = obj ? obj : {};
+			this.start = obj.start ? obj.start : new Date();
+			this.stop = obj.stop ? obj.stop : new Date();
+			this.details = obj.details ? obj.details : [];
+			// плагин генерации смешных имён если пустое пришло
+			if(this.details.length == 0) {
+				if(window.funnyPhrase) this.details.push(funnyPhrase());
+				else this.details.push("Задача" + (new Date()).getTime());
+			}
 		}
 		StorageEntry.prototype.getDuration = function() {
 			return this.stop - this.start;
 		}
 
-		// Хранилище данных таймера
+		// Хранилище
 		function Storage() {
-			// простой список записей
 			this.entries = [];
-			// загружаемся из локального хранилища
-			this.load();
 		}
 
-		// Добавить запись в Хранилище
-		Storage.prototype.addEntry = function(obj) {
-			// создаём новую запись
-			var entry = new StorageEntry({
-				start: obj.start,
-				stop: obj.stop,
-				details: obj.details
-			});
-			this.entries.unshift(entry);
-			// сохраняем всё локально
-			this.save();
-			// Слушатели
-			for(var i = 0; i < addEntryListeners.length; i++) { addEntryListeners[i](entry); }
-			// ТУДУ: возможно, отправляем на сервер
-			return entry;
-		};
-
-		// Удалить запись из хранилища
-		Storage.prototype.removeEntry = function(entry) {
-			var foundEntry = this.entries.indexOf(entry);
-			if(foundEntry == 0) {
-				this.entries.shift();
-			}
-			else {
-				this.entries.splice(this.entries.indexOf(entry), 1);
-			}
-			// сохранить в локальном хранилише
-			this.save();
-			// Слушатели
-			for(var i = 0; i < addEntryListeners.length; i++) { removeEntryListeners[i](entry); }
-		};
-		Storage.prototype.batchRemoveEntry = function(arr) {
-			var count = 0;
-			for(var i = 0; i < arr.length; i++) {
-				if(this.entries.indexOf(arr[i]) > -1) {
-					this.entries.splice(this.entries.indexOf(arr[i]), 1);
-					count++;
+		// Добавить запись
+		// кто может добавить запись? Таймер (старт),  загрузка из сохраненного или удалённого
+		// есть быстрое добавление - в начало например (по клику таймера)
+		// есть умное добавление (сразу с сортировкой) - например некий апдейт удалённо пришел или ещё откуда-то
+		// при этом нужно разослать сообщение о добавлении
+		Storage.prototype.addEntry = function(obj, dir) {
+			
+			// не генерим новый объект если уже дают готовый, просто вставить значит
+			var entry = (obj.constructor.name == "StorageEntry" ? obj : new StorageEntry(obj));
+			// по умолчанию добавляем "умно" - что сохранялось сортированность "по умолчанию" (свежие первые)
+			// это как будто unshift на самом деле, если пришло новое от таймера - добавится в первом же цикле
+			if(!dir) {
+				if(this.entries.length > 0) {
+					for(var i = 0; i < this.entries.length; i++) {
+						if(entry.start.getTime() - this.entries[i].start.getTime() >= 0) {
+							this.entries.splice(i, 0, entry);
+							break;
+						}
+					}
+				} else {
+					this.entries.push(entry);
 				}
-			}
-			if(count) {
+			} 
+			// либо добавляем в конец (например парсинг большого списка)
+			else { this.entries.push(entry); }
+			// оповещаем о событии		
+			$rootScope.$broadcast("storage-add-entry", entry);
+			// временно - сохраняем
+			this.save();
+			// отдаем свежедобавленное
+			return entry;
+		}
+
+		// Удалить запись
+		Storage.prototype.removeEntry = function(entry) {
+			var id = this.entries.indexOf(entry);
+			if(id > -1) { 
+				this.entries.splice(id, 1); 
+				$rootScope.$broadcast("storage-remove-entry", entry);
+				// временно - сохраняем
 				this.save();
-				for(var i = 0; i < addEntryListeners.length; i++) { removeEntryListeners[i](arr); }
+				// отдаём удалённое
+				return entry;
 			}
 		}
+
+		// а если исходить из юзера?
+		// - добавить задачу (из таймера)
+		// - удалить задачу(и)
+		// - апдейтить задачу (можно через удалить-добавить, если время старта поменялось)
+		// - получить задачи (query по всяким параметрам)
+
 
 		// Изменить запись хранилища
 		Storage.prototype.updateEntry = function(entry, data) {
-			var foundEntry = this.entries.indexOf(entry);
-			if(foundEntry > -1) {
-				entry.start = !data.start ? entry.start : data.start;
-				entry.stop = !data.stop ? entry.stop : data.stop;
-				entry.details = !data.details ? entry.details : data.details;
-				this.save();
-				// Слушатели
-				for(var i = 0; i < updateEntryListeners.length; i++) { 
-					updateEntryListeners[i](entry); 
-				}
-				if(data.details) {
-					this.broadcastUpdateDetails([entry]);
+			// удаляем
+			this.removeEntry(entry);
+			// изменяем
+			entry.start = !data.start ? entry.start : data.start;
+			entry.stop = !data.stop ? entry.stop : data.stop;
+			entry.details = !data.details ? entry.details : data.details;
+			// вставляем заново
+			this.addEntry(entry);
+			// отдаём
+			return entry;
+		}
+
+		// пакетное удаление
+		Storage.prototype.batchRemoveEntries = function(pack) {
+			var id;
+			for(var i = 0; i < pack.length; i++) {
+				id = this.entries.indexOf(pack[i]);
+				if(id > -1)  {
+					this.entries.splice(id, 1);
 				}
 			}
+			$rootScope.$broadcast("storage-batch-remove", pack);
+			this.save();
+		}
+
+		// пакетное добавление
+		Storage.prototype.batchAddEntries = function(pack) {
+			for(var i = 0; i < pack.length; i++) {
+				// ищем куда правильно вставить в хронологии хранилища
+				for(var k = 0; k < this.entries.length; k++) {
+					if(pack[i].start - this.entries[k].start >= 0) {
+						this.entries.splice(i, 0, pack[i]);
+						break;
+					}
+				}
+			}
+			$rootScope.$broadcast("storage-batch-add", pack);
+			this.save();
+		}
+
+		Storage.prototype.batchUpdateEntries = function(pack, changes) {
+			// сначала удалим
+			this.batchRemoveEntries(pack);
+			// потом изменим
+			var id;
+			for(var i = 0; i < pack.length; i++) {
+				// изменяем дату старта
+				// и сохранить длительность нужно как было
+				if(changes.startDate) {
+					var duration = pack[i].stop - pack[i].start;
+					pack[i].start.setDate(changes.startDate.getDate());
+					pack[i].start.setMonth(changes.startDate.getMonth());
+					pack[i].start.setFullYear(changes.startDate.getFullYear());
+					pack[i].stop = new Date(pack[i].start.getTime() + duration);
+				}
+				// переименование сложное (для разных задач изменение структуры)
+				if(changes.detailsNewPart && changes.detailsStopDepth) {
+					// нужно заменить начиная с нуля до detailsStopDepth на detailsNewPart
+					pack[i].details = changes.detailsNewPart.slice(0).concat(pack[i].details.slice(changes.detailsStopDepth));
+				} 
+				// переименование простое
+				else if(changes.details) {
+					pack[i].details = angular.copy(changes.details);
+				}
+			}
+			// а теперь добавим заново
+			this.batchAddEntries(pack);
+			// сортировочка
+			this.sort();
+		}
+
+		Storage.prototype.sort = function() {
+			this.entries.sort(function(a,b) { return b.start - a.start; });
+		}
+
+
+
+		// 
+		// TODO
+		//
+
+		// Сохраняем тик таймера
+		Storage.prototype.tickSave = function(entry) {
+			console.log("storage tick save");
+			// TODO
+			this.save()
 		}
 
 		// Сохранить все в локальном хранилище
@@ -123,78 +189,16 @@ angular.module("TimerwoodApp.services")
 				this.entries.push(new StorageEntry({
 					start: new Date(data[i].start),
 					stop: new Date(data[i].stop),
-					details: data[i].details.length > 0 ? data[i].details : [(window.funnyPhrase ? window.funnyPhrase() : "Никак не названная задача")]
+					details: data[i].details
 				}));
 			}
+			// сортировочка?
+			this.sort();
 		}
 
-		// Слушатели событий Хранилища
-		var addEntryListeners = [];
-		var removeEntryListeners = [];
-		var updateEntryListeners = [];
-		var updateEntryDetailsListeners = [];
+		var storage = new Storage();
+		storage.load();
+		window.storage = storage;
 
-		Storage.prototype.broadcastUpdateDetails = function(tasks) {
-			for(var j = 0; j < updateEntryDetailsListeners.length; j++) { 
-				updateEntryDetailsListeners[j](tasks); 
-			}
-		}
-
-		// добавляем слушателя
-		Storage.prototype.addListener = function(type, fn) {
-			if(type == "add") {
-				addEntryListeners.push(fn);
-			}
-			else if(type == "remove") {
-				removeEntryListeners.push(fn);
-			}
-			else if(type == "update") {
-				updateEntryListeners.push(fn);
-			}
-			else if(type == "update.details") {
-				updateEntryDetailsListeners.push(fn);
-			}
-		}
-
-		// удаляем слушателя
-		Storage.prototype.removeListener = function(type, fn) {
-			if(type == "add") {
-				var id = addEntryListeners.indexOf(fn);
-				if(id == 0) {
-					addEntryListeners.shift()
-				}
-				else if(id > 0) {
-					addEntryListeners.splice(id, 1);
-				}
-			}
-			else if(type == "remove") {
-				var id = removeEntryListeners.indexOf(fn);
-				if(id == 0) {
-					removeEntryListeners.shift()
-				}
-				else if(id > 0) {
-					removeEntryListeners.splice(id, 1);
-				}
-			}
-			else if(type == "update") {
-				var id = updateEntryListeners.indexOf(fn);
-				if(id == 0) {
-					updateEntryListeners.shift()
-				}
-				else if(id > 0) {
-					updateEntryListeners.splice(id, 1);
-				}
-			}
-			else if(type == "update.details") {
-				var id = updateEntryDetailsListeners.indexOf(fn);
-				if(id == 0) {
-					updateEntryDetailsListeners.shift()
-				}
-				else if(id > 0) {
-					updateEntryDetailsListeners.splice(id, 1);
-				}
-			}
-		}
-
-		return new Storage();
+		return storage;
 	}]);
