@@ -1,17 +1,20 @@
-
-// services
+//
+// Timerwood 3.0
+// новые директивы и теги
+// 
 
 var DATE_REGEXP = /(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.(19|20)\d\d/;
 
 angular.module("TimerwoodApp.directives", [])
-	.directive('scrollTopOnClick', ["$anchorScroll", "$timeout", function($anchorScroll, $timeout) {
+	.directive('scrollTopOnClick', ["$anchorScroll", "$timeout", "$window", function($anchorScroll, $timeout, $window) {
 		return {
 			restrict: 'A',
 			link: function(scope, $elm) {
+				var w = $(window);
 				function scrollDelta(delta) {
-					document.documentElement.scrollTop -= document.documentElement.scrollTop * delta;
-					if(document.documentElement.scrollTop < 5) {
-						document.documentElement.scrollTop = 0;
+					w.scrollTop(w.scrollTop() - w.scrollTop()*0.8);
+					if(w.scrollTop() < 5) {
+						w.scrollTop(0);
 					} else {
 						$timeout(function() {
 							scrollDelta(delta);						
@@ -43,7 +46,6 @@ angular.module("TimerwoodApp.directives", [])
 			restrict: "A",
 			link: function($scope, $element, $attr) {
 				$scope.$on("focusNewSubTask", function() {
-					console.log("focusNewSubTask");
 					$element[0].selectionStart = $element[0].value.indexOf($element[0].value.split(", ")[$element[0].value.split(", ").length-1]);
 					$element[0].selectionEnd = $element[0].value.length;
 					$element[0].focus();
@@ -56,14 +58,12 @@ angular.module("TimerwoodApp.directives", [])
 			restrict: "A",
 			link: function($scope, $element, $attr) {
 				$scope.$on("editLastItem", function() {
-					console.log("editLastItem");
 					$timeout(function() {
 						$element[0].selectionStart = String($element[0].value).indexOf($element[0].value.split(", ")[$element[0].value.split(", ").length-1]);
 						$element[0].selectionEnd = String($element[0].value).length;
 						$element[0].focus();
-						console.log("focu");
 					},10)
-				})
+				});
 			}
 		}
 	}])
@@ -72,13 +72,48 @@ angular.module("TimerwoodApp.directives", [])
 			restrict: "A",
 			link: function($scope, $element, $attr) {
 				$scope.$on("editLastItemOnSwitchView", function() {
-					console.log("editLastItemOnSwitchView");
 					$timeout(function() {
 						$element[0].selectionStart = String($element[0].value).indexOf($element[0].value.split(", ")[$element[0].value.split(", ").length-1]);
 						$element[0].selectionEnd = String($element[0].value).length;
 						$element[0].focus();
 					},10)
 				})
+			}
+		}
+	}])
+	.directive("twGlobalShortcuts", ["$document", "$rootScope", function($document, $rootScope) {
+		return {
+			restrict: "A",
+			link: function($scope, $element, $attr) {
+				$document.bind("keypress", function(e) {
+					$rootScope.$broadcast("keypress:"+e.which, e);
+
+					// хелп по клавише H
+					if(e.which == 104 || e.which == 1088 || e.which == 72 || e.which == 1056 || 
+						e.which == 121 || e.which == 1085 || e.which == 89 || e.which == 1053) { 
+						$rootScope.$broadcast("shortcut:"+"H");
+					}
+					// меню по клавише M
+					else if(e.which == 109 || e.which == 1100 || e.which == 77 || e.which == 1068 || 
+						e.which == 118 || e.which == 1084 || e.which == 86 || e.which == 1052) { 
+						$rootScope.$broadcast("shortcut:"+"M");
+					}
+					// меню по клавише N
+					else if(e.which == 110 || e.which == 1090 || e.which == 78 || e.which == 1058) { 
+						$rootScope.$broadcast("shortcut:"+"N");
+					}
+					$rootScope.$apply();
+				});
+			}
+		}
+	}])
+	.directive("twPreventShortcuts", [function() {
+		return {
+			restrict: "A",
+			link: function($scope, $element, $attr) {
+				$element.bind("keypress", function(e) {
+					e.stopPropagation();
+				});
 			}
 		}
 	}]);

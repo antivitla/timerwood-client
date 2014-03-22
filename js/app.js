@@ -1,14 +1,23 @@
-
 //
 // Таймер 3.0
-//
+// приложение
 
-// app
+// 
+// сборка angular модулей
+// 
+
 angular.module("TimerwoodApp", ["TimerwoodApp.controllers", "TimerwoodApp.services", "TimerwoodApp.filters", "TimerwoodApp.directives"]);
 angular.module("TimerwoodApp.controllers", []);
 angular.module("TimerwoodApp.services", []);
 angular.module("TimerwoodApp.filters", []);
 angular.module("TimerwoodApp.directive", []);
+
+// Хак для dropbox редиректа
+// angular.module("TimerwoodApp")
+// 	.config(['$locationProvider', function($locationProvider) {
+//     	$locationProvider.html5Mode(false);
+//     	$locationProvider.hashPrefix("!"); 
+//     }]);
 
 //
 // Контроллер подвала
@@ -20,39 +29,58 @@ angular.module("TimerwoodApp.controllers")
 	}]);
 
 //
-// Контроллер помощи
+// Контроллер меню
 //
 
 angular.module("TimerwoodApp.controllers")	
-	.controller("HelpCtrl", ["$scope", "$rootScope", function($scope, $rootScope) {
-
-		// если первый раз, показываем приветствие
-		if(localStorage.getItem("Timerwood-hideGreetingPopup") === null) {
-			$rootScope.hideGreetingPopup = true;
-			$rootScope.greetingPopup = true;
-			localStorage.setItem("Timerwood-hideGreetingPopup", true);
+	.controller("MenuCtrl", ["$scope", "$rootScope", function($scope, $rootScope) {
+		$scope.recent = [
+			{value: 1},
+			{value: 2},
+			{value: 3},
+			{value: 4},
+			{value: 5}
+		];
+		var settings = angular.fromJson(localStorage.getItem("Timerwood-Settings"));
+		if(!settings) {
+			$scope.settings = {
+				dateRecent: $scope.recent[1],
+				taskRecent: $scope.recent[1]
+			}
 		} else {
-			$rootScope.hideGreetingPopup = localStorage.getItem("Timerwood-hideGreetingPopup") == "false" ? false : true;
-			$rootScope.greetingPopup = !$rootScope.hideGreetingPopup;
+			$scope.settings = {
+				dateRecent: $scope.recent[settings.dateRecent.value-1],
+				taskRecent: $scope.recent[settings.taskRecent.value-1],
+			}
 		}
-
-		// если что, сохраняем показывание или нет приветствия при загрузке
-		$rootScope.$watch("hideGreetingPopup", function(val, oldval) {
-			localStorage.setItem("Timerwood-hideGreetingPopup", val);
+		$scope.$watch("settings.dateRecent", function(newval, oldval) {
+			$rootScope.dateRecent = newval.value;
+			saveSettings();
+		});
+		$scope.$watch("settings.taskRecent", function(newval, oldval) {
+			$rootScope.taskRecent = newval.value;
+			saveSettings();
+		});
+		$scope.$watch("menu", function(newval, oldval) {
+			$rootScope.menu = newval;
+		});
+		$rootScope.$watch("menu", function(newval, oldval) {
+			$scope.menu = newval;
+		});
+		$scope.$watch("help", function(newval, oldval) {
+			$rootScope.help = newval;
+		});
+		$scope.$watch("notes", function(newval, oldval) {
+			$rootScope.notes = newval;
 		});
 
-		// переключение показывать или нет приветствие
-		$rootScope.save = function(val) {
-			$rootScope.hideGreetingPopup = val;
-		};
-
-		// дальше делаем хакинг антиангуларовский...
-		// а может и ангуларовский
-		$rootScope.help = false;
-		$scope.toggleHelp = function() {
-			$rootScope.help = !$rootScope.help;
+		function saveSettings() {
+			localStorage.setItem("Timerwood-Settings", angular.toJson($scope.settings));
 		}
 
+		$scope.$on("shortcut:H", function() { $scope.help = !$scope.help; });
+		$scope.$on("shortcut:M", function() { $scope.menu = !$scope.menu; });
+		$scope.$on("shortcut:N", function() { $scope.notes = !$scope.notes; });
 	}]);
 
 //
