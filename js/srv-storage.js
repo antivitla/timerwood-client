@@ -165,13 +165,13 @@ angular.module("TimerwoodApp.services")
 
 
 		// 
-		// TODO
+		// ТУДУ
 		//
 
 		// Сохраняем тик таймера
 		Storage.prototype.tickSave = function(entry) {
 			console.log("storage tick save");
-			// TODO
+			// ТУДУ
 			this.save()
 		}
 
