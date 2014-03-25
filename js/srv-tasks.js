@@ -92,7 +92,7 @@ angular.module("TimerwoodApp.services")
 
 		// затем нам нужно удалить пустые образовавшиеся таски
 		Task.prototype.removeEmpty = function(entry) {
-			if(this.time.length == 0 && this.children == 0) {
+			if(this.time.length == 0 && this.children.length == 0 && this.parent) {
 				// нужно удалить себя из списка детей родителя
 				// тест
 				if(this.parent.children.indexOf(this) < 0) {

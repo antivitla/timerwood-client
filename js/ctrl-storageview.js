@@ -64,13 +64,19 @@ angular.module("TimerwoodApp.controllers")
 			var date = new Date(entry.start);
 			date = $filter("updateDateFromDayTimeString")(date, entry.editStart, ":");
 			date = $filter("updateDateFromDateString")(date, entry.editDate, ".");
-			// длительность
 			var duration = $filter("filterDurationStringToMilliseconds")(entry.editDuration, " ");
+			var details = angular.copy(entry.editDetails);
+			delete entry.editStart;
+			delete entry.editDate;
+			delete entry.editDuration;
+			delete entry.editDetails;
+			entry.editStartWatcher();
+			delete entry.editStartWatcher;
 			// проверяем изменения, и апдейтим хранилище
 			Storage.updateEntry(entry, {
 				start: date,
 				stop: new Date(date.getTime() + duration),
-				details: angular.copy(entry.editDetails)
+				details: details
 			});
 		}
 
