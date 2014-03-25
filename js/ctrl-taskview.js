@@ -51,18 +51,14 @@ angular.module("TimerwoodApp.controllers")
 		$scope.delete = function(task) {
 			// а что я парюсь, ведь удаляется целиком таск
 			// и потом сортируется, скажем
-			var id = task.parent.children.indexOf(task);
-			if(id == -1) {
-				alert("задачи сломались");
-			} 
-			task.parent.children.splice(id, 1);
-			delete task.parent[task.name];
+			task.remove();
 			// и из хранилища
 			Storage.batchRemoveEntries(task.collectEntries());
 		};
 
 		// сохранение изменений
 		$scope.save = function(task) {
+			task.remove();
 			Storage.batchUpdateEntries(task.collectEntries(), {
 				detailsNewPart: task.path,
 				detailsStopDepth: task.depth

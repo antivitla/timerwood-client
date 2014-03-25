@@ -51,7 +51,7 @@ input[type=text].small {
 
 
 /* Шрифты */
-body, input, button, textarea {
+body, input, button, textarea, select, option {
 	font-family: PF Beau Sans, sans-serif;
 	font-size: 18px;
 	font-weight: 300;
@@ -1015,11 +1015,31 @@ page.front .icon-dropbox {
 
 
 /* меню */
-select[ng-model="settings.dateRecent"],
-select[ng-model="settings.taskRecent"] {
+*[ng-controller="MenuCtrl"] select[ng-model="settings.dateRecent"],
+*[ng-controller="MenuCtrl"] select[ng-model="settings.taskRecent"] {
 	width: 40px;
 	margin-right: 5px;
 	background-color: #888;
 	color: whitesmoke;
+	font-size: 14px;
+}
+*[ng-controller="MenuCtrl"] select:focus {
+	background-color: whitesmoke;
+	color: #333;
+}
+*[ng-controller="MenuCtrl"] input[type=text] {
+	background-color: #888;
+	color: whitesmoke;
+	font-size: 14px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+*[ng-controller="MenuCtrl"] input[type=text]:focus {
+	background-color: whitesmoke;
+	color: #333;
+}
+*[ng-controller="MenuCtrl"] .placeholder {
+	color: #333;
 }
 
