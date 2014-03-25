@@ -92,8 +92,7 @@ angular.module("TimerwoodApp.services")
 
 		// затем нам нужно удалить пустые образовавшиеся таски
 		Task.prototype.removeEmpty = function(entry) {
-			if(this.time.length == 0 && this.children.length == 0 && this.parent) {
-				console.log("task remove empty: ", this.name);
+			if(this.time.length == 0 && this.children == 0) {
 				// нужно удалить себя из списка детей родителя
 				// тест
 				if(this.parent.children.indexOf(this) < 0) {
@@ -105,9 +104,7 @@ angular.module("TimerwoodApp.services")
 				// значит нужен список деталей и глубина..
 				delete this.parent[entry.details[this.depth-1]];
 				// кроме того, нужно рекурсивно удалить и родителя, если он стал бездетный
-				if(this.parent) {
-					return this.parent.removeEmpty(entry);
-				}
+				return this.parent.removeEmpty(entry);
 			} 
 			else {
 				// а здесь, кстати, остается
@@ -115,20 +112,6 @@ angular.module("TimerwoodApp.services")
 				// только что удалили дитя
 				// стало быть его нужно возвратить - для сортировки или ещё для чего
 				return this;
-			}
-		}
-
-		Task.prototype.remove = function() {
-			if(this.parent) {
-				// удалить быстрые ссылки на себя
-				delete this.parent[this.name];
-				// удалить из детей
-				var id = this.parent.children.indexOf(this);
-				if(id > -1) {
-					this.parent.children.splice(id, 1);
-				} else {
-					console.log("task: clear - not found task");
-				}
 			}
 		}
 
@@ -217,8 +200,7 @@ angular.module("TimerwoodApp.services")
 		});
 
 		$rootScope.$on("storage-remove-entry", function(event, entry) {
-			var removed = tasks.removeStorageEntry(entry);
-			var lastNonEmpty = removed.removeEmpty(entry);
+			var lastNonEmpty = tasks.removeStorageEntry(entry).removeEmpty(entry);
 			// и вроде как нужно опять отсортировать, если было удаление
 			if(lastNonEmpty) lastNonEmpty.sort();
 		});
@@ -228,14 +210,8 @@ angular.module("TimerwoodApp.services")
 			for(var i = 0; i < pack.length; i++) {
 				var last = tasks.removeStorageEntry(pack[i]).removeEmpty(pack[i]);
 				if(last) last.sort();
-			}			
-		});
-
-		$rootScope.$on("storage-clear", function(event) {
-			// Очистить дерево
-			for(var i = 0; i < tasks.children.length; i++) {
-				tasks.children[i].remove();
 			}
+			
 		});
 
 		$rootScope.$on("storage-batch-add", function(event, pack) {

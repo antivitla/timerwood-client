@@ -33,12 +33,7 @@ angular.module("TimerwoodApp.controllers")
 //
 
 angular.module("TimerwoodApp.controllers")	
-	.controller("MenuCtrl", ["$scope", "$rootScope", "PetrovStorage", function($scope, $rootScope, PetrovStorage) {
-
-		//
-		// Настройки последних дней и задач
-		//
-
+	.controller("MenuCtrl", ["$scope", "$rootScope", function($scope, $rootScope) {
 		$scope.recent = [
 			{value: 1},
 			{value: 2},
@@ -50,8 +45,7 @@ angular.module("TimerwoodApp.controllers")
 		if(!settings) {
 			$scope.settings = {
 				dateRecent: $scope.recent[1],
-				taskRecent: $scope.recent[1],
-				currentAccount: ""
+				taskRecent: $scope.recent[1]
 			}
 		} else {
 			$scope.settings = {
@@ -67,11 +61,6 @@ angular.module("TimerwoodApp.controllers")
 			$rootScope.taskRecent = newval.value;
 			saveSettings();
 		});
-
-		//
-		// Шорткаты
-		//
-
 		$scope.$watch("menu", function(newval, oldval) {
 			$rootScope.menu = newval;
 		});
@@ -85,24 +74,13 @@ angular.module("TimerwoodApp.controllers")
 			$rootScope.notes = newval;
 		});
 
-		$scope.$on("shortcut:H", function() { $scope.help = !$scope.help; });
-		$scope.$on("shortcut:M", function() { $scope.menu = !$scope.menu; });
-		$scope.$on("shortcut:N", function() { $scope.notes = !$scope.notes; });
-
-		//
-		// Юзер, аккаунты, перенос данных таймера
-		//
-
-		$scope.settings.currentAccount = PetrovStorage.account;
-
-
-		//
-		// Хелперы
-		//
-
 		function saveSettings() {
 			localStorage.setItem("Timerwood-Settings", angular.toJson($scope.settings));
 		}
+
+		$scope.$on("shortcut:H", function() { $scope.help = !$scope.help; });
+		$scope.$on("shortcut:M", function() { $scope.menu = !$scope.menu; });
+		$scope.$on("shortcut:N", function() { $scope.notes = !$scope.notes; });
 	}]);
 
 //

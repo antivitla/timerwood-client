@@ -37,6 +37,9 @@
 	<script src="js/services.js"></script>
 	<script src="js/directives.js"></script>
 
+
+</head>
+
 <!-- Google Script -->
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -48,9 +51,6 @@
   ga('send', 'pageview');
 
 </script>
-
-</head>
-
 
 <body tw-global-shortcuts ng-app="TimerwoodApp">
 <img src="http://mr-woodman.ru/timer/images/share3.png" style="display: none;">
@@ -106,7 +106,6 @@
 			<strong>N</strong> &mdash; записки (<a ng-click="notes=!notes; menu=false;"><span ng-if="!notes">показать</span><span ng-if="notes">скрыть</span></a>)
 		</p>
 		<p>&nbsp;</p>
-
 		<p><strong>Показывать</strong></p>
 		<p>
 			<select ng-model="settings.dateRecent" ng-options="r.value for r in recent"></select>
@@ -119,18 +118,8 @@
 				<span ng-show="settings.taskRecent.value >= 5">последниx задач</span>
 		</p>
 		<p>&nbsp;</p>
-
-		<p><strong>Синхронизация</strong></p>
-		<p>
-			Текущий аккаунт:
-			<strong ng-if="!settings.currentAccount">нет</strong>
-			<strong ng-if="settings.currentAccount">{{settings.currentAccount}}</strong>
-		</p>
-		<p>
-			Скопировать текущие данные в:<br>
-			<input class="small" type="text" placeholder="Код аккаунта" tw-prevent-shortcuts>
-		</p>
-		<p>&nbsp;</p>
+		<p><strong>Изменения</strong></p>
+		<p>Кнопка <strong style="cursor: pointer;" ng-click="menu=false;" title="Спрятать панель меню">&equiv;</strong> &mdash; переключает панель меню.</p>
 	</article>
 </page>
 

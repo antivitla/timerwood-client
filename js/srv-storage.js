@@ -162,10 +162,6 @@ angular.module("TimerwoodApp.services")
 			this.entries.sort(function(a,b) { return b.start - a.start; });
 		}
 
-		Storage.prototype.clear = function() {
-			while(this.entries.length > 0) this.entries.pop();
-			$rootScope.$broadcast("storage-clear");
-		}
 
 
 		// 
@@ -179,27 +175,16 @@ angular.module("TimerwoodApp.services")
 			this.save()
 		}
 
-		// Сохранить все 
-		Storage.prototype.save = function(account) {
+		// Сохранить все в локальном хранилище
+		Storage.prototype.save = function() {
+			var storageEntries = this.entries;
 			// save to localStorage
-			localStorage.setItem("Timerwood-Log"+PetrovStorage.account, angular.toJson({ entries: this.entries }));
-			// и попытаться сохранить в удалённый аккаунт
-			var self = this;
-			if(PetrovStorage.account) {
-				PetrovStorage.update(PetrovStorage.account, angular.toJson({entries: this.entries}))
-					.then(function() {}, function() {
-						console.log("storage save: not found account creating new");
-						// если ошибка, кто-то удалил аккаунт, создать новый
-						PetrovStorage.create(PetrovStorage.account, angular.toJson({entries: self.entries}));
-				});
-			}
+			localStorage.setItem("Timerwood-Log", angular.toJson({ entries: storageEntries }));
 		};
 
 		// Загрузить из локального хранилища
 		Storage.prototype.load = function() {
-			var data = localStorage.getItem("Timerwood-Log"+PetrovStorage.account);
-			data = data ? angular.fromJson(data).entries : [];
-
+			var data = localStorage.getItem("Timerwood-Log") ? angular.fromJson(localStorage.getItem("Timerwood-Log")).entries : [];
 			for(var i = 0; i < data.length; i++) {
 				this.entries.push(new StorageEntry({
 					start: new Date(data[i].start),
@@ -209,43 +194,6 @@ angular.module("TimerwoodApp.services")
 			}
 			// сортировочка?
 			this.sort();
-
-			// теперь пытаемся загрузиться с аккаунта удалённого
-			if(PetrovStorage.account) {
-				var self = this;
-				PetrovStorage.load(PetrovStorage.account).then(function(result) {
-					// если найден аккаунт и загружены данные
-					var entries = angular.fromJson(result.data).entries;
-					if(entries.length > 0) {
-						// удалить всё местное?
-						self.clear();
-						// парсим
-						for(var i = 0; i < entries.length; i++) {
-							self.entries.push(new StorageEntry({
-								start: new Date(entries[i].start),
-								stop: new Date(entries[i].stop),
-								details: entries[i].details
-							}));
-						}
-						// евент
-						$timeout(function() {
-							$rootScope.$broadcast("storage-batch-add", self.entries);
-						}, 1000);
-						// сортировочка
-						storage.sort();
-					}
-					// затем заливаем обратно
-					console.log(entries);
-				}, 
-				function() {
-					// если не найден такой аккаунт, создаём
-					// и копируем туда текущую базу
-					PetrovStorage.create(PetrovStorage.account, angular.toJson({entries: self.entries})).then(function(result) {
-						// сохранить гостевой код надо
-						localStorage.setItem("Timerwood-Log"+PetrovStorage.account+"-guest", result.guest);
-					});
-				})
-			}
 		}
 
 		var storage = new Storage();
