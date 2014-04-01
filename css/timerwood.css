@@ -113,7 +113,7 @@ page.back {
 page.back.menu {
 	right: 0em;
 	opacity: 1;
-	z-index: 1;
+	z-index: 2;
 }
 page.front.menu {
 	right: 25em;
@@ -160,6 +160,40 @@ page.back article {
 page.back article a {
 	color: #ccc;
 }
+page.back select {
+	width: 40px;
+	margin-right: 5px;
+	background-color: #888;
+	color: whitesmoke;
+}
+page.back select:focus {
+	background-color: whitesmoke;
+	color: #333;
+}
+page.back input[type=text] {
+	background-color: #888;
+	color: whitesmoke;
+	font-size: 14px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+page.back input[type=text]:focus {
+	background-color: whitesmoke;
+	color: #333;
+}
+page.back .export input[type=submit] {
+	margin-left: -10px;
+	border-bottom-right-radius: 5px;
+	border-top-right-radius: 5px;	
+	vertical-align: top;
+	padding: 0 0.5em;
+	font-size: 14px;
+	font-weight: 500;
+	background-color: whitesmoke;
+	cursor: pointer;
+}
+
 
 /* Футер */
 page > footer {
@@ -859,11 +893,14 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
 	-webkit-box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
 	-moz-box-shadow: 0px 0px 50px rgba(0,0,0,0.1);
+	font-size: 18px !important;
+	color: #333;
 }
 .dialog a.ok,
 .dialog a.cancel {
 	text-decoration: underline;
 	cursor: pointer;
+	color: #333;
 }
 .dialog article h3 {
 	text-align: center;
@@ -1014,12 +1051,4 @@ page.front .icon-dropbox {
 }
 
 
-/* меню */
-select[ng-model="settings.dateRecent"],
-select[ng-model="settings.taskRecent"] {
-	width: 40px;
-	margin-right: 5px;
-	background-color: #888;
-	color: whitesmoke;
-}
 

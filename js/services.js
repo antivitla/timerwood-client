@@ -17,7 +17,7 @@ angular.module("TimerwoodApp.services")
 			var self = this;
 			jQuery.ajax({
 				type: "GET",
-				url: "http://82.196.2.175:8062/timer/" + code + "/",
+				url: "http://82.196.2.175:8062/timer/" + encodeURIComponent(code) + "/",
 				success: function(result) { 
 					console.log("petrov load", result);
 					if(result.status) {
@@ -26,7 +26,7 @@ angular.module("TimerwoodApp.services")
 						if(result.error.search("not found") > -1) {
 							// если не найден такой аккаунт, 
 							// надо создать
-							self.create(self.account).then(function(result2) {
+							self.create(code, "").then(function(result2) {
 								deferred.resolve(result2);
 							}, function(error) {
 								deferred.reject(error);
@@ -48,7 +48,7 @@ angular.module("TimerwoodApp.services")
 			var deferred = $q.defer();
 			jQuery.ajax({
 				type: "POST",
-				url: "http://82.196.2.175:8062/timer/" + code + "/",
+				url: "http://82.196.2.175:8062/timer/" + encodeURIComponent(code) + "/",
 				data: { data: entriesData ? entriesData : "" },
 				success: function(result) { 
 					console.log("petrov create", result); 
@@ -72,7 +72,7 @@ angular.module("TimerwoodApp.services")
 			jQuery.ajax({
 				type: "PUT",
 				data: { data: data },
-				url: "http://82.196.2.175:8062/timer/" + code + "/",
+				url: "http://82.196.2.175:8062/timer/" + encodeURIComponent(code) + "/",
 				success: function(result) { 
 					console.log("petrov update", result, angular.fromJson(data).entries.length); 
 					if(result.status) {
@@ -81,7 +81,7 @@ angular.module("TimerwoodApp.services")
 						if(result.error.search("not found") > -1) {
 							// если кто-то удалил аккаунт, создать опять
 							// c сохранением сразу
-							self.create(self.account, data).then(function(result2) {
+							self.create(code, data).then(function(result2) {
 								deferred.resolve(result2);
 							});
 						}
@@ -99,7 +99,7 @@ angular.module("TimerwoodApp.services")
 		Petrov.prototype.remove = function(code) {
 			jQuery.ajax({
 				type: "DELETE",
-				url: "http://82.196.2.175:8062/timer/" + code + "/",
+				url: "http://82.196.2.175:8062/timer/" + encodeURIComponent(code) + "/",
 				success: function(result) { console.log(result); },
 				error: function(error) { console.log(error); }
 			})

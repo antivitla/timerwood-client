@@ -203,18 +203,43 @@ angular.module("TimerwoodApp.services")
 			// сохраняем в локальный бэкап 
 			localStorage.setItem("Timerwood-Log"+PetrovStorage.account, storageEntriesJson);
 			// и удалённо?
-			PetrovStorage.update(PetrovStorage.account, storageEntriesJson);
+			if(PetrovStorage.account) PetrovStorage.update(PetrovStorage.account, storageEntriesJson);
 		};
+
+		Storage.prototype.saveLocal = function(account) {
+			var storageEntriesJson = angular.toJson({ entries: this.entries.slice(0) });
+			// сохраняем в локальный бэкап 
+			localStorage.setItem("Timerwood-Log"+account, storageEntriesJson);
+		}
+
+		Storage.prototype.saveRemote = function(account) {
+			var deferred = $q.defer();
+			var storageEntriesJson = angular.toJson({ entries: this.entries.slice(0) });
+			PetrovStorage.update(account, storageEntriesJson).then(function() {
+				deferred.resolve();
+			}, function() {
+				deferred.reject();
+			});
+			return deferred.promise;
+		}
 
 		// Загрузить данные
 		Storage.prototype.load = function(account) {
+			$rootScope.loadingAccount = true;
+			var self = this;
 			// сначала грузимся с локального бэкапа данного аккаунта
 			// так как это синхронная операция, 
 			// то к моменту включения задач и дней, они уже будут иметь список записей
 			// так что врубать события не надо
 			this.loadLocal(PetrovStorage.account);
 			// потом пробуем удалёнку
-			this.loadRemote(PetrovStorage.account);
+			$timeout(function() {
+				self.loadRemote(PetrovStorage.account).then(function() {
+					$rootScope.loadingAccount = false;
+				}, function() {
+					$rootScope.loadingAccount = false;
+				});
+			}, 500);
 		}
 
 		Storage.prototype.loadLocal = function(account) {

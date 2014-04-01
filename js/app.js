@@ -33,7 +33,7 @@ angular.module("TimerwoodApp.controllers")
 //
 
 angular.module("TimerwoodApp.controllers")	
-	.controller("MenuCtrl", ["$scope", "$rootScope", function($scope, $rootScope) {
+	.controller("MenuCtrl", ["$scope", "$rootScope", "PetrovStorage", "Storage", function($scope, $rootScope, PetrovStorage, Storage) {
 		$scope.recent = [
 			{value: 1},
 			{value: 2},
@@ -61,6 +61,8 @@ angular.module("TimerwoodApp.controllers")
 			$rootScope.taskRecent = newval.value;
 			saveSettings();
 		});
+
+		// шорткаты
 		$scope.$watch("menu", function(newval, oldval) {
 			$rootScope.menu = newval;
 		});
@@ -73,14 +75,76 @@ angular.module("TimerwoodApp.controllers")
 		$scope.$watch("notes", function(newval, oldval) {
 			$rootScope.notes = newval;
 		});
+		$scope.$on("shortcut:H", function() { $scope.help = !$scope.help; });
+		$scope.$on("shortcut:M", function() { $scope.menu = !$scope.menu; });
+		$scope.$on("shortcut:N", function() { $scope.notes = !$scope.notes; });
+
+		// синхронизация
+		$scope.currentAccount = PetrovStorage.account ? PetrovStorage.account : "локальный";
+		$scope.exportAccount = "";
+		$scope.checkSubmit = function(event) {
+			if(event.keyCode == 13) {
+				exportCurrentData($scope.exportAccount);
+			}
+		}
+		$scope.submitExport = function() {
+			exportCurrentData($scope.exportAccount);
+		}
+
+		// попапы
+		$scope.showPopup = false;
 
 		function saveSettings() {
 			localStorage.setItem("Timerwood-Settings", angular.toJson($scope.settings));
 		}
 
-		$scope.$on("shortcut:H", function() { $scope.help = !$scope.help; });
-		$scope.$on("shortcut:M", function() { $scope.menu = !$scope.menu; });
-		$scope.$on("shortcut:N", function() { $scope.notes = !$scope.notes; });
+		function exportCurrentData(account) {
+			// очистить
+			$scope.exportAccount = "";
+			// проверяем чего понаписали
+			if(account == PetrovStorage.account) {
+				$scope.popupMessage = "Глупо экспортировать текущие даные в текущий же аккаунт...";
+				$scope.cancelAction = "";
+				$scope.okAction = "ладно";
+				$scope.okCallback = function() {};
+				$scope.showPopup = true;
+			} else if(!account || account == "") {
+				// хотим заменить локальный аккаунт
+				// вывести предупреждение
+				$scope.popupMessage = "Вы собираетесь заменить все записи 'локального' аккаунта записями аккаунта " + PetrovStorage.account + "?";
+				$scope.cancelAction = "ошибочка вышла";
+				$scope.okAction = "точняк";
+				$scope.okCallback = function() { 
+					Storage.saveLocal(account); 
+					$scope.popupMessage = "Удача сопутствовала вам";
+					$scope.cancelAction = "";
+					$scope.okAction = "хорошо";
+					$scope.okCallback = function() {};
+					$scope.showPopup = true;
+				}
+				$scope.showPopup = true;
+			} else {
+				// хотим заменить удалённый аккаунт, 
+				// вывести предупреждение
+				$scope.popupMessage = "Вы собираетесь заменить все записи аккаунта " + account + 
+					" записями " + (PetrovStorage.account ? "" : "'локального'") + " аккаунта " + 
+					(PetrovStorage.account ? PetrovStorage.account : "") + "?";
+				$scope.cancelAction = "ошибочка вышла";
+				$scope.okAction = "точняк";
+				$scope.okCallback = function() {
+					Storage.saveLocal(account);
+					Storage.saveRemote(account).then(function() {
+						$scope.popupMessage = "Успех благоволит вам";
+						$scope.cancelAction = "";
+						$scope.okAction = "хорошо";
+						$scope.okCallback = function() {};
+						$scope.showPopup = true;
+					});
+				}
+				$scope.showPopup = true;
+			}
+		}
+
 	}]);
 
 //

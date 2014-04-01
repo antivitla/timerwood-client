@@ -117,9 +117,35 @@
 				<span ng-show="settings.taskRecent.value >= 5">последниx задач</span>
 		</p>
 		<p>&nbsp;</p>
-		<p><strong>Изменения</strong></p>
-		<p>Кнопка <strong style="cursor: pointer;" ng-click="menu=false;" title="Спрятать панель меню">&equiv;</strong> &mdash; переключает панель меню.</p>
+		<p><strong>Синхронизация</strong></p>
+		<p>Текущий аккаунт: <strong>{{currentAccount}}</strong></p>
+		<p class="export">
+			Скопировать данные в другой аккаунт: <br>
+			<input 
+				type="text" 
+				class="small" 
+				placeholder="Код аккаунта" 
+				tw-prevent-shortcuts 
+				ng-model="exportAccount"
+				ng-keydown="checkSubmit($event)">
+			<input type="submit" value="ок" ng-click="submitExport()">
+		</p>
+		
 	</article>
+
+
+	<div class="dialog" ng-show="showPopup" ng-cloak>
+		<article style="width: 450px;">
+			<p>{{popupMessage}}</p>
+			<p style="text-align: center;">
+				<a class="ok" ng-click="showPopup = false; okCallback();">{{okAction}}</a>
+				<span ng-show="cancelAction">&emsp;</span>
+				<a class="ok" ng-click="showPopup = false; cancelCallback();" ng-show="cancelAction">{{cancelAction}}</a>
+			</p>
+		</article>
+	</div>
+
+
 </page>
 
 
@@ -170,6 +196,11 @@
 
 
 
+
+
+
+
+	<div ng-show="loadingAccount" style="text-align: center; margin-bottom: 27px; font-size: 14px; color: #888;">Грузим данные...</div>
 
 
 
@@ -409,32 +440,6 @@
 			</li>
 		</ul>
 	</script>
-
-
-
-
-
-
-	<!-- Попапы 
-	<div class="dialog" ng-controller="PopupCtrl" ng-show="greetingPopup" ng-cloak>
-		<article style="width: 550px;">
-			<h3>Таймер 3.0</h3>
-			<p>Это крупное изменение.</p>
-			<p>В нём я постарался реализовать все что хотел и так, как хотел. И это получилось.</p>
-			<p>Среди фич, которые просили:<br>
-				&emsp; &mdash; &nbsp; разбиение по задачам (вид &laquo;задачи&raquo;)<br>
-				&emsp; &mdash; &nbsp; редактирование<br>
-				&emsp; &mdash; &nbsp; <del>отчёты c баблом и синхронизация</del> (в след. апдейтах)
-			</p>
-			<p>Если не разберетесь или чего-то не хватает, пишите на <a href="http://www.facebook.com/woodmanswork" target="_blank">facebook.com/woodmanswork</a></p>
-			<p style="text-align: center;">
-				<a class="ok" ng-click="close('greetingPopup')">Очень рад</a>
-				&emsp;
-				<a class="ok" ng-click="close('greetingPopup')">Да пофиг</a>
-			</p>
-			<p style="text-align: center;"><label><input type="checkbox" ng-model="hideGreetingPopup" checked="checked" ng-change="save(hideGreetingPopup)"> Не показывать в след. раз</label></p>
-		</article>
-	</div>-->
 
 </page>
 
