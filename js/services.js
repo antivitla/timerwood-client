@@ -74,7 +74,7 @@ angular.module("TimerwoodApp.services")
 				data: { data: data },
 				url: "http://82.196.2.175:8062/timer/" + code + "/",
 				success: function(result) { 
-					console.log("petrov update", result); 
+					console.log("petrov update", result, angular.fromJson(data).entries.length); 
 					if(result.status) {
 						deferred.resolve(result);
 					} else {

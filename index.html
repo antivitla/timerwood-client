@@ -287,7 +287,7 @@
 						<div ng-if="status == 'view'">
 							<span class="start">{{entry.start | filterDateTo:'dd.mm.yyyy'}} в {{entry.start | filterDateTo: 'hh:mm'}}</span>
 							<span class="details" title="Запустить задачу" ng-click="start(entry.details)" scroll-top-on-click>{{entry.details}}</span>
-							<span class="duration">{{entry.stop - entry.start | filterMillisecondsTo:'hour min'}}</span>
+							<span class="duration">{{entry.getDuration() | filterMillisecondsTo:'hour min'}}</span>
 						</div>
 						<span class="controls">
 							<a class="delete" ng-click="delete(entry); status='view'">удалить</a>

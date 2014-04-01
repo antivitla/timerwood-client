@@ -37,7 +37,7 @@ angular.module("TimerwoodApp.services")
 		// есть быстрое добавление - в начало например (по клику таймера)
 		// есть умное добавление (сразу с сортировкой) - например некий апдейт удалённо пришел или ещё откуда-то
 		// при этом нужно разослать сообщение о добавлении
-		Storage.prototype.addEntry = function(obj, dir) {
+		Storage.prototype.addEntry = function(obj, dir, nosave) {
 			
 			// не генерим новый объект если уже дают готовый, просто вставить значит
 			var entry = (obj.constructor.name == "StorageEntry" ? obj : new StorageEntry(obj));
@@ -45,12 +45,16 @@ angular.module("TimerwoodApp.services")
 			// это как будто unshift на самом деле, если пришло новое от таймера - добавится в первом же цикле
 			if(!dir) {
 				if(this.entries.length > 0) {
+					var inserted = false;
 					for(var i = 0; i < this.entries.length; i++) {
 						if(entry.start.getTime() - this.entries[i].start.getTime() >= 0) {
 							this.entries.splice(i, 0, entry);
+							inserted = true;
 							break;
 						}
 					}
+					// если вообще первей всего стала, то значит в конец
+					if(!inserted) this.entries.push(entry);
 				} else {
 					this.entries.push(entry);
 				}
@@ -60,19 +64,19 @@ angular.module("TimerwoodApp.services")
 			// оповещаем о событии		
 			$rootScope.$broadcast("storage-add-entry", entry);
 			// временно - сохраняем
-			this.save();
+			if(!nosave) this.save();
 			// отдаем свежедобавленное
 			return entry;
 		}
 
 		// Удалить запись
-		Storage.prototype.removeEntry = function(entry) {
+		Storage.prototype.removeEntry = function(entry, nosave) {
 			var id = this.entries.indexOf(entry);
 			if(id > -1) { 
 				this.entries.splice(id, 1); 
 				$rootScope.$broadcast("storage-remove-entry", entry);
 				// временно - сохраняем
-				this.save();
+				if(!nosave) this.save();
 				// отдаём удалённое
 				return entry;
 			}
@@ -88,19 +92,21 @@ angular.module("TimerwoodApp.services")
 		// Изменить запись хранилища
 		Storage.prototype.updateEntry = function(entry, data) {
 			// удаляем
-			this.removeEntry(entry);
+			this.removeEntry(entry, true);
 			// изменяем
 			entry.start = !data.start ? entry.start : data.start;
 			entry.stop = !data.stop ? entry.stop : data.stop;
 			entry.details = !data.details ? entry.details : data.details;
 			// вставляем заново
-			this.addEntry(entry);
+			this.addEntry(entry, false, true);
+			// сохраняем
+			this.save();
 			// отдаём
 			return entry;
 		}
 
 		// пакетное удаление
-		Storage.prototype.batchRemoveEntries = function(pack) {
+		Storage.prototype.batchRemoveEntries = function(pack, nosave) {
 			var id;
 			for(var i = 0; i < pack.length; i++) {
 				id = this.entries.indexOf(pack[i]);
@@ -109,11 +115,11 @@ angular.module("TimerwoodApp.services")
 				}
 			}
 			$rootScope.$broadcast("storage-batch-remove", pack);
-			this.save();
+			if(!nosave) this.save();
 		}
 
 		// пакетное добавление
-		Storage.prototype.batchAddEntries = function(pack) {
+		Storage.prototype.batchAddEntries = function(pack, nosave) {
 			// если хранилище пустое,
 			// то просто добавить и отсортировать
 			if(this.entries.length == 0) {
@@ -126,21 +132,24 @@ angular.module("TimerwoodApp.services")
 				// если же нет, ищем куда правильно вставить каждую
 				// с учётом сортировки
 				for(var i = 0; i < pack.length; i++) {
+					var inserted = false;
 					for(var k = 0; k < this.entries.length; k++) {
 						if(pack[i].start - this.entries[k].start >= 0) {
 							this.entries.splice(i, 0, pack[i]);
+							inserted = true;
 							break;
 						}
 					}
+					if(!inserted) this.entries.push(pack[i]);
 				}
 			}
 			$rootScope.$broadcast("storage-batch-add", pack);
-			this.save();
+			if(!nosave) this.save();
 		}
 
 		Storage.prototype.batchUpdateEntries = function(pack, changes) {
 			// сначала удалим
-			this.batchRemoveEntries(pack);
+			this.batchRemoveEntries(pack, true);
 			// потом изменим
 			var id;
 			for(var i = 0; i < pack.length; i++) {
@@ -164,9 +173,11 @@ angular.module("TimerwoodApp.services")
 				}
 			}
 			// а теперь добавим заново
-			this.batchAddEntries(pack);
+			this.batchAddEntries(pack, true);
 			// сортировочка
 			this.sort();
+			// сохраняем
+			this.save();
 		}
 
 		Storage.prototype.sort = function() {
@@ -188,7 +199,7 @@ angular.module("TimerwoodApp.services")
 
 		// Сохранить все в локальном хранилище
 		Storage.prototype.save = function() {
-			var storageEntriesJson = angular.toJson({ entries: this.entries });
+			var storageEntriesJson = angular.toJson({ entries: this.entries.slice(0) });
 			// сохраняем в локальный бэкап 
 			localStorage.setItem("Timerwood-Log"+PetrovStorage.account, storageEntriesJson);
 			// и удалённо?
