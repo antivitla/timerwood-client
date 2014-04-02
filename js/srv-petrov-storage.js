@@ -83,8 +83,9 @@ angular.module("TimerwoodApp.services")
 							self.create(code, data).then(function(result2) {
 								deferred.resolve(result2);
 							});
+						} else{
+							deferred.reject(result.error);
 						}
-						deferred.reject(result.error);
 					}
 				},
 				error: function(error) { 

@@ -25,6 +25,7 @@
 	<!-- <script src="lib/angular/dropstore-ng.js"></script> -->
 	<script src="js/app.js"></script>
 	<script src="js/srv-storage.js"></script>
+	<script src="js/srv-petrov-storage.js"></script>
 	<script src="js/srv-timer.js"></script>
 	<script src="js/srv-tasks.js"></script>
 	<script src="js/srv-days.js"></script>
@@ -33,8 +34,9 @@
 	<script src="js/ctrl-storageview.js"></script>
 	<script src="js/ctrl-dateview.js"></script>
 	<script src="js/ctrl-taskview.js"></script>
+	<script src="js/ctrl-menu.js"></script>
 	<script src="js/filters.js"></script>
-	<script src="js/services.js"></script>
+	<!--script src="js/services.js"></script-->
 	<script src="js/directives.js"></script>
 
 	<!-- Google Script -->
@@ -94,7 +96,7 @@
 
 <page class="back" ng-class="{menu: menu}" ng-controller="MenuCtrl" ng-cloak>
 	<nav class="menu">
-		<span class="menu-icon" ng-click="menu=!menu;" title="Спрятать панель меню">&mdash;</span>
+		<span class="menu-icon" ng-click="menu=!menu;" title="Спрятать панель меню">&mdash;</span> 
 	</nav>
 
 	<article>
@@ -156,6 +158,7 @@
 <page class="front" ng-class="{menu: menu, shownotes: notes}" ng-cloak>
 
 	<nav class="menu" ng-show="!menu">
+		<span class="account-info">{{currentAccount}}</span>
 		<a class="menu-icon" ng-click="menu=!menu;" title="Открыть панель меню">&mdash;</a>
 	</nav>
 
@@ -200,7 +203,7 @@
 
 
 
-	<div ng-show="loadingAccount" style="text-align: center; margin-bottom: 27px; font-size: 14px; color: #888;">Грузим данные...</div>
+	<div ng-show="loadingAccount" style="text-align: center; margin-bottom: 27px; font-size: 14px; opacity: 0.5;">Грузим данные...</div>
 
 
 
@@ -239,9 +242,7 @@
 					</ul>
 				</section>
 				<div class="toggle-all" ng-show="tasks.length > recentCount">
-					<a ng-click="recentTasks = !recentTasks">
-						{{ recentTasks && "Скрыть" || "Показать" }} ранние проекты
-					</a>
+					<a ng-click="recentTasks = !recentTasks">{{ getRecentTasksButtonText() }}</a>
 				</div>
 				<section class="all" ng-show="recentTasks == true">
 					<ul class="task-list">
@@ -265,7 +266,7 @@
 					</ul>
 				</section>
 				<div class="toggle-all" ng-show="days.length > recentCount">
-					<a ng-click="recentDates = !recentDates">{{ recentDates && "Скрыть" || "Показать" }} ранние даты</a>
+					<a ng-click="recentDates = !recentDates">{{ getRecentDaysButtonText() }}</a>
 				</div>
 				<section class="all" ng-show="recentDates == true">
 					<ul class="date-list">
@@ -283,14 +284,17 @@
 
 		<div ng-controller="StorageViewCtrl" class="view" ng-class="{show: currentView == 'storage'}">
 			<form class="search-entries">
+				<!-- <span class="tip" ng-show="search">фильтр</span> -->
 				<input type="text" class="small"
 					ng-model="search" 
 					ng-list=","
 					tw-focus-on-switch-view 
 					tw-prevent-shortcuts 
-					placeholder="Введите фильтры через запятую">
-					<a class="clear-filter" ng-click="search=null" ng-show="search.length > 0">&times;</a>
+					title="Комбинировать можно через запятую, например 'cho, баг, 12.07' найдет все записи 12 июля с именами где есть сочетание 'cho' и 'баг'"
+					placeholder="Поиск по имени и дате (dd.mm.yyyy)">
+					<a class="clear-filter" ng-click="search=null" ng-show="search.length > 0"><span class="tip">очистить</span> &times;</a>
 			</form>
+			<tw-watch-edit></tw-watch-edit>
 			<div ng-show="currentView == 'storage'">
 				<ul class="storage-list">
 					<li ng-repeat="entry in filtered = (entries | filter:searchTags)" ng-init="status='view'; entryScope = this" ng-class="status">
@@ -312,6 +316,7 @@
 								ng-keydown="checkSubmit($event, entry, entryScope)">		
 							<input type="text" class="small duration" 
 								ng-model="entry.editDuration" 
+								tw-focus-duration 
 								tw-prevent-shortcuts 
 								ng-keydown="checkSubmit($event, entry, entryScope)">
 						</div>
@@ -365,6 +370,9 @@
 				tw-focus-on-edit 
 				tw-prevent-shortcuts 
 				ng-keydown="checkSubmit($event, task, this)">
+			<span ng-if="status=='edit'" style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
+			<span class="duration-edit" title="Редактировать в хранилище" 
+				ng-click="editDurationInStorage(task); status='view'">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
 			<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
 			<span class="duration-total">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
 			<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}}</span>
@@ -398,7 +406,7 @@
 			<span class="price" ng-if="price.hour">{{getPrice(day.getDuration())|spacedNumber}}</span>
 			<span class="controls">
 				<a class="filter-storage" 
-					ng-click="filterStorageViewByDate(date.getDate());" 
+					ng-click="filterStorageViewByDate(day.getDate());" 
 					title="Поиск записей по хранилищу" 
 					scroll-top-on-click><img class="icon" src="images/icon-search.svg" alt="Поиск по хранилищу"></a>
 			</span>
@@ -416,6 +424,9 @@
 						tw-focus-on-edit 
 						tw-prevent-shortcuts 
 						ng-keydown="checkSubmit($event, task, entryScope)">
+					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
+					<span class="duration-edit" title="Редактировать в хранилище" 
+						ng-click="editDurationInStorage(task); status='view'">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
 				</div>
 				<div ng-if="status == 'view'">
 					<a class="task" title="Продолжить задачу" 
@@ -423,7 +434,7 @@
 						scroll-top-on-click>
 						<span ng-repeat="name in task.getDetails() track by $index">{{name}}</span>
 					</a>
-					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
+					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>					
 					<span class="duration">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
 					<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
 				</div>

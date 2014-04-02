@@ -203,4 +203,16 @@ angular.module("TimerwoodApp.filters", [])
 			return newstr.reverse().join("");
 
 		}
+	})
+	.filter("numberEnding", function() {
+		return function(str, number, suffix) {
+			var end = "";
+			if(suffix == "ов") {
+				if(number < 20 && number > 10) end = "ов";
+				else if(number%10 == 2 || number%10 == 3 || number%10 == 4) end = "а";
+				else if(number%10 == 1) end = "";
+				else end = "ов";
+			}
+			return str+end;
+		}
 	});

@@ -192,6 +192,28 @@ page.back .export input[type=submit] {
 	font-weight: 500;
 	background-color: whitesmoke;
 	cursor: pointer;
+	height: 27px;
+}
+page.back > nav.menu {
+	width: 100%;
+	display: block;
+}
+page.back > nav.menu > .menu-icon {
+	display: block;
+	padding-left: 0;
+}
+page.back > nav.menu > .menu-icon:before,
+page.back > nav.menu > .menu-icon:after {
+	left: 0px;
+}
+page.back > nav.menu > .menu-icon .tip {
+	display: none;
+}
+page.back > nav.menu > .menu-icon .tip {
+	display: inline;
+	font-size: 12px; 
+	vertical-align: center; 
+	margin-left: 10px;
 }
 
 
@@ -374,10 +396,24 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 
 /* Список задач */
-.task-list .duration {
+.task-list .duration,
+.task-list .duration-edit {
 	font-family: PT Mono, monospace;
 	opacity: 0.5;
 	font-size: 80%;
+}
+.task-list .duration-edit {
+	opacity: 0.5;
+	/*text-decoration: underline;*/
+	cursor: pointer;
+	box-shadow: 0 0 0 1px #e5e5e5;
+	border-radius: 5px;
+	display: inline-block;
+	height: 25px;
+	padding:0 0.5em;
+}
+.task-list .duration-edit:hover {
+	opacity: 1;
 }
 .task-list .task.selfshort .duration {
 	display: none;
@@ -387,7 +423,12 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .task-list .duration:before {
 	content: "–";
+	display: inline-block;
 	padding: 0px 0.5em;
+}
+.task-list .duration:hover:before {
+	text-decoration: none;
+	opacity: 0.5;
 }
 .task-list .duration-total {
 	font-weight: 200;
@@ -546,7 +587,10 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 }
 .task-list .task.edit .controls .sub-task,
 .task-list .task.edit .controls .edit,
-.task-list .task.edit .controls .filter-storage {
+.task-list .task.edit .controls .filter-storage,
+.task-list .task .duration-edit,
+.task-list .task.edit .duration,
+.task-list .task.edit .duration-total {
 	display: none;
 }
 .task-list .task.edit .controls .save,
@@ -557,7 +601,8 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .task input[type="text"].name {
 	display: none;
 }
-.task-list .task.edit input[type="text"].name {
+.task-list .task.edit input[type="text"].name,
+.task-list .task.edit .duration-edit {
 	display: inline-block;
 }
 
@@ -612,6 +657,21 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	vertical-align: baseline;
 	font-size: 14px;
 	opacity: 0.5;
+}
+.date-list li li .duration-edit {
+	font-family: PT Mono, monospace;
+	font-size: 80%;
+	opacity: 0.5;
+	cursor: pointer;
+	box-shadow: 0 0 0 1px #e5e5e5;
+	border-radius: 5px;
+	display: inline-block;
+	height: 25px;
+	padding: 0 0.5em;
+	display: none;
+}
+.date-list li li .duration-edit:hover {
+	opacity: 1;
 }
 .date-list li li .price {
 	font-family: PT Mono, monospace;
@@ -685,10 +745,12 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .leaf-task-list li.view input[type=text] {
 	display: none;
 }
-.leaf-task-list li.edit input[type=text] {
+.leaf-task-list li.edit input[type=text],
+.leaf-task-list li.edit .duration-edit {
 	display: inline-block;
 	vertical-align: top;
 }
+
 .leaf-task-list input[type=text].date {
 	font-family: PT Mono, monospace;
 	font-size: 14px;
@@ -704,7 +766,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 *[ng-controller=DateViewCtrl].price .leaf-task-list li.short .price {
 	display: none;
 }
-.leaf-task-list li.edit span.duration,
+/*.leaf-task-list li.edit span.duration,*/
 .leaf-task-list li.view input.duration,
 .leaf-task-list li.edit span.price,
 .leaf-task-list li.edit .controls .edit,
@@ -715,7 +777,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	display: none;
 }
 .leaf-task-list li.edit input.duration,
-.leaf-task-list li.view span.duration {
+.leaf-task-list li span.duration {
 	display: inline-block;
 }
 
@@ -823,19 +885,36 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	top: -28px;
 	left: 7px;
 	width: 50%;
+	white-space: nowrap;
 }
 .view .search-entries input[type="text"] {
 	box-shadow: none;
 	background-color: transparent;
 	width: 100%;
 	font-size: 14px;
+	/*font-style: italic;*/
+	font-weight: 300;
+	-webkit-box-shadow: 0 -1px 0 0 #e5e5e5;
+	-moz-box-shadow: 0 -1px 0 0 #e5e5e5;
+	box-shadow: 0 -1px 0 0 #e5e5e5;
 }
 .view .search-entries .clear-filter {
 	position: absolute;
-	left: -7px;
+	left: 395px;
 	top: 2px;
 	cursor: pointer;
-	text-decoration: none;
+	text-decoration: none;	
+	white-space: nowrap;
+}
+.view .search-entries .tip {
+	font-size: 12px; 
+	opacity: 0.5; 
+	vertical-align: baseline;
+}
+.view .search-entries .clear-filter .tip {
+	font-size: 12px;
+	vertical-align: top;
+	opacity: 0.5;
 }
 
 
@@ -926,6 +1005,7 @@ page > nav.menu {
 	top: 27px;
 	margin-right: 14px;
 	text-decoration: none;
+	white-space: nowrap;
 }
 page.back > nav.menu {
 	right: auto;
@@ -949,18 +1029,26 @@ page > nav.menu > .menu-icon {
 	display: inline-block;
 	vertical-align: top;
 	text-decoration: none;
+	padding: 0 10px;
+	text-align: left;
 }
 page > nav.menu > .menu-icon:before {
 	content: "—";
 	position: absolute;
 	top: -0.375em;
-	left: 0;
+	left: 10px;
 }
 page > nav.menu > .menu-icon:after {
 	content: "—";
 	position: absolute;
 	top: 0.375em;
-	left: 0;
+	left: 10px;
+}
+
+page > nav.menu .account-info {
+	opacity: 0.5;
+	vertical-align: middle;
+	margin-right: -7px;
 }
 
 
@@ -1036,19 +1124,3 @@ help.views-help img {
 	left: 180px;
 	top: 45px;
 }
-
-
-/* иконки */
-.icon-dropbox {
-	width: 16px;
-	height: 16px;
-	display: inline-block;
-	vertical-align: middle;
-	background: url(../images/dropbox.png) no-repeat -48px top;
-}
-page.front .icon-dropbox {
-	background-position: -16px top;
-}
-
-
-

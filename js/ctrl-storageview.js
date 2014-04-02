@@ -108,9 +108,17 @@ angular.module("TimerwoodApp.controllers")
 
 		// при переключении на вид хранилища, фокус клавы ставим на фильтр
 		$scope.$on("view-changed", function(event, view) {
-			if(view == "storage") {
-				$scope.$broadcast("editLastItemOnSwitchView");				
+			if(view != "storage") {
+				//$scope.$broadcast("editLastItemOnSwitchView");
+				$scope.search = "";
 			}
 		});
+
+		$scope.$on("edit-storage-entry", function(event, data) {
+			console.log(data, $scope);
+			if(data.field == "duration") {
+				$scope.$broadcast("startEdit", "duration");
+			}
+		})
 
 	}]);

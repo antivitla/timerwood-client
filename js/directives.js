@@ -67,6 +67,38 @@ angular.module("TimerwoodApp.directives", [])
 			}
 		}
 	}])
+	.directive("twFocusOnDuration", ["$timeout", function($timeout) {
+		return {
+			restrict: "A",
+			link: function($scope, $element, $attr) {
+				console.log("FOCA!!!");
+				$scope.$on("focusOnDuration", function() {
+					console.log("FOCAЯЯЯЯЯ!!!");
+					$timeout(function() {
+						$element[0].selectionStart = 0;
+						$element[0].selectionEnd = String($element[0].value).length;
+						$element[0].focus();
+					},10)
+				});
+			}
+		}
+	}])
+	.directive("twSwitchEdit", ["$timeout", function($timeout) {
+		return {
+			restrict: "A",
+			link: function($scope, $element, $attr) {
+				console.log("FOCA!!!");
+				$scope.$on("focusOnDuration", function() {
+					console.log("FOCAЯЯЯЯЯ!!!");
+					$timeout(function() {
+						$element[0].selectionStart = 0;
+						$element[0].selectionEnd = String($element[0].value).length;
+						$element[0].focus();
+					},10)
+				});
+			}
+		}
+	}])
 	.directive("twFocusOnSwitchView", ["$timeout", function($timeout) {
 		return {
 			restrict: "A",
@@ -114,6 +146,58 @@ angular.module("TimerwoodApp.directives", [])
 				$element.bind("keypress", function(e) {
 					e.stopPropagation();
 				});
+			}
+		}
+	}])
+	.directive("twFocusDuration", [function() {
+		return {
+			restrict: "A",
+			link: function($scope, $element, $attr) {
+				$scope.$on("focus-duration", function() {
+					console.log("zok");
+					$element[0].selectionStart = 0;
+					$element[0].selectionEnd = String($element[0].value).length;
+					$element[0].focus();
+				});
+				$scope.$on("view-changed", function(event, data) {
+					if(data != "storage") $element[0].blur();
+				})
+			}
+		}
+	}])
+	.directive("twWatchEdit", ["Storage", "$filter", "$timeout", function(Storage, $filter, $timeout) {
+		return {
+			restrict: "EA",
+			link: function($scope, $element, $attr) {
+				$scope.$on("edit-storage-entry", function(event, data) {
+					var i = Storage.entries.indexOf(data.entry);
+					var entryScope = angular.element(".storage-list li").eq(i).scope();
+
+
+					data.entry.editDate = $filter("filterDateTo")(data.entry.start, "dd.mm.yyyy");
+					data.entry.editStart = $filter("filterDateTo")(data.entry.start, "hh:mm");
+					data.entry.editDetails = angular.copy(data.entry.details);
+					data.entry.editDuration = $filter("filterMillisecondsTo")(data.entry.stop - data.entry.start, "h m");
+					// следим за изменением времени начала (обратное соответствие длительности чтоб показывать)
+					data.entry.editStartWatcher = entryScope.$watch("entry.editStart", function() {
+						var newStart = $filter("updateDateFromDayTimeString")(new Date(data.entry.start), data.entry.editStart, ":");
+						data.entry.editDuration = $filter("filterMillisecondsTo")(data.entry.stop - newStart, "h m");
+					});
+
+					entryScope.status = "edit";
+
+					$timeout(function() {
+						entryScope.$broadcast("focus-"+data.field);
+					},10);
+				});
+				
+				$scope.$on("view-changed", function(event, data) {
+					if(data != "storage") {
+						$(".storage-list li").each(function() {
+							angular.element(this).scope().status = "view";
+						})
+					}
+				})
 			}
 		}
 	}]);
