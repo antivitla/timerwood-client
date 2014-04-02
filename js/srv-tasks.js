@@ -221,6 +221,19 @@ angular.module("TimerwoodApp.services")
 			}
 		});
 
+		$rootScope.$on("storage-clear", function(event) {
+			// очищаем детей
+			while(tasks.children.length > 0) tasks.children.pop();
+			// и быстрые ссылки
+			for(var prop in tasks) {
+				if(tasks[prop]) {
+					if(tasks[prop].parent == tasks) {
+						delete tasks[prop];
+					}
+				}
+			}
+		})
+
 		// отдаём
 		return tasks;
 

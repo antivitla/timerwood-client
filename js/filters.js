@@ -24,36 +24,36 @@ angular.module("TimerwoodApp.filters", [])
 
 		return function(ms, format, isPart) {
 			if(format == "hh" && !isPart) {
-				var hrs = parseInt(ms/3600000);
+				var hrs = Math.floor(ms/3600000);
 				return ("0"+hrs).slice(-2);
 			}
 			else if(format == "hh:mm" && !isPart) {
-				var hrs = parseInt(ms/3600000);
-				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
+				var hrs = Math.floor(ms/3600000);
+				var mins = Math.floor((ms - hrs*3600000) / 60000);
 				return ("0"+hrs).slice(-2)+":"+("0"+mins).slice(-2);
 			}
 			else if(format == "h:mm" && !isPart) {
-				var hrs = parseInt(ms/3600000);
-				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
+				var hrs = Math.floor(ms/3600000);
+				var mins = Math.floor((ms - hrs*3600000) / 60000);
 				return hrs+":"+("0"+mins).slice(-2);
 			}
 			else if(format == "hr mn" && !isPart) {
-				var hrs = parseInt(ms/3600000);
-				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
+				var hrs = Math.floor(ms/3600000);
+				var mins = Math.floor((ms - hrs*3600000) / 60000);
 				return (hrs > 0 ? (hrs+"ч ") : "" ) + mins+"м";
 			}
 			else if(format == "h m" && !isPart) {
-				var hrs = parseInt(ms/3600000);
-				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
+				var hrs = Math.floor(ms/3600000);
+				var mins = Math.floor((ms - hrs*3600000) / 60000);
 				var minStr = mins > 0 ? ("0"+mins).slice(-2) : ""+mins;
 				return hrs + " " + minStr;
 			}
 			else if(format == "mm" && isPart) {
-				var mins = parseInt((ms - parseInt(ms/3600000)*3600000) / 60000);
+				var mins = Math.floor((ms - Math.floor(ms/3600000)*3600000) / 60000);
 				return ("0"+mins).slice(-2);
 			}
 			else if(format == "ss" && isPart) {
-				var secs = parseInt((ms - parseInt(ms/60000)*60000) / 1000);
+				var secs = parseInt((ms - Math.floor(ms/60000)*60000) / 1000);
 				return ("0"+secs).slice(-2);
 			}
 			else if(format == "ms" && isPart) {
@@ -61,9 +61,9 @@ angular.module("TimerwoodApp.filters", [])
 				return ("00"+millisecs).slice(-3);
 			}
 			else if(format == "hour min" && !isPart) {
-				var hrs = parseInt(ms / 3600000);
-				var mins = parseInt((ms - hrs*3600000) / 60000);
-				return (hrs != 0 ? (hrs + " " + niceRussianHourEnding(Math.abs(hrs)) + " ") : "") + mins + " мин";
+				var hrs = Math.floor(ms / 3600000);
+				var mins = Math.floor((ms - hrs*3600000) / 60000);
+				return (hrs != 0 ? (hrs + " " + niceRussianHourEnding(hrs) + " ") : "") + mins + " мин";
 			}
 			return ms;
 		}
@@ -202,5 +202,17 @@ angular.module("TimerwoodApp.filters", [])
 			if(newstr[0] == " ") newstr = newstr.slice(1, newstr.length);
 			return newstr.reverse().join("");
 
+		}
+	})
+	.filter("numberEnding", function() {
+		return function(str, number, suffix) {
+			var end = "";
+			if(suffix == "ов") {
+				if(number < 20 && number > 10) end = "ов";
+				else if(number%10 == 2 || number%10 == 3 || number%10 == 4) end = "а";
+				else if(number%10 == 1) end = "";
+				else end = "ов";
+			}
+			return str+end;
 		}
 	});

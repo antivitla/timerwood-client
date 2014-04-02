@@ -262,6 +262,10 @@ angular.module("TimerwoodApp.services")
 			}
 		});
 
+		$rootScope.$on("storage-clear", function(event) {
+			while(days.days.length > 0) days.days.pop();
+		})
+
 
 		return days;
 
