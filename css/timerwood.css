@@ -395,76 +395,60 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	border-bottom: solid #e5e5e5 1px;
 }
 
+
+
 /* Список задач */
-.task-list .duration,
-.task-list .duration-edit {
+
+.task-list .task .duration,
+.task-list .task .price-self {
 	font-family: PT Mono, monospace;
 	opacity: 0.5;
 	font-size: 80%;
 }
+.task-list .task .duration:before,
+.task-list .task .price-self:before {
+	content: "—";
+	display: inline-block;
+	padding: 0 0.5em;
+}
+.task-list .task .price-self:before {
+	content: "/";
+}
+
+
 .task-list .duration-edit {
+	font-family: PT Mono, monospace;
 	opacity: 0.5;
-	/*text-decoration: underline;*/
+	font-size: 80%;
 	cursor: pointer;
-	box-shadow: 0 0 0 1px #e5e5e5;
+	box-shadow: inset 0 0 0 1px #e5e5e5;
 	border-radius: 5px;
 	display: inline-block;
-	height: 25px;
-	padding:0 0.5em;
+	vertical-align: top;
+	height: 27px;
+	padding: 0 0.5em;
+	margin-left: -7px;
 }
 .task-list .duration-edit:hover {
 	opacity: 1;
 }
-.task-list .task.selfshort .duration {
-	display: none;
-}
-.task-list .task.selfshort.leaf .duration {
-	display: inline;
-}
-.task-list .duration:before {
-	content: "–";
-	display: inline-block;
-	padding: 0px 0.5em;
-}
-.task-list .duration:hover:before {
-	text-decoration: none;
-	opacity: 0.5;
-}
-.task-list .duration-total {
+
+.task-list .task .price,
+.task-list .task .duration-total {
 	font-weight: 200;
 	margin-left: 2em;
 }
-.price[ng-controller=TasksViewCtrl] .task-list .duration-total:after,
-.price[ng-controller=TasksViewCtrl] .task-list > li > .task.leaf .duration:after {
-	content: ",";
-}
-.price[ng-controller=TasksViewCtrl] .task-list .task.leaf .duration:after {
-	content: "/";
-	margin-left: 0.25em;
-}
-.task-list .price {
+
+.task-list .task .price {
 	font-weight: 400;
-	margin-left: 1em;
-	display: none;
 }
-.task-list .price:after {
-	content: " руб.";
+
+.task-list .task .price:after,
+.task-list .task .price-self:after {
+	content: " руб";
 }
-.price[ng-controller=TasksViewCtrl] .task-list .price {
-	display: inline;
-}
-.task-list .leaf > .price {
-	margin-left: 1em;
-	font-family: PT Mono, monospace;
-	opacity: 0.5;
-	font-size: 80%;
-}
-.task-list > li > .task.leaf > .price {
-	margin-left: 1em;
-}
-.task-list .leaf > .price {
-	margin-left: 0.25em;
-}
+
+
 .task-list > li:first-child {
 	padding-top: 27px;
 }
@@ -489,19 +473,6 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list > li:last-child > .task:last-child {
 	margin-bottom: 27px;
 }
-.task-list > li > .task .duration-total {
-	font-weight: 200;
-	opacity: 1;
-	font-size: 24px;
-}
-.task-list > li > .task .price {
-	font-weight: 400;
-	opacity: 1;
-	font-size: 24px;
-}
-.task-list > li > .task.leaf .price {
-	font-size: 80%;
-}
 .task-list li li {
 	padding-left: 2em;
 }
@@ -515,8 +486,41 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list > li:last-child > ul {
 	margin-bottom: 27px;
 }
+
+
+
+
+.task-list .task {
+	padding-left: 14px;
+	font-size: 16px;
+	height: 27px;
+	line-height: 27px;
+	position: relative;
+}
+.task-list .task:hover {
+	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
+}
+.task-list .task.edit {
+	box-shadow: none;
+}
+.task-list > li > .task .name,
+.task-list > li > .task .price,
+.task-list > li > .task .duration-total {
+	font-size: 24px;
+	line-height: 27px;
+	height: 27px;
+}
+.task-list > li > .task.leaf .name {
+	font-size: inherit;
+}
+
+
 .task-list .controls {
-	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
 	text-align: right;
 	vertical-align: baseline;
 	float: right;
@@ -532,79 +536,53 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .task-list .task.edit .controls {
 	display: inline-block;
 }
-.task-list .task {
-	padding-left: 14px;
-	font-size: 16px;
-	height: 27px;
-	line-height: 27px;
-}
-.task-list .task:hover {
-	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
-	-webkit-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
-	-moz-box-shadow: inset 0px -1px 0px 0px #e5e5e5;
-}
-.task-list .task.edit {
-	box-shadow: none;
-}
-.task-list .task.selected {
-	background-color: whitesmoke;
-}
-.task-list > li > .task .name {
-	font-size: 24px;
-	line-height: 27px;
-	height: 27px;
-}
-.task-list > li > .task.leaf .name {
-	font-size: inherit;
-}
+
 .task-list .edit input[type=text] {
 	margin-left: -7px;
 	width: 50%;
 }
-.task-list .task.leaf  a.continue-task,
-.task-list .task a.create-subtask,
-.task-list .task .duration-total {
-	display: inline;
-}
+
+
+
+.task-list .controls,
 .task-list .task a.continue-task,
 .task-list .task.leaf a.create-subtask,
-.task-list .task.leaf .duration-total {
-	display: none;
-}
+.task-list .task.leaf .duration-total, 
 .task-list .task.edit a.continue-task,
-.task-list .task.edit a.create-subtask {
-	display: none;
-}
-.task-list .task .controls .sub-task,
-.task-list .task .controls .edit,
-.task-list .task .controls .filter-storage {
-	display: inline;
-}
+.task-list .task.edit a.create-subtask,
 .task-list .task .controls .save,
 .task-list .task .controls .cancel,
-.task-list .task .controls .delete {
-	display: none;
-}
+.task-list .task .controls .delete,
 .task-list .task.edit .controls .sub-task,
 .task-list .task.edit .controls .edit,
 .task-list .task.edit .controls .filter-storage,
 .task-list .task .duration-edit,
 .task-list .task.edit .duration,
-.task-list .task.edit .duration-total {
-	display: none;
-}
-.task-list .task.edit .controls .save,
-.task-list .task.edit .controls .cancel,
-.task-list .task.edit .controls .delete {
-	display: inline;
-}
+.task-list .task.edit .price,
+.task-list .task.edit .price-self,
+.task-list .task.edit .duration-total,
+.task-list .task.selfshort .duration,
+.task-list .task.selfshort .price-self,
+.task-list .task.leaf .price,
 .task-list .task input[type="text"].name {
 	display: none;
+}
+.task-list .task .controls .sub-task,
+.task-list .task .controls .edit,
+.task-list .task .controls .filter-storage,
+.task-list .task.edit .controls .save,
+.task-list .task.edit .controls .cancel,
+.task-list .task.edit .controls .delete,
+.task-list .task.leaf  a.continue-task,
+.task-list .task a.create-subtask,
+.task-list .task .duration-total {
+	display: inline;
 }
 .task-list .task.edit input[type="text"].name,
 .task-list .task.edit .duration-edit {
 	display: inline-block;
 }
+
 
 
 /* Хронология задач по дате */
@@ -625,22 +603,20 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	margin-left: 2em;
 	font-weight: 200;
 }
-*[ng-controller=DateViewCtrl].price .date-list header .duration:after {
+/**[ng-controller=DateViewCtrl].price .date-list header .duration:after {
 	content: ",";
 }
 *[ng-controller=DateViewCtrl].price .date-list header.short .duration:after {
 	content: none;
-}
+}*/
 .date-list header .price {
+	margin-left: 2em;
 	font-weight: 400;
-	margin-left: 1em;
 }
-.date-list header .price:after {
-	content: " руб.";
+.date-list .price:after {
+	content: " руб";
 }
-.date-list header.short .price {
-	display: none;
-}
+
 .date-list li li {
 	padding-left: 14px;
 	height: 27px;
@@ -651,34 +627,35 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	display: inline-block;
 	vertical-align: baseline;
 }
-.date-list li li .duration {
+.date-list li li .duration,
+.date-list li li .price {
 	font-family: PT Mono, monospace;
-	display: inline-block;
-	vertical-align: baseline;
-	font-size: 14px;
+	font-size: 80%;
 	opacity: 0.5;
+}
+.date-list li li .price:before,
+.date-list li li .duration:before {
+	content: "—";
+	display: inline-block;
+	padding: 0 0.5em;
+}
+.date-list li li .price:before {
+	content: "/";
 }
 .date-list li li .duration-edit {
 	font-family: PT Mono, monospace;
 	font-size: 80%;
 	opacity: 0.5;
 	cursor: pointer;
-	box-shadow: 0 0 0 1px #e5e5e5;
+	box-shadow: inset 0 0 0 1px #e5e5e5;
 	border-radius: 5px;
 	display: inline-block;
-	height: 25px;
+	height: 27px;
 	padding: 0 0.5em;
-	display: none;
+	margin-left: -7px;
 }
 .date-list li li .duration-edit:hover {
 	opacity: 1;
-}
-.date-list li li .price {
-	font-family: PT Mono, monospace;
-	display: inline-block;
-	vertical-align: baseline;
-	font-size: 14px;
-	opacity: 0.5;
 }
 .date-list li li:hover {
 	box-shadow: inset 0px -1px 0px 0px #e5e5e5;
@@ -689,7 +666,6 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	box-shadow: none;
 }
 .date-list .controls {
-	display: none;
 	text-align: right;
 	margin-right: 1em;
 	font-size: 14px;
@@ -698,21 +674,15 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	right: 0;
 	top: 0;
 }
-.date-list li li:hover .controls {
-	display: block;
-}
 .date-list li li:hover .controls > * {
 	display: inline-block;
 	vertical-align: baseline;
 }
-.date-list li li.edit .controls {
-	display: inline-block;
-}
+
 .date-list li li .controls > * {
 	margin-left: 0.5em;
 }
 .date-list header:hover .controls {
-	display: block;
 	top: 27px;
 }
 .date-list header:hover {
@@ -730,8 +700,9 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	top: -1px;
 	width: 4em;
 }
-.leaf-task-list li.view .task {
-	display: inline-block;
+
+.leaf-task-list li {
+	font-size: 16px;
 }
 .leaf-task-list .task span:after {
 	content: ", ";
@@ -739,12 +710,7 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 .leaf-task-list .task span:last-child:after {
 	content: none;
 }
-.leaf-task-list li.edit .task {
-	display: none;
-}
-.leaf-task-list li.view input[type=text] {
-	display: none;
-}
+
 .leaf-task-list li.edit input[type=text],
 .leaf-task-list li.edit .duration-edit {
 	display: inline-block;
@@ -757,28 +723,36 @@ div[ng-controller="TimerCtrl"].simple a[ng-click="toggleType()"] {
 	width: 6em;
 	margin-left: -7px;
 }
-*[ng-controller=DateViewCtrl].price .leaf-task-list .duration:after {
-	content: ",";
-}
-*[ng-controller=DateViewCtrl].price .leaf-task-list li.short .duration:after {
-	content: none;
-}
-*[ng-controller=DateViewCtrl].price .leaf-task-list li.short .price {
-	display: none;
-}
+
 /*.leaf-task-list li.edit span.duration,*/
+.date-list .controls,
 .leaf-task-list li.view input.duration,
 .leaf-task-list li.edit span.price,
 .leaf-task-list li.edit .controls .edit,
 .leaf-task-list li.view .controls .delete,
 .leaf-task-list li.view .controls .save,
 .leaf-task-list li.view .controls .cancel,
-.leaf-task-list li.edit .controls .filter-storage  {
+.leaf-task-list li.edit .controls .filter-storage,
+/*.leaf-task-list li .price,*/
+.price[ng-controller=DateViewCtrl] .leaf-task-list li.short .price,
+/*.price[ng-controller=DateViewCtrl] .duration,*/
+.leaf-task-list li.edit .task,
+.leaf-task-list li.view input[type=text],
+.date-list header.short .price,
+.date-list li li .duration-edit  {
 	display: none;
 }
+.price[ng-controller=DateViewCtrl] .price,
 .leaf-task-list li.edit input.duration,
-.leaf-task-list li span.duration {
-	display: inline-block;
+.leaf-task-list li span.duration,
+.leaf-task-list li.view .task,
+.date-list li li.edit .controls {
+	display: inline;
+}
+
+.date-list li li:hover .controls,
+.date-list header:hover .controls {
+	display: block;
 }
 
 

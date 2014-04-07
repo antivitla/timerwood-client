@@ -358,24 +358,29 @@
 	<!-- Шаблон задачи -->
 	<script type="text/ng-template" id="task-template">
 		<div class="task" ng-class="{ leaf: task.children.length == 0, edit: status=='edit', short: task.getDuration() < 60000, selfshort: task.getOwnDuration() < 60000 }" tw-parent-hover ng-init="status='view'">
-			<a class="continue-task name" title="Продолжить задачу" 
-				ng-click="start(task)" 
-				scroll-top-on-click>{{task.name}}</a>
-			<a class="create-subtask name" title="Начать подзадачу" 
-				ng-click="subTask(task)" 
-				scroll-top-on-click>{{task.name}}</a>
-			<input type="text" class="small name"
-				ng-model="task.path"
-				ng-list="," 
-				tw-focus-on-edit 
-				tw-prevent-shortcuts 
-				ng-keydown="checkSubmit($event, task, this)">
-			<span ng-if="status=='edit'" style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
-			<span class="duration-edit" title="Редактировать в хранилище" 
-				ng-click="editDurationInStorage(task); status='view'">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
-			<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
-			<span class="duration-total">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
-			<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}}</span>
+			<div ng-if="status=='view'">
+				<a class="continue-task name" title="Продолжить задачу" 
+					ng-click="start(task)" 
+					scroll-top-on-click>{{task.name}}</a>
+				<a class="create-subtask name" title="Начать подзадачу" 
+					ng-click="subTask(task)" 
+					scroll-top-on-click>{{task.name}}</a>
+				<span class="duration">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
+				<span class="duration-total">{{task.getDuration() | filterMillisecondsTo:'hour min'}}</span>
+				<span class="price-self" ng-if="price.hour">{{getPrice(task.getOwnDuration())|spacedNumber}}</span>
+				<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}}</span>
+			</div>
+
+			<div ng-if="status=='edit'">
+				<input type="text" class="small name"
+					ng-model="task.path"
+					ng-list="," 
+					tw-focus-on-edit 
+					tw-prevent-shortcuts 
+					ng-keydown="checkSubmit($event, task, this)"> &nbsp; 
+				<span class="duration-edit" title="Редактировать в хранилище" 
+					ng-click="editDurationInStorage(task); status='view'">{{task.getOwnDuration() | filterMillisecondsTo:'hour min'}}</span>
+			</div>
 			<span class="controls" ng-class="status">
 				<a class="sub-task" ng-click="subTask(task)" scroll-top-on-click>подзадача</a>
 				<a class="edit" ng-click="edit(task); status='edit'">редактировать</a>
@@ -423,8 +428,7 @@
 						ng-list="," 
 						tw-focus-on-edit 
 						tw-prevent-shortcuts 
-						ng-keydown="checkSubmit($event, task, entryScope)">
-					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>
+						ng-keydown="checkSubmit($event, task, entryScope)"> &nbsp; 
 					<span class="duration-edit" title="Редактировать в хранилище" 
 						ng-click="editDurationInStorage(task); status='view'">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
 				</div>
@@ -433,10 +437,9 @@
 						ng-click="start(task)" 
 						scroll-top-on-click>
 						<span ng-repeat="name in task.getDetails() track by $index">{{name}}</span>
-					</a>
-					<span style="opacity: 0.5; padding: 0 0.125em;">&ndash;</span>					
+					</a>					
 					<span class="duration">{{ task.getDuration() | filterMillisecondsTo:'hour min' }}</span>
-					<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}} руб.</span>
+					<span class="price" ng-if="price.hour">{{getPrice(task.getDuration())|spacedNumber}}</span>
 				</div>
 				<span class="controls">
 					<a class="edit" ng-click="edit(task); status='edit'">редактировать</a>
