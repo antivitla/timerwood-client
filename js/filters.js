@@ -3,7 +3,7 @@
 // фильтры
 // 
 
-angular.module("TimerwoodApp.filters", [])
+angular.module("TimerwoodApp.filters")
 	.filter("filterMillisecondsTo", function() {
 
 		function niceRussianHourEnding(hr) {

@@ -4,7 +4,7 @@
 //
  
 angular.module("TimerwoodApp.controllers")
-	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", "Storage", "$filter", function($scope, $rootScope, Tasks, Storage, $filter) {
+	.controller("TasksViewCtrl", ["$scope", "$rootScope", "Tasks", "Storage", "$filter", "$timeout", function($scope, $rootScope, Tasks, Storage, $filter, $timeout) {
 
 		// первичных список проектов
 		$scope.tasks = Tasks.children;
@@ -55,9 +55,11 @@ angular.module("TimerwoodApp.controllers")
 		// редактировать мы можем имя (структурируя таким образом)
 		$scope.edit = function(task) {
 			task.path = angular.copy(task.restoreDetails());
-			//
-			// по-мелочи сигналим директивам
-			this.$broadcast("editLastItem");
+			// сообщаем спецдирективам чтоб выделило содержимое инпута
+			var entryScope = this;
+			$timeout(function() {
+				entryScope.$broadcast("editLastItem");
+			},1);
 		}
 
 		// отмена редактирования
