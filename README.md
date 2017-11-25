@@ -1,5 +1,7 @@
-timerwood-client
+timerwood-client 
 ================
+
+## Эта версия больше не поддерживается, проект переносится в https://github.com/abimbolas/titamota
 
 Таймер времени &amp; денег для фриланса и постоянки: http://mr-woodman.ru/timer/
 
